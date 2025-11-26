@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Menu } from 'lucide-react';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -33,7 +33,7 @@ export default function Header() {
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-500/20">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-2xl font-bold text-gray-900 sm:block hidden">
               10D School
             </span>
           </div>
@@ -53,6 +53,10 @@ export default function Header() {
               Get Started
             </button>
           </nav>
+
+          <button className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-300">
+            <Menu className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </header>
