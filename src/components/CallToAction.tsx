@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { Subscription, initiatePurchase } from '../api/subscription';
 
-export default function CallToAction() {
+interface CallToActionProps {
+  subscription: Subscription | null;
+  isLoading: boolean;
+}
+
+export default function CallToAction({ subscription, isLoading }: CallToActionProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,90 +60,119 @@ export default function CallToAction() {
         >
           {/* Left Side - Subscription Card */}
           <div className="flex justify-center">
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full">
-              <div className="text-center mb-8">
-                <div className="inline-block px-4 py-1 bg-blue-500/30 rounded-full text-blue-200 text-sm font-semibold mb-6">
-                  Annual Subscription
-                </div>
-                <div className="mb-3">
-                  <span className="text-5xl font-bold text-white">$129</span>
-                  <span className="text-2xl text-blue-200 ml-2">/year</span>
-                </div>
-                <p className="text-blue-200 text-lg">Access to All Courses</p>
+            {isLoading ? (
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full flex items-center justify-center min-h-[500px]">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
               </div>
+            ) : subscription ? (
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full relative overflow-hidden">
+                {/* Discount Badge Overlay */}
+                {subscription.discount && subscription.discount.discount_percent && (
+                  <div className="absolute top-0 right-0 z-10">
+                    <div className="relative">
+                      <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white font-bold px-6 py-2 shadow-lg transform rotate-12 translate-x-2 -translate-y-1">
+                        <div className="flex items-center gap-1">
+                          <span className="text-lg">{subscription.discount.discount_percent}%</span>
+                          <span className="text-xs">OFF</span>
+                        </div>
+                      </div>
+                      {/* Ribbon tail effect */}
+                      <div className="absolute top-full right-0 w-0 h-0 border-l-[12px] border-l-transparent border-t-[8px] border-t-emerald-700 transform rotate-12 translate-x-2"></div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="text-center mb-8">
+                  <div className="inline-block px-4 py-1 bg-blue-500/30 rounded-full text-blue-200 text-sm font-semibold mb-6">
+                    {subscription.name}
+                  </div>
+                  <div className="mb-3">
+                    {subscription.discount && subscription.discount.final_price !== null ? (
+                      <div className="flex flex-col items-center">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-bold text-white line-through opacity-60">
+                            ${subscription.price}
+                          </span>
+                          <span className="text-5xl font-bold text-white">
+                            ${subscription.discount.final_price}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-5xl font-bold text-white">
+                        ${subscription.price}
+                      </span>
+                    )}
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                      <span className="text-lg text-white font-semibold">
+                        {Math.floor(subscription.duration_days / 30)} {Math.floor(subscription.duration_days / 30) === 1 ? 'month' : 'months'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="space-y-4 mb-10">
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
+                {subscription.includes && subscription.includes.length > 0 && (
+                  <div className="space-y-4 mb-10">
+                    {subscription.includes.map((item, index) => (
+                      <div key={index} className="flex items-start gap-3 text-white">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span className="leading-relaxed text-sm">{item}</span>
+                      </div>
+                    ))}
                   </div>
-                  <span className="leading-relaxed text-sm">Full access to all courses for 1 year</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">New courses added regularly</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">Certificate of completion</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">Expert instructor support</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">Downloadable resources & materials</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">Progress tracking & analytics</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">Access to exclusive community</span>
-                </div>
-                <div className="flex items-start gap-3 text-white">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="leading-relaxed text-sm">Mobile & desktop access</span>
-                </div>
+                )}
+
+                <button
+                  onClick={async () => {
+                    if (!subscription || isPurchasing) return;
+                    
+                    try {
+                      setIsPurchasing(true);
+                      const purchaseResponse = await initiatePurchase(
+                        subscription.id,
+                        subscription.discount?.id,
+                        subscription.discount?.stripe_promotion_code_id || undefined
+                      );
+                      
+                      // If checkout URL is provided, redirect to it
+                      if (purchaseResponse.data?.checkout_url) {
+                        window.location.href = purchaseResponse.data.checkout_url;
+                      } else if (purchaseResponse.data?.session_id) {
+                        // Handle Stripe session if needed
+                        console.log('Purchase session created:', purchaseResponse.data.session_id);
+                        // You can add Stripe redirect logic here if needed
+                      } else {
+                        console.log('Purchase initiated:', purchaseResponse);
+                        alert(purchaseResponse.message || 'Purchase initiated successfully');
+                      }
+                    } catch (error) {
+                      console.error('Purchase failed:', error);
+                      alert('Failed to initiate purchase. Please try again.');
+                    } finally {
+                      setIsPurchasing(false);
+                    }
+                  }}
+                  disabled={!subscription || isPurchasing}
+                  className="group w-full px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {isPurchasing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Subscribe Now
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                    </>
+                  )}
+                </button>
               </div>
-
-              <button className="group w-full px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3">
-                Subscribe Now
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </button>
-            </div>
+            ) : null}
           </div>
 
           {/* Right Side - Title and Description */}
