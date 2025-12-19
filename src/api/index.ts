@@ -85,9 +85,29 @@ class ApiWrapper {
     localStorage.setItem('access_token', token);
   }
 
+  // Set user data
+  setUser(user: any): void {
+    localStorage.setItem('user_data', JSON.stringify(user));
+  }
+
+  // Get user data
+  getUser(): any | null {
+    const userStr = localStorage.getItem('user_data');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        return null;
+      }
+    }
+    return null;
+  }
+
   // Remove bearer token
   removeToken(): void {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_data');
   }
 
   // Get current token

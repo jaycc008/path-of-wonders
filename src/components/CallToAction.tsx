@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
-import { Subscription, initiatePurchase } from '../api/subscription';
+import { Subscription } from '../api/subscription';
 
 interface CallToActionProps {
   subscription: Subscription | null;
@@ -8,8 +9,8 @@ interface CallToActionProps {
 }
 
 export default function CallToAction({ subscription, isLoading }: CallToActionProps) {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
-  const [isPurchasing, setIsPurchasing] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -127,49 +128,17 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                 )}
 
                 <button
-                  onClick={async () => {
-                    if (!subscription || isPurchasing) return;
-                    
-                    try {
-                      setIsPurchasing(true);
-                      const purchaseResponse = await initiatePurchase(
-                        subscription.id,
-                        subscription.discount?.id,
-                        subscription.discount?.stripe_promotion_code_id || undefined
-                      );
-                      
-                      // If checkout URL is provided, redirect to it
-                      if (purchaseResponse.data?.checkout_url) {
-                        window.location.href = purchaseResponse.data.checkout_url;
-                      } else if (purchaseResponse.data?.session_id) {
-                        // Handle Stripe session if needed
-                        console.log('Purchase session created:', purchaseResponse.data.session_id);
-                        // You can add Stripe redirect logic here if needed
-                      } else {
-                        console.log('Purchase initiated:', purchaseResponse);
-                        alert(purchaseResponse.message || 'Purchase initiated successfully');
-                      }
-                    } catch (error) {
-                      console.error('Purchase failed:', error);
-                      alert('Failed to initiate purchase. Please try again.');
-                    } finally {
-                      setIsPurchasing(false);
-                    }
+                  onClick={() => {
+                    if (!subscription) return;
+                    navigate('/checkout', {
+                      state: { subscription }
+                    });
                   }}
-                  disabled={!subscription || isPurchasing}
+                  disabled={!subscription}
                   className="group w-full px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  {isPurchasing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Subscribe Now
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                    </>
-                  )}
+                  Subscribe Now
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </button>
               </div>
             ) : null}

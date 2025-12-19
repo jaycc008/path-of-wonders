@@ -88,6 +88,8 @@ export interface PurchaseRequest {
   subscription_id: string;
   discount_id?: string;
   promotion_code?: string;
+  name: string;
+  email: string;
 }
 
 // Purchase response interface
@@ -106,18 +108,24 @@ export interface PurchaseResponse {
 /**
  * Initiate purchase for a subscription
  * @param subscriptionId - The subscription ID to purchase
+ * @param name - Customer's full name
+ * @param email - Customer's email address
  * @param discountId - Optional discount ID if discount is applied
  * @param promotionCode - Optional promotion code
  * @returns Promise with purchase response containing checkout URL or session info
  */
 export const initiatePurchase = async (
   subscriptionId: string,
+  name: string,
+  email: string,
   discountId?: string,
   promotionCode?: string
 ): Promise<PurchaseResponse> => {
   try {
     const payload: PurchaseRequest = {
       subscription_id: subscriptionId,
+      name,
+      email,
     };
 
     if (discountId) {

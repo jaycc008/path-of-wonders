@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 
 const courses = [
@@ -8,6 +9,7 @@ const courses = [
     description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles. Transform your understanding of reality and unlock your true potential.',
     image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',
     videoUrl: '#',
+    price: 299,
     whatYouWillLearn: [
       'Understanding consciousness and its levels',
       'Meditation and mindfulness practices',
@@ -21,6 +23,7 @@ const courses = [
     description: 'Master the principles of quantum mechanics and their applications in understanding reality and consciousness. Learn from leading experts in the field.',
     image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
     videoUrl: '#',
+    price: 349,
     whatYouWillLearn: [
       'Quantum mechanics basics',
       'Wave-particle duality',
@@ -34,6 +37,7 @@ const courses = [
     description: 'Build wealth and financial independence through proven strategies and mindful money management. Learn to make your money work for you.',
     image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80',
     videoUrl: '#',
+    price: 279,
     whatYouWillLearn: [
       'Investment fundamentals',
       'Budgeting and saving strategies',
@@ -47,6 +51,7 @@ const courses = [
     description: 'Develop leadership skills through consciousness-based practices and authentic self-expression. Lead with purpose and impact.',
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
     videoUrl: '#',
+    price: 329,
     whatYouWillLearn: [
       'Leadership principles',
       'Communication skills',
@@ -60,6 +65,7 @@ const courses = [
     description: 'Deep dive into advanced topics of consciousness, meditation, and transformative practices. Elevate your understanding to the next level.',
     image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
     videoUrl: '#',
+    price: 399,
     whatYouWillLearn: [
       'Advanced meditation techniques',
       'Consciousness expansion methods',
@@ -70,6 +76,7 @@ const courses = [
 ];
 
 export default function Courses() {
+  const navigate = useNavigate();
   const [activeCourse, setActiveCourse] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -82,6 +89,12 @@ export default function Courses() {
         setIsTransitioning(false);
       }, 200);
     }
+  };
+
+  const handleEnroll = (course: typeof courses[0]) => {
+    navigate('/checkout', {
+      state: { course }
+    });
   };
 
   return (
@@ -159,7 +172,10 @@ export default function Courses() {
               </div>
 
               {/* Enroll Now Button */}
-              <button className="group relative w-full md:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
+              <button 
+                onClick={() => handleEnroll(courses[activeCourse])}
+                className="group relative w-full md:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
+              >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   Enroll Now
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +237,7 @@ export default function Courses() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Handle enroll action
+                            handleEnroll(course);
                           }}
                           className={`absolute top-4 right-4 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
                             index === activeCourse
