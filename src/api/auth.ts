@@ -42,7 +42,6 @@ export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('auth/login', payload);
     return response.data;
   } catch (error) {
-    console.error('Error logging in:', error);
     throw error;
   }
 };
@@ -54,10 +53,9 @@ export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
  */
 export const signup = async (payload: SignupPayload): Promise<LoginResponse> => {
   try {
-    const response = await api.post<LoginResponse>('auth/signup', payload);
+    const response = await api.post<LoginResponse>('auth/register', payload);
     return response.data;
   } catch (error) {
-    console.error('Error signing up:', error);
     throw error;
   }
 };
@@ -72,7 +70,6 @@ export const googleLogin = async (payload: GoogleLoginPayload): Promise<LoginRes
     const response = await api.post<LoginResponse>('auth/google', payload);
     return response.data;
   } catch (error) {
-    console.error('Error logging in with Google:', error);
     throw error;
   }
 };

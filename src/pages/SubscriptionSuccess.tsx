@@ -4,6 +4,7 @@ import { CheckCircle2, ArrowRight, Loader2, User, Mail, Calendar, Receipt } from
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { getSubscriptionSuccess } from '../api/subscription';
+import { api } from '../api';
 
 interface PaymentData {
   amount_total: number;
@@ -46,6 +47,15 @@ export default function SubscriptionSuccess() {
   const [isLoading, setIsLoading] = useState(true);
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const handleMyLearningClick = () => {
+    const myLearningUrl = import.meta.env.VITE_MY_LEARNING_URL;
+    if (myLearningUrl) {
+      const token = api.getToken();
+      const url = token ? `${myLearningUrl}?token=${encodeURIComponent(token)}` : myLearningUrl;
+      window.open(url, '_blank');
+    }
+  };
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -239,7 +249,7 @@ export default function SubscriptionSuccess() {
                 {/* Action Buttons */}
                 <div className="space-y-4">
                   <button
-                    onClick={() => navigate('/my-learning')}
+                    onClick={handleMyLearningClick}
                     className="group w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg"
                   >
                     Go to My Learning

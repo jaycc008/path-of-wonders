@@ -1,11 +1,48 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { GraduationCap, Menu } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GraduationCap, Menu, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../api';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { isAuthenticated, logout, user } = useAuth();
+  const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleMyLearningClick = () => {
+    const myLearningUrl = import.meta.env.VITE_MY_LEARNING_URL;
+    if (myLearningUrl) {
+      const token = api.getToken();
+      const url = token ? `${myLearningUrl}?token=${encodeURIComponent(token)}` : myLearningUrl;
+      window.open(url, '_blank');
+    }
+    setIsDropdownOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setIsDropdownOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,8 +62,8 @@ export default function Header() {
       <div
         className={`transition-all duration-500 ${
           scrolled
-            ? 'w-full bg-gray-50/95 backdrop-blur-xl shadow-lg shadow-gray-200/50'
-            : 'max-w-7xl mx-auto bg-gray-50/90 backdrop-blur-lg shadow-md shadow-gray-200/30 rounded-full'
+            ? 'w-full bg-gray-50/95 backdrop-blur-xl shadow-20 shadow-gray-200/50'
+            : 'max-w-7xl mx-auto bg-gray-50/90 backdrop-blur-lg shadow-xl shadow-gray-200/30 rounded-full '
         }`}
       >
         <div className={`max-w-7xl mx-auto px-8 flex items-center justify-between transition-all duration-300 ${
@@ -53,12 +90,48 @@ export default function Header() {
               </a>
             ))}
             {isAuthenticated ? (
-              <Link
-                to="/my-learning"
-                className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
-              >
-                My Learning
-              </Link>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleMyLearningClick}
+                  className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300  shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+                >
+                  My Learning
+                </button>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-neutral-300 to-neutral-200 text-dark hover:text-white hover:from-neutral-600 hover:to-neutral-700 transition-all duration-100  shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+                  >
+                    <User className="w-5 h-5" />
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {user?.name || 'User'}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleMyLearningClick}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span>Dashboard</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             ) : (
               <Link
                 to="/signup"
