@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { GraduationCap, Menu } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,9 +52,21 @@ export default function Header() {
                 <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
-            <button className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30">
-              Get Started
-            </button>
+            {isAuthenticated ? (
+              <Link
+                to="/my-learning"
+                className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+              >
+                My Learning
+              </Link>
+            ) : (
+              <Link
+                to="/signup"
+                className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+              >
+                Login/Sign Up
+              </Link>
+            )}
           </nav>
 
           <button className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-300">

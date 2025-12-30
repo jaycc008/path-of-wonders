@@ -54,15 +54,17 @@ export default function Checkout() {
       localStorage.setItem('redirect_state', JSON.stringify(stateToPreserve));
       
       // Get login URL from environment variable
-      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/signup';
       
       // Check if it's a full URL (external) or relative path (internal)
       if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
         // External login page - redirect with return URL as query parameter
         const returnUrl = encodeURIComponent(window.location.origin + currentPath);
         window.location.href = `${loginUrl}?return_url=${returnUrl}`;
+      } else {
+        // Internal route - use React Router to navigate to signup page
+        navigate(loginUrl);
       }
-      // If internal, the external app will handle the redirect after setting token
     }
   }, [isAuthenticated, isLoading, navigate, location.pathname, location.search, courseFromState, subscriptionFromState]);
   

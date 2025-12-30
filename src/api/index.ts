@@ -7,7 +7,7 @@ const API_TOKEN = import.meta.env.VITE_API_TOKEN || '';
 // Create axios instance with default config
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
   },
