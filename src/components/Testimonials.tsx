@@ -11,7 +11,7 @@ const testimonials = [
     role: 'Software Developer',
     image: img1,
     rating: 5,
-    text: '10D School transformed my career. The courses are incredibly well-structured, and the instructors are world-class. I landed my dream job within 3 months of completing the program.',
+    text: 'Path Of Wonders transformed my career. The courses are incredibly well-structured, and the instructors are world-class. I landed my dream job within 3 months of completing the program.',
   },
   {
     name: 'Michael Chen',
@@ -25,7 +25,7 @@ const testimonials = [
     role: 'UX Designer',
     image: img3,
     rating: 5,
-    text: 'What sets 10D School apart is their commitment to practical, real-world applications. Every project I completed added directly to my portfolio. Outstanding experience!',
+    text: 'What sets Path Of Wonders apart is their commitment to practical, real-world applications. Every project I completed added directly to my portfolio. Outstanding experience!',
   },
   {
     name: 'David Kim',
@@ -83,7 +83,7 @@ export default function Testimonials() {
             What Our Students Say
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Real stories from real students who transformed their careers with 10D School
+            Real stories from real students who transformed their careers with Path Of Wonders
           </p>
         </div>
 

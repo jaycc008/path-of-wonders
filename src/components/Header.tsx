@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, Menu, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api';
+import logo from '../assets/images/10dlogo1.png';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -69,14 +70,16 @@ export default function Header() {
         <div className={`max-w-7xl mx-auto px-8 flex items-center justify-between transition-all duration-300 ${
           scrolled ? 'py-3' : 'py-4'
         }`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-500/20">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
+          <Link to="/" className="flex items-center gap-3">
+            <img 
+              src={logo} 
+              alt="Path Of Wonders Logo" 
+              className="h-10 w-10 object-contain"
+            />
             <span className="text-2xl font-bold text-gray-900 sm:block hidden">
-              10D School
+              Path Of Wonders
             </span>
-          </div>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-6">
             <a

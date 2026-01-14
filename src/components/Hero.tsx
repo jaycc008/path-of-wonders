@@ -27,7 +27,7 @@ export default function Hero() {
           }`}
         >
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-tight">
-            Transform Your Future with 10D Learning
+            Transform Your Future with Path Of Wonders
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed">
             Experience education reimagined. Join thousands of students who are unlocking their potential with our innovative learning management system.

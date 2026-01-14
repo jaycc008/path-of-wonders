@@ -37,7 +37,7 @@ export default function Journey() {
               Empowering Teens Through Story-Driven Science Education
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed">
-            10D School is dedicated to nurturing curiosity, confidence, and purpose in teenagers through engaging and meaningful learning experiences.
+            Path Of Wonders is dedicated to nurturing curiosity, confidence, and purpose in teenagers through engaging and meaningful learning experiences.
             </p>
             <div className="grid grid-cols-3 gap-6 pt-4">
               {[

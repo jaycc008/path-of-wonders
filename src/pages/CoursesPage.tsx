@@ -136,7 +136,7 @@ export default function CoursesPage() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         <Breadcrumbs />
         
-        <div className="mb-12">
+        <div className="my-20">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Explore Our Courses
           </h1>
