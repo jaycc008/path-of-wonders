@@ -79,16 +79,99 @@ export default function Header() {
           </div>
 
           <nav className="hidden md:flex items-center gap-6">
-            {['Home', 'About', 'Courses', 'Testimonials', 'Contact'].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
-              >
-                {item}
-                <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
-              </a>
-            ))}
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/');
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+              }}
+              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+            >
+              Home
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a
+              href="/#about"
+              onClick={(e) => {
+                e.preventDefault();
+                if (window.location.pathname !== '/') {
+                  navigate('/');
+                  setTimeout(() => {
+                    const element = document.getElementById('about');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                } else {
+                  const element = document.getElementById('about');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }
+              }}
+              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+            >
+              About
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <Link
+              to="/courses"
+              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+            >
+              Courses
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <a
+              href="/#testimonials"
+              onClick={(e) => {
+                e.preventDefault();
+                if (window.location.pathname !== '/') {
+                  navigate('/');
+                  setTimeout(() => {
+                    const element = document.getElementById('testimonials');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                } else {
+                  const element = document.getElementById('testimonials');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }
+              }}
+              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+            >
+              Testimonials
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a
+              href="/#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                if (window.location.pathname !== '/') {
+                  navigate('/');
+                  setTimeout(() => {
+                    const element = document.getElementById('contact');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                } else {
+                  const element = document.getElementById('contact');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }
+              }}
+              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+            >
+              Contact
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
             {isAuthenticated ? (
               <div className="flex items-center gap-1">
                 <button

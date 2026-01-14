@@ -23,7 +23,7 @@ export default function Journey() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-gray-50">
+    <section id="about" ref={sectionRef} className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div

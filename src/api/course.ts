@@ -1,5 +1,36 @@
 import { api } from './index';
 
+// Course interface
+export interface Course {
+  id: number;
+  name?: string;
+  title?: string;
+  description: string;
+  image?: string;
+  price: number;
+  category?: string;
+  instructor?: string;
+  rating?: number;
+  students_count?: number;
+  duration?: string;
+  level?: string;
+  [key: string]: any;
+}
+
+// Courses response interface
+export interface CoursesResponse {
+  status: boolean;
+  data: {
+    items: Course[];
+    pagination?: {
+      page: number;
+      page_size: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
 // Course purchase request interface
 export interface CoursePurchaseRequest {
   course_id: number | string;
@@ -20,6 +51,20 @@ export interface CoursePurchaseResponse {
   };
   message?: string;
 }
+
+/**
+ * Get all courses
+ * @returns Promise with courses response
+ */
+export const getCourses = async (): Promise<CoursesResponse> => {
+  try {
+    const response = await api.get<CoursesResponse>('courses');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    throw error;
+  }
+};
 
 /**
  * Initiate purchase for a course

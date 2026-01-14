@@ -5,6 +5,8 @@ import SubscriptionSuccess from './pages/SubscriptionSuccess';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import CoursesPage from './pages/CoursesPage';
+import CourseDetails from './pages/CourseDetails';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
+          <Route path="/courses" element={<CoursesPage />} />
+          <Route path="/courses/:id" element={<CourseDetails />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
