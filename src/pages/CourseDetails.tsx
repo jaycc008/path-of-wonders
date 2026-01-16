@@ -213,7 +213,7 @@ export default function CourseDetails() {
               </div>
 
               {/* Course Title */}
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-950 mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-950 mb-3">
                 {course.name || course.title}
               </h1>
 
@@ -250,9 +250,9 @@ export default function CourseDetails() {
               </div>
 
               {/* Description */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">About This Course</h2>
-                <p className="text-lg text-gray-700 leading-relaxed">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">About This Course</h2>
+                <p className="text-base text-gray-700 leading-relaxed">
                   {course.description}
                 </p>
               </div>
@@ -261,7 +261,7 @@ export default function CourseDetails() {
               {course.overview_sections && course.overview_sections.length > 0 && (
                 <div className="mb-8 space-y-8">
                   {course.overview_sections.map((section, index) => (
-                    <div key={index} className="mb-8 bg-white rounded-lg border border-gray-200 p-6 md:p-8 shadow-sm">
+                    <div key={index} className="mb-8 bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
                       <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <BookOpen className="w-6 h-6 text-blue-600" />
                         {section.header}
