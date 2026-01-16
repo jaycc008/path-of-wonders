@@ -106,7 +106,7 @@ export default function Offer() {
                 <p className="text-gray-600 leading-relaxed mb-6 text-sm">
                   {course.description}
                 </p>
-                <button className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
+                <button className="btn-primary-lg w-full">
                   Enroll Now
                 </button>
               </div>

@@ -6,6 +6,24 @@ export interface OverviewSection {
   overview: string; // HTML content
 }
 
+// Module interface
+export interface Module {
+  id: number;
+  title: string;
+  order?: number;
+  chapters?: Chapter[];
+  [key: string]: any;
+}
+
+// Chapter interface
+export interface Chapter {
+  id: number;
+  title: string;
+  order?: number;
+  module_id?: number;
+  [key: string]: any;
+}
+
 // Course interface
 export interface Course {
   id: number;
@@ -16,6 +34,7 @@ export interface Course {
   thumbnail_url?: string;
   intro_video_url?: string;
   overview_sections?: OverviewSection[];
+  modules?: Module[];
   price: number;
   category?: string;
   instructor?: string;
@@ -23,6 +42,8 @@ export interface Course {
   students_count?: number;
   duration?: string;
   level?: string;
+  modules_count?: number;
+  chapters_count?: number;
   [key: string]: any;
 }
 

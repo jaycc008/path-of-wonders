@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Play, Clock, Users, Star, Check, BookOpen, Award, ArrowRight, Book } from 'lucide-react';
+import { ArrowLeft, Play, Clock, Users, Star, BookOpen, Award, ArrowRight, Book, FileText, Video, GraduationCap, Infinity, FolderOpen } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Course, getCourses } from '../api/course';
@@ -217,6 +217,46 @@ export default function CourseDetails() {
                 {course.name || course.title}
               </h1>
 
+              {/* Course Badges */}
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                {(() => {
+                  const modulesCount = course.modules_count ?? (course as any).modules_count ?? (course as any).modules?.length ?? (course as any).total_modules;
+                  if (modulesCount !== undefined && modulesCount !== null && modulesCount !== '') {
+                    return (
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold">
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>{modulesCount} {modulesCount === 1 ? 'Module' : 'Modules'}</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+                {(() => {
+                  const chaptersCount = course.chapters_count ?? (course as any).chapters_count ?? (course as any).chapters?.length ?? (course as any).total_chapters;
+                  if (chaptersCount !== undefined && chaptersCount !== null && chaptersCount !== '') {
+                    return (
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full text-sm font-semibold">
+                        <Book className="w-3.5 h-3.5" />
+                        <span>{chaptersCount} {chaptersCount === 1 ? 'Chapter' : 'Chapters'}</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-semibold">
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>Certificate</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full text-sm font-semibold">
+                  <Infinity className="w-3.5 h-3.5" />
+                  <span>Lifetime Access</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-50 text-cyan-700 rounded-full text-sm font-semibold">
+                  <Video className="w-3.5 h-3.5" />
+                  <span>HD Video</span>
+                </div>
+              </div>
+
               {/* Course Meta */}
               <div className="flex flex-wrap items-center gap-6 mb-6 text-gray-600">
                 {course.category && (
@@ -256,6 +296,46 @@ export default function CourseDetails() {
                   {course.description}
                 </p>
               </div>
+
+              {/* Course Modules & Chapters Tree */}
+              {course.modules && course.modules.length > 0 && (
+                <div className="mb-8 bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <FolderOpen className="w-6 h-6 text-blue-600" />
+                    Course Curriculum
+                  </h2>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {course.modules.map((module, moduleIndex) => (
+                      <div key={module.id || moduleIndex} className="border-l-2 border-blue-200 pl-4">
+                        {/* Module Title */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          <h3 className="font-semibold text-gray-900">
+                            {module.order && `${module.order}. `}
+                            {module.title || module.name}
+                          </h3>
+                        </div>
+                        {/* Chapters under this module */}
+                        {module.chapters && module.chapters.length > 0 && (
+                          <div className="ml-6 grid grid-cols-2 gap-2 mt-2">
+                            {module.chapters
+                              .sort((a, b) => (a.order || 0) - (b.order || 0))
+                              .map((chapter, chapterIndex) => (
+                                <div key={chapter.id || chapterIndex} className="flex items-center gap-2 text-gray-700">
+                                  <Book className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                  <span className="text-sm truncate">
+                                    {chapter.order && `${chapter.order}. `}
+                                    {chapter.title || chapter.name}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Overview Sections */}
               {course.overview_sections && course.overview_sections.length > 0 && (

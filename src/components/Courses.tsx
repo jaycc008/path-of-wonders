@@ -131,15 +131,12 @@ export default function Courses() {
               {/* Enroll Now Button */}
               <button 
                 onClick={() => handleEnroll(courses[activeCourse])}
-                className="group relative w-full md:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
+                className="btn-primary-lg w-full md:w-auto flex items-center justify-center gap-2 group"
               >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Enroll Now
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                Enroll Now
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </button>
             </div>
           </div>
@@ -196,10 +193,10 @@ export default function Courses() {
                             e.stopPropagation();
                             handleEnroll(course);
                           }}
-                          className={`absolute top-4 right-4 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                          className={`absolute top-4 right-4 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 ${
                             index === activeCourse
-                              ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700 hover:scale-105'
-                              : 'bg-white/90 text-gray-800 hover:bg-white hover:scale-105 backdrop-blur-sm'
+                              ? 'btn-primary shadow-lg'
+                              : 'bg-white/90 text-gray-800 hover:bg-white backdrop-blur-sm'
                           }`}
                         >
                           Enroll Now

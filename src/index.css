@@ -124,6 +124,47 @@ body {
   border-color: var(--primary-start);
 }
 
+/* Primary Button - Reusable class matching logo color scheme */
+.btn-primary {
+  padding: 0.625rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+  background: linear-gradient(to right, var(--primary-start), var(--primary-end));
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, var(--primary-hover-start), var(--primary-hover-end));
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary-lg {
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+  background: linear-gradient(to right, var(--primary-start), var(--primary-end));
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary-lg:hover {
+  background: linear-gradient(to right, var(--primary-hover-start), var(--primary-hover-end));
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+}
+
 /* Overview Content Styling */
 .overview-content {
   line-height: 1.8;
