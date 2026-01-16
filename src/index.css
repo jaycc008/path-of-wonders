@@ -79,6 +79,15 @@
   animation: fade-in 0.5s ease-out forwards;
 }
 
+:root {
+  --primary-start: #1e3a8a; /* blue-900 */
+  --primary-end: #172554; /* blue-950 */
+  --primary-hover-start: #172554; /* blue-950 */
+  --primary-hover-end: #1e1b4b; /* indigo-950 */
+  --primary-light: #3b82f6; /* blue-500 */
+  --primary-lighter: #60a5fa; /* blue-400 */
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -96,4 +105,21 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Primary Color Utilities */
+.bg-primary-gradient {
+  background: linear-gradient(to right, var(--primary-start), var(--primary-end));
+}
+
+.bg-primary-gradient-hover:hover {
+  background: linear-gradient(to right, var(--primary-hover-start), var(--primary-hover-end));
+}
+
+.text-primary {
+  color: var(--primary-start);
+}
+
+.border-primary {
+  border-color: var(--primary-start);
 }

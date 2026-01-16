@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ChevronLeft, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
-import { login, LoginPayload, googleLogin } from '../api/auth';
+import { login, LoginPayload, googleLogin, getProfile } from '../api/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api';
+import logo from '../assets/images/10dlogo2.png';
 
 // Google Identity Services types
 declare global {
@@ -36,12 +37,12 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { getRedirectUrl, getRedirectState, clearRedirectUrl, checkAuth } = useAuth();
+  const { getRedirectUrl, getRedirectState, clearRedirectUrl, checkAuth, isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Get redirect URL from query params or localStorage
   const getRedirectFromQuery = () => {
     const params = new URLSearchParams(location.search);
-    return params.get('redirect_url') || params.get('return_url');
+    return params.get('return_url') || params.get('redirect') || params.get('redirect_url');
   };
 
   /**
@@ -54,7 +55,13 @@ export default function Login() {
       try {
         const decodedUrl = decodeURIComponent(queryRedirect);
         console.log('[Login] Redirecting to query URL:', decodedUrl);
-        navigate(decodedUrl);
+        
+        // Check if it's a full URL (starts with http:// or https://)
+        if (decodedUrl.startsWith('http://') || decodedUrl.startsWith('https://')) {
+          window.location.href = decodedUrl;
+        } else {
+          navigate(decodedUrl);
+        }
         return;
       } catch (error) {
         console.error('[Login] Error decoding redirect URL:', error);
@@ -68,7 +75,13 @@ export default function Login() {
     if (redirectUrl) {
       console.log('[Login] Redirecting to stored URL:', redirectUrl);
       clearRedirectUrl();
-      navigate(redirectUrl, { state: redirectState });
+      
+      // Check if it's a full URL (starts with http:// or https://)
+      if (redirectUrl.startsWith('http://') || redirectUrl.startsWith('https://')) {
+        window.location.href = redirectUrl;
+      } else {
+        navigate(redirectUrl, { state: redirectState });
+      }
       return;
     }
 
@@ -88,25 +101,20 @@ export default function Login() {
       
       console.log('[Login] Google login response received:', response);
       
-      // Store token and user data in localStorage
-      if (response.access_token) {
-        api.setToken(response.access_token);
-        console.log('[Login] Token stored in localStorage');
-        
-        // Store user object if provided in response
-        if (response.user) {
-          api.setUser(response.user);
-          console.log('[Login] User data stored in localStorage:', response.user);
-        }
-        
-        // Trigger auth check to decode token
-        checkAuth();
-        
-        // Wait a bit for auth context to update
-        setTimeout(() => {
-          handleRedirect();
-        }, 100);
+      // Backend sets HttpOnly cookie automatically via Set-Cookie header
+      // Just store user data and trigger auth check
+      if (response.user) {
+        api.setUser(response.user);
+        console.log('[Login] User data stored:', response.user);
       }
+      
+      // Trigger auth check (will read token from cookie)
+      checkAuth();
+      
+      // Wait a bit for auth context to update
+      setTimeout(() => {
+        handleRedirect();
+      }, 300); // Increased delay to allow cookie to be set
     } catch (error: any) {
       console.error('[Login] Error logging in with Google:', error);
       setStatus(error.response?.data?.detail || 'Failed to sign in with Google. Please try again.');
@@ -114,6 +122,54 @@ export default function Login() {
       setIsGoogleLoading(false);
     }
   };
+
+  /**
+   * Check if user is already authenticated via cookies on mount
+   */
+  useEffect(() => {
+    const verifyAuth = async () => {
+      // Wait for auth context to finish initial loading
+      if (authLoading) {
+        return;
+      }
+
+      // If already authenticated, redirect immediately
+      if (isAuthenticated) {
+        console.log('[Login] User already authenticated, redirecting...');
+        handleRedirect();
+        return;
+      }
+
+      // Call profile API to verify authentication via cookies
+      // This is more reliable than just checking token
+      try {
+        const profileData = await getProfile();
+        
+        // User is authenticated via cookies
+        if (profileData) {
+          console.log('[Login] User authenticated via cookies, redirecting...');
+          
+          // Store user data
+          api.setUser(profileData);
+          
+          // Trigger auth check to update context
+          checkAuth();
+          
+          // Wait a bit for auth context to update, then redirect
+          setTimeout(() => {
+            handleRedirect();
+          }, 300);
+        }
+      } catch (error: any) {
+        // Profile API failed - user is not authenticated
+        // This is expected if user is not logged in, so just continue
+        console.log('[Login] User not authenticated via cookies, showing login form');
+      }
+    };
+
+    verifyAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, isAuthenticated]);
 
   /**
    * Initialize Google Identity Services
@@ -245,25 +301,20 @@ export default function Login() {
       const response = await login(formData);
       console.log('[Login] Login response received:', response);
       
-      // Store token and user data in localStorage
-      if (response.access_token) {
-        api.setToken(response.access_token);
-        console.log('[Login] Token stored in localStorage');
-        
-        // Store user object if provided in response
-        if (response.user) {
-          api.setUser(response.user);
-          console.log('[Login] User data stored in localStorage:', response.user);
-        }
-        
-        // Trigger auth check to decode token
-        checkAuth();
-        
-        // Wait a bit for auth context to update
-        setTimeout(() => {
-          handleRedirect();
-        }, 100);
+      // Backend sets HttpOnly cookie automatically via Set-Cookie header
+      // Just store user data and trigger auth check
+      if (response.user) {
+        api.setUser(response.user);
+        console.log('[Login] User data stored:', response.user);
       }
+      
+      // Trigger auth check (will read token from cookie)
+      checkAuth();
+      
+      // Wait a bit for auth context to update
+      setTimeout(() => {
+        handleRedirect();
+      }, 300); // Increased delay to allow cookie to be set
     } catch (error: any) {
       console.error('[Login] Error logging in:', error);
       
@@ -283,18 +334,20 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col flex-1 lg:w-1/2 w-full max-w-md">
-        <div className="w-full mb-5">
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to dashboard
-          </Link>
-        </div>
-        
-        <div className="flex flex-col justify-center flex-1">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
+        {/* Left Side - Form */}
+        <div className="flex flex-col flex-1 w-full max-w-md mx-auto lg:mx-0">
+          <div className="w-full mb-5">
+            <Link
+              to="/"
+              className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back to dashboard
+            </Link>
+          </div>
+          
+          <div className="flex flex-col justify-center flex-1">
           <div>
             <div className="mb-5 sm:mb-8">
               <h1 className="mb-2 text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-white/90">
@@ -474,7 +527,7 @@ export default function Login() {
                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                   Don&apos;t have an account?{' '}
                   <Link
-                    to="/signup"
+                    to={`/signup${location.search}`}
                     className="text-blue-500 hover:text-blue-600 dark:text-blue-400"
                   >
                     Sign Up
@@ -484,7 +537,19 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        {/* Right Side - Logo */}
+        <div className="hidden lg:flex flex-col items-center justify-center">
+          <div className="w-full max-w-md">
+            <img 
+              src={logo} 
+              alt="Path Of Wonders Logo" 
+              className="w-full h-auto object-contain"
+            />
+          </div>
+        </div>
       </div>
+    </div>
     </div>
   );
 }

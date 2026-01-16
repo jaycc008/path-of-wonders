@@ -63,8 +63,8 @@ export default function Header() {
       <div
         className={`transition-all duration-500 ${
           scrolled
-            ? 'w-full bg-gray-50/95 backdrop-blur-xl shadow-20 shadow-gray-200/50'
-            : 'max-w-7xl mx-auto bg-gray-50/90 backdrop-blur-lg shadow-xl shadow-gray-200/30 rounded-full '
+            ? 'w-full bg-gray-50/95 backdrop-blur-xl shadow-lg shadow-gray-900/20'
+            : 'max-w-7xl mx-auto bg-gray-50/90 backdrop-blur-lg shadow-lg shadow-gray-900/25 rounded-full '
         }`}
       >
         <div className={`max-w-7xl mx-auto px-8 flex items-center justify-between transition-all duration-300 ${
@@ -179,14 +179,14 @@ export default function Header() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={handleMyLearningClick}
-                  className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300  shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+                  className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-primary-start to-primary-end text-white hover:from-primary-hover-start hover:to-primary-hover-end transition-all duration-300  shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
                 >
                   My Learning
                 </button>
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-neutral-300 to-neutral-200 text-dark hover:text-white hover:from-neutral-600 hover:to-neutral-700 transition-all duration-100  shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-700 text-white hover:from-neutral-700 hover:to-neutral-800 transition-all duration-100  shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
                   >
                     <User className="w-5 h-5" />
                   </button>
@@ -219,12 +219,28 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              <Link
-                to="/signup"
-                className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
+              <a
+                href={import.meta.env.VITE_LOGIN_URL || '/login'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+                  const currentFullUrl = window.location.href;
+                  const returnUrlParam = encodeURIComponent(currentFullUrl);
+                  
+                  // Check if it's a full URL (external) or relative path (internal)
+                  if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
+                    // External URL - add return_url parameter
+                    const separator = loginUrl.includes('?') ? '&' : '?';
+                    window.location.href = `${loginUrl}${separator}return_url=${returnUrlParam}`;
+                  } else {
+                    // Internal route - use React Router to navigate
+                    navigate(`${loginUrl}?return_url=${returnUrlParam}`);
+                  }
+                }}
+                className="px-6 py-2.5 rounded-full font-medium bg-gradient-to-r from-primary-start to-primary-end text-white hover:from-primary-hover-start hover:to-primary-hover-end transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
               >
                 Login/Sign Up
-              </Link>
+              </a>
             )}
           </nav>
 

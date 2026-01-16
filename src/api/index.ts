@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { getAuthToken, setAuthToken, removeAuthToken } from '../utils/cookies';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1/';
@@ -11,13 +12,14 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Important: allows cookies to be sent with requests
 });
 
 // Request interceptor to add bearer token
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from localStorage or environment variable
-    const token = localStorage.getItem('access_token') || API_TOKEN;
+    // Get token from cookie or environment variable
+    const token = getAuthToken() || API_TOKEN;
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -38,8 +40,8 @@ apiClient.interceptors.response.use(
   (error) => {
     // Handle common errors
     if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
-      localStorage.removeItem('access_token');
+      // Unauthorized - clear token cookie
+      removeAuthToken();
       // You can add redirect logic here if needed
     }
     
@@ -80,12 +82,12 @@ class ApiWrapper {
     return this.client.delete<T>(url, config);
   }
 
-  // Set bearer token manually
+  // Set bearer token manually (stores in cookie)
   setToken(token: string): void {
-    localStorage.setItem('access_token', token);
+    setAuthToken(token);
   }
 
-  // Set user data
+  // Set user data (still using localStorage for user data, as it's not sensitive)
   setUser(user: any): void {
     localStorage.setItem('user_data', JSON.stringify(user));
   }
@@ -104,15 +106,15 @@ class ApiWrapper {
     return null;
   }
 
-  // Remove bearer token
+  // Remove bearer token (removes from cookie)
   removeToken(): void {
-    localStorage.removeItem('access_token');
+    removeAuthToken();
     localStorage.removeItem('user_data');
   }
 
-  // Get current token
+  // Get current token (from cookie)
   getToken(): string | null {
-    return localStorage.getItem('access_token');
+    return getAuthToken();
   }
 
   // Update base URL
