@@ -1,5 +1,11 @@
 import { api } from './index';
 
+// Overview section interface
+export interface OverviewSection {
+  header: string;
+  overview: string; // HTML content
+}
+
 // Course interface
 export interface Course {
   id: number;
@@ -7,6 +13,9 @@ export interface Course {
   title?: string;
   description: string;
   image?: string;
+  thumbnail_url?: string;
+  intro_video_url?: string;
+  overview_sections?: OverviewSection[];
   price: number;
   category?: string;
   instructor?: string;

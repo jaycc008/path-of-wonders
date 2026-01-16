@@ -20,7 +20,7 @@ export default function CourseCard({ course }: CourseCardProps) {
       {/* Course Image */}
       <div className="relative h-48 overflow-hidden bg-gray-100">
         <img
-          src={course.image || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'}
+          src={course.thumbnail_url || course.image || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'}
           alt={course.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />

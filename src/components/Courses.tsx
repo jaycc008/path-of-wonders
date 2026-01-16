@@ -1,90 +1,35 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
-import courseImage1 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
-import courseImage2 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (1).jpeg';
-import courseImage3 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
-import courseImage4 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.04 PM.jpeg';
-import courseImage5 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
-
-const courses = [
-  {
-    id: 1,
-    title: 'Consciousness Development',
-    description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles. Transform your understanding of reality and unlock your true potential.',
-    image: courseImage1,
-    videoUrl: '#',
-    price: 299,
-    whatYouWillLearn: [
-      'Understanding consciousness and its levels',
-      'Meditation and mindfulness practices',
-      'Quantum principles in consciousness',
-      'Practical applications in daily life',
-    ],
-  },
-  {
-    id: 2,
-    title: 'Quantum Science Fundamentals',
-    description: 'Master the principles of quantum mechanics and their applications in understanding reality and consciousness. Learn from leading experts in the field.',
-    image: courseImage2,
-    videoUrl: '#',
-    price: 349,
-    whatYouWillLearn: [
-      'Quantum mechanics basics',
-      'Wave-particle duality',
-      'Quantum entanglement',
-      'Applications in technology',
-    ],
-  },
-  {
-    id: 3,
-    title: 'Financial Literacy Mastery',
-    description: 'Build wealth and financial independence through proven strategies and mindful money management. Learn to make your money work for you.',
-    image: courseImage3,
-    videoUrl: '#',
-    price: 279,
-    whatYouWillLearn: [
-      'Investment fundamentals',
-      'Budgeting and saving strategies',
-      'Building passive income',
-      'Financial planning and goals',
-    ],
-  },
-  {
-    id: 4,
-    title: 'Mindful Leadership',
-    description: 'Develop leadership skills through consciousness-based practices and authentic self-expression. Lead with purpose and impact.',
-    image: courseImage4,
-    videoUrl: '#',
-    price: 329,
-    whatYouWillLearn: [
-      'Leadership principles',
-      'Communication skills',
-      'Team building strategies',
-      'Ethical decision making',
-    ],
-  },
-  {
-    id: 5,
-    title: 'Advanced Consciousness Studies',
-    description: 'Deep dive into advanced topics of consciousness, meditation, and transformative practices. Elevate your understanding to the next level.',
-    image: courseImage5,
-    videoUrl: '#',
-    price: 399,
-    whatYouWillLearn: [
-      'Advanced meditation techniques',
-      'Consciousness expansion methods',
-      'Transcendental practices',
-      'Integration and application',
-    ],
-  },
-];
+import { getCourses, Course } from '../api/course';
 
 export default function Courses() {
   const navigate = useNavigate();
+  const [courses, setCourses] = useState<Course[]>([]);
   const [activeCourse, setActiveCourse] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Fetch courses from API
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getCourses();
+        const courseList = response.data.items || [];
+        setCourses(courseList.slice(0, 5)); // Show only first 5 courses
+      } catch (error) {
+        console.error('Failed to fetch courses:', error);
+        // Keep empty array on error
+        setCourses([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const handleCourseClick = (index: number) => {
     if (index !== activeCourse) {
@@ -96,7 +41,7 @@ export default function Courses() {
     }
   };
 
-  const handleEnroll = (course: typeof courses[0]) => {
+  const handleEnroll = (course: Course) => {
     navigate('/checkout', {
       state: { course }
     });
@@ -124,6 +69,11 @@ export default function Courses() {
           </p>
         </div>
 
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : courses.length > 0 ? (
         <div className="grid md:grid-cols-3 gap-8 items-start">
           {/* Left Side - Main Course Display */}
           <div className="md:col-span-2">
@@ -133,8 +83,8 @@ export default function Courses() {
               {/* Course Image with Play Button */}
               <div className="relative rounded-2xl overflow-hidden mb-6 shadow-2xl">
                 <img
-                  src={courses[activeCourse].image}
-                  alt={courses[activeCourse].title}
+                  src={courses[activeCourse]?.thumbnail_url || courses[activeCourse]?.image || ''}
+                  alt={courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
                   className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
@@ -148,22 +98,23 @@ export default function Courses() {
 
               {/* Course Title */}
               <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 transition-all duration-500">
-                {courses[activeCourse].title}
+                {courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
               </h3>
 
               {/* Course Description */}
               <p className="text-lg text-gray-600 leading-relaxed mb-8 transition-all duration-500">
-                {courses[activeCourse].description}
+                {courses[activeCourse]?.description || ''}
               </p>
 
               {/* What You Will Learn Section */}
+              {courses[activeCourse]?.whatYouWillLearn && courses[activeCourse].whatYouWillLearn.length > 0 && (
               <div className="mb-8">
                 <h4 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                   <span className="w-1 h-6 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></span>
                   What You Will Learn
                 </h4>
                 <ul className="space-y-4">
-                  {courses[activeCourse].whatYouWillLearn.map((item, index) => (
+                  {courses[activeCourse].whatYouWillLearn.map((item: string, index: number) => (
                     <li key={index} className="flex items-start gap-4 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                       <div className="w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-md">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,6 +126,7 @@ export default function Courses() {
                   ))}
                 </ul>
               </div>
+              )}
 
               {/* Enroll Now Button */}
               <button 
@@ -226,8 +178,8 @@ export default function Courses() {
                       
                       <div className="relative">
                         <img
-                          src={course.image}
-                          alt={course.title}
+                          src={course.thumbnail_url || course.image || ''}
+                          alt={course.title || course.name || 'Course'}
                           className={`w-full h-44 object-cover rounded-2xl transition-all duration-500 ${
                             index === activeCourse ? 'brightness-110' : 'brightness-90 hover:brightness-100'
                           }`}
@@ -266,7 +218,7 @@ export default function Courses() {
                           <h4 className={`text-white font-bold transition-all duration-500 ${
                             index === activeCourse ? 'text-xl' : 'text-lg'
                           }`}>
-                            {course.title}
+                            {course.title || course.name || 'Course'}
                           </h4>
                         </div>
                       </div>
@@ -277,6 +229,11 @@ export default function Courses() {
             </div>
           </div>
         </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-xl text-gray-600">No courses available at the moment.</p>
+          </div>
+        )}
       </div>
     </section>
   );

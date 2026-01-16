@@ -128,15 +128,6 @@ export default function CourseDetails() {
     }
   };
 
-  // Sample learning outcomes - in real app, this would come from API
-  const learningOutcomes = [
-    'Understanding consciousness and its levels',
-    'Meditation and mindfulness practices',
-    'Quantum principles in consciousness',
-    'Practical applications in daily life',
-    'Advanced techniques for personal growth',
-    'Integration of science and spirituality',
-  ];
 
   if (isLoading) {
     return (
@@ -191,19 +182,34 @@ export default function CourseDetails() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2">
-              {/* Course Image/Video */}
+              {/* Course Video/Image */}
               <div className="relative h-96 rounded-2xl overflow-hidden mb-8 bg-gray-200">
-                <img
-                  src={course.image || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'}
-                  alt={course.name || course.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                <button className="absolute inset-0 flex items-center justify-center group/play">
-                  <div className="w-20 h-20 bg-white/95 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-transform">
-                    <Play className="w-10 h-10 text-blue-600 ml-1" fill="currentColor" />
+                {course.intro_video_url ? (
+                  <div className="w-full h-full">
+                    <video
+                      src={course.intro_video_url}
+                      controls
+                      className="w-full h-full object-cover"
+                      poster={course.thumbnail_url || course.image || undefined}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
                   </div>
-                </button>
+                ) : (
+                  <>
+                    <img
+                      src={course.thumbnail_url || course.image || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'}
+                      alt={course.name || course.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-20 h-20 bg-white/95 rounded-full flex items-center justify-center">
+                        <Play className="w-10 h-10 text-blue-600 ml-1" fill="currentColor" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Course Title */}
@@ -251,32 +257,34 @@ export default function CourseDetails() {
                 </p>
               </div>
 
-              {/* What You'll Learn */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <BookOpen className="w-6 h-6 text-blue-600" />
-                  What You'll Learn
-                </h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {learningOutcomes.map((outcome, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{outcome}</span>
+              {/* Overview Sections */}
+              {course.overview_sections && course.overview_sections.length > 0 && (
+                <div className="mb-8 space-y-8">
+                  {course.overview_sections.map((section, index) => (
+                    <div key={index} className="mb-8 bg-white rounded-lg border border-gray-200 p-6 md:p-8 shadow-sm">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <BookOpen className="w-6 h-6 text-blue-600" />
+                        {section.header}
+                      </h2>
+                      <div 
+                        className="overview-content prose prose-lg max-w-none text-gray-700 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: section.overview }}
+                        style={{
+                          // Style for paragraphs
+                          '--tw-prose-body': '#374151',
+                          '--tw-prose-headings': '#111827',
+                          '--tw-prose-links': '#2563eb',
+                          '--tw-prose-bold': '#111827',
+                          '--tw-prose-counters': '#6b7280',
+                          '--tw-prose-bullets': '#6b7280',
+                          '--tw-prose-quotes': '#111827',
+                          '--tw-prose-code': '#111827',
+                        } as React.CSSProperties}
+                      />
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Course Content/Curriculum */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Course Curriculum</h2>
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <p className="text-gray-600">
-                    This course includes comprehensive modules covering all aspects of the subject matter. 
-                    Each module is designed to build upon the previous one, ensuring a complete learning experience.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Right Column - Sidebar */}

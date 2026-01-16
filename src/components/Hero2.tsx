@@ -63,66 +63,6 @@ export default function Hero() {
               </div>
             </div>
           </div>
-          {/* Floating Cards Around Video */}
-          <div className="hidden md:block absolute -bottom-6 -right-6 bg-white/35 backdrop-blur-sm rounded-2xl p-5 shadow-xl z-20 animate-float">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                5k+
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Active Students</p>
-                <p className="text-xs text-gray-400">Learning Daily</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden md:block absolute -top-6 -left-6 bg-white/35 backdrop-blur-sm rounded-2xl p-5 shadow-xl z-20 animate-float-delay-1">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                98%
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Success Rate</p>
-                <p className="text-xs text-gray-400">Student Growth</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden md:block absolute top-1/2 -right-8 bg-white/35 backdrop-blur-sm rounded-2xl p-5 shadow-xl z-30 animate-float-delay-2 transform -translate-y-1/2">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
-                24/7
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Support</p>
-                <p className="text-xs text-gray-400">Always Available</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden md:block absolute top-1/3 -left-12 bg-white/35 backdrop-blur-sm rounded-2xl p-5 shadow-xl z-20 animate-float-delay-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                50+
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Expert Teachers</p>
-                <p className="text-xs text-gray-400">World Class</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden md:block absolute -bottom-8 left-1/4 bg-white/35 backdrop-blur-sm rounded-2xl p-5 shadow-xl z-20 animate-float transform -translate-x-1/2">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold">
-                100+
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Courses</p>
-                <p className="text-xs text-gray-400">Available Now</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
