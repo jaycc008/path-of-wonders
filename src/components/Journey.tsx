@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Award, Users, Zap } from 'lucide-react';
+import journeyImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 
 export default function Journey() {
   const [isVisible, setIsVisible] = useState(false);
@@ -66,7 +67,7 @@ export default function Journey() {
               <div className="relative bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-8 transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-hidden">
                 <div className="aspect-square rounded-2xl overflow-hidden relative">
                   <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80"
+                    src={journeyImage}
                     alt="Students learning together"
                     className="w-full h-full object-cover"
                   />

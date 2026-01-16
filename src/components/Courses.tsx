@@ -1,13 +1,18 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
+import courseImage1 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
+import courseImage2 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (1).jpeg';
+import courseImage3 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
+import courseImage4 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.04 PM.jpeg';
+import courseImage5 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 
 const courses = [
   {
     id: 1,
     title: 'Consciousness Development',
     description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles. Transform your understanding of reality and unlock your true potential.',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',
+    image: courseImage1,
     videoUrl: '#',
     price: 299,
     whatYouWillLearn: [
@@ -21,7 +26,7 @@ const courses = [
     id: 2,
     title: 'Quantum Science Fundamentals',
     description: 'Master the principles of quantum mechanics and their applications in understanding reality and consciousness. Learn from leading experts in the field.',
-    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
+    image: courseImage2,
     videoUrl: '#',
     price: 349,
     whatYouWillLearn: [
@@ -35,7 +40,7 @@ const courses = [
     id: 3,
     title: 'Financial Literacy Mastery',
     description: 'Build wealth and financial independence through proven strategies and mindful money management. Learn to make your money work for you.',
-    image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80',
+    image: courseImage3,
     videoUrl: '#',
     price: 279,
     whatYouWillLearn: [
@@ -49,7 +54,7 @@ const courses = [
     id: 4,
     title: 'Mindful Leadership',
     description: 'Develop leadership skills through consciousness-based practices and authentic self-expression. Lead with purpose and impact.',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
+    image: courseImage4,
     videoUrl: '#',
     price: 329,
     whatYouWillLearn: [
@@ -63,7 +68,7 @@ const courses = [
     id: 5,
     title: 'Advanced Consciousness Studies',
     description: 'Deep dive into advanced topics of consciousness, meditation, and transformative practices. Elevate your understanding to the next level.',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    image: courseImage5,
     videoUrl: '#',
     price: 399,
     whatYouWillLearn: [

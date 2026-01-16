@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
-import watchNowImg from '../assets/images/watch_now.png';
+import heroImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -52,7 +52,7 @@ export default function Hero() {
             <div className="relative bg-white/60 backdrop-blur-lg rounded-2xl p-1 md:p-4 border border-white/40 w-full">
               <div className="aspect-video rounded-xl flex items-center justify-center relative overflow-hidden w-full">
                 <img 
-                  src={watchNowImg} 
+                  src={heroImage} 
                   alt="Watch Now" 
                   className="absolute inset-0 w-full h-full object-cover blur-sm group-hover:blur-none transition-all duration-600"
                 />
