@@ -122,6 +122,7 @@ export default function Checkout() {
   const [emailError, setEmailError] = useState('');
   const [nameError, setNameError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   // Populate email and name from user data when available
   useEffect(() => {
@@ -223,6 +224,8 @@ export default function Checkout() {
       return;
     }
 
+    // Clear any previous error
+    setPaymentError('');
     setIsProcessing(true);
 
     try {
@@ -276,9 +279,14 @@ export default function Checkout() {
       console.error('[Checkout] Error initiating payment:', error);
       setIsProcessing(false);
       
-      // Show error message to user
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to initiate payment. Please try again.';
-      alert(errorMessage);
+      // Extract error message from various possible response structures
+      const errorMessage = 
+        error.response?.data?.detail || 
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to initiate payment. Please try again.';
+      
+      setPaymentError(errorMessage);
     }
   };
 
@@ -438,6 +446,16 @@ export default function Checkout() {
                   </div>
                 </div>
               </div>
+
+              {/* Error Message Display */}
+              {paymentError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800 flex items-start gap-2">
+                    <span className="text-red-600 font-semibold">⚠</span>
+                    <span>{paymentError}</span>
+                  </p>
+                </div>
+              )}
 
               {/* Proceed to Payment Button */}
               <button
