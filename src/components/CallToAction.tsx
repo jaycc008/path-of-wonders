@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Subscription } from '../api/subscription';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CallToActionProps {
   subscription: Subscription | null;
@@ -10,6 +11,7 @@ interface CallToActionProps {
 
 export default function CallToAction({ subscription, isLoading }: CallToActionProps) {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -130,9 +132,37 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                 <button
                   onClick={() => {
                     if (!subscription) return;
-                    navigate('/checkout', {
-                      state: { subscription }
-                    });
+                    
+                    // Check if user is authenticated
+                    if (!authLoading && isAuthenticated) {
+                      // User is authenticated - navigate to checkout with subscription
+                      navigate('/checkout', {
+                        state: { subscription }
+                      });
+                    } else {
+                      // User is not authenticated - encode subscription in return_url query param
+                      const checkoutUrl = '/checkout';
+                      
+                      // Encode subscription data as base64 JSON in query parameter
+                      const subscriptionJson = JSON.stringify({ subscription });
+                      const encodedSubscription = btoa(subscriptionJson);
+                      
+                      // Build return URL with subscription data as query param
+                      const returnUrl = `${window.location.origin}${checkoutUrl}?subscription=${encodeURIComponent(encodedSubscription)}`;
+                      
+                      // Get login URL from environment variable
+                      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+                      
+                      // Check if it's a full URL (external) or relative path (internal)
+                      if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
+                        // External login page - redirect with return URL as query parameter
+                        const returnUrlParam = encodeURIComponent(returnUrl);
+                        window.location.href = `${loginUrl}?return_url=${returnUrlParam}`;
+                      } else {
+                        // Internal route - use React Router to navigate to login page
+                        navigate(`${loginUrl}?return_url=${encodeURIComponent(returnUrl)}`);
+                      }
+                    }
                   }}
                   disabled={!subscription}
                   className="group w-full px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"

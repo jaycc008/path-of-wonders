@@ -21,13 +21,49 @@ export default function Checkout() {
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
   
-  // Get course or subscription from location state or restored redirect state
+  // Get course or subscription from location state, query params, or restored redirect state
   const locationState = location.state as { course?: Course; subscription?: Subscription } | undefined;
   const redirectState = getRedirectState();
   
-  // Prioritize location state, then redirect state, then nothing
-  const courseFromState = locationState?.course || redirectState?.course;
-  const subscriptionFromState = locationState?.subscription || redirectState?.subscription;
+  // Check URL query parameters for subscription or course data (from redirect after login)
+  const getDataFromQuery = () => {
+    const params = new URLSearchParams(location.search);
+    const subscriptionParam = params.get('subscription');
+    const courseParam = params.get('course');
+    
+    let subscriptionFromQuery: Subscription | null = null;
+    let courseFromQuery: Course | null = null;
+    
+    if (subscriptionParam) {
+      try {
+        // Decode base64 JSON
+        const decodedJson = atob(decodeURIComponent(subscriptionParam));
+        const parsedData = JSON.parse(decodedJson);
+        subscriptionFromQuery = parsedData.subscription || null;
+      } catch (error) {
+        console.error('[Checkout] Error parsing subscription from query param:', error);
+      }
+    }
+    
+    if (courseParam) {
+      try {
+        // Decode base64 JSON
+        const decodedJson = atob(decodeURIComponent(courseParam));
+        const parsedData = JSON.parse(decodedJson);
+        courseFromQuery = parsedData.course || null;
+      } catch (error) {
+        console.error('[Checkout] Error parsing course from query param:', error);
+      }
+    }
+    
+    return { subscriptionFromQuery, courseFromQuery };
+  };
+  
+  const { subscriptionFromQuery, courseFromQuery } = getDataFromQuery();
+  
+  // Prioritize: location state > query params > redirect state
+  const courseFromState = locationState?.course || courseFromQuery || redirectState?.course;
+  const subscriptionFromState = locationState?.subscription || subscriptionFromQuery || redirectState?.subscription;
   
   // Clear redirect state if we have it (we've successfully restored it)
   useEffect(() => {
@@ -42,31 +78,35 @@ export default function Checkout() {
   // Protect route - redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Store the current URL and state for redirect after login
-      const currentPath = location.pathname + location.search;
-      const stateToPreserve = {
-        course: courseFromState,
-        subscription: subscriptionFromState,
-      };
+      // Build return URL with subscription/course data in query params
+      const baseCheckoutUrl = '/checkout';
+      let returnUrl = `${window.location.origin}${baseCheckoutUrl}`;
       
-      // Store redirect URL and state in localStorage
-      localStorage.setItem('redirect_url', currentPath);
-      localStorage.setItem('redirect_state', JSON.stringify(stateToPreserve));
+      // Encode subscription or course data in query parameters
+      if (subscriptionFromState) {
+        const subscriptionJson = JSON.stringify({ subscription: subscriptionFromState });
+        const encodedSubscription = btoa(subscriptionJson);
+        returnUrl = `${returnUrl}?subscription=${encodeURIComponent(encodedSubscription)}`;
+      } else if (courseFromState) {
+        const courseJson = JSON.stringify({ course: courseFromState });
+        const encodedCourse = btoa(courseJson);
+        returnUrl = `${returnUrl}?course=${encodeURIComponent(encodedCourse)}`;
+      }
       
       // Get login URL from environment variable
-      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/signup';
+      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
       
       // Check if it's a full URL (external) or relative path (internal)
       if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
         // External login page - redirect with return URL as query parameter
-        const returnUrl = encodeURIComponent(window.location.origin + currentPath);
-        window.location.href = `${loginUrl}?return_url=${returnUrl}`;
+        const returnUrlParam = encodeURIComponent(returnUrl);
+        window.location.href = `${loginUrl}?return_url=${returnUrlParam}`;
       } else {
-        // Internal route - use React Router to navigate to signup page
-        navigate(loginUrl);
+        // Internal route - use React Router to navigate to login page
+        navigate(`${loginUrl}?return_url=${encodeURIComponent(returnUrl)}`);
       }
     }
-  }, [isAuthenticated, isLoading, navigate, location.pathname, location.search, courseFromState, subscriptionFromState]);
+  }, [isAuthenticated, isLoading, navigate, courseFromState, subscriptionFromState]);
   
   // Mock course data (fallback)
   const mockCourse: Course = courseFromState || {
@@ -85,31 +125,50 @@ export default function Checkout() {
 
   // Populate email and name from user data when available
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (isLoading) {
+      return;
+    }
+    
+    // Helper function to extract email and name from user object (handles nested data structure)
+    const extractUserInfo = (userObj: any) => {
+      // Check if user data is nested in a 'data' property
+      const userData = userObj?.data || userObj;
+      
+      return {
+        email: userData?.email || '',
+        name: userData?.name || ''
+      };
+    };
+    
     if (user) {
-      if (user.email) {
-        setEmail(user.email);
-        console.log('[Checkout] Email populated from user:', user.email);
+      // User is authenticated - populate email and name
+      const userInfo = extractUserInfo(user);
+      if (userInfo.email) {
+        setEmail(userInfo.email);
+        console.log('[Checkout] Email populated from user:', userInfo.email);
       }
-      if (user.name) {
-        setName(user.name);
-        console.log('[Checkout] Name populated from user:', user.name);
+      if (userInfo.name) {
+        setName(userInfo.name);
+        console.log('[Checkout] Name populated from user:', userInfo.name);
       }
     } else {
-      // Fallback: try to get user data directly from localStorage
+      // Fallback: try to get user data directly from localStorage/api
       const storedUser = api.getUser();
       if (storedUser) {
-        console.log('[Checkout] User not in context, getting from localStorage:', storedUser);
-        if (storedUser.email && !email) {
-          setEmail(storedUser.email);
-          console.log('[Checkout] Email populated from localStorage:', storedUser.email);
+        console.log('[Checkout] User not in context, getting from api:', storedUser);
+        const userInfo = extractUserInfo(storedUser);
+        if (userInfo.email) {
+          setEmail(userInfo.email);
+          console.log('[Checkout] Email populated from api:', userInfo.email);
         }
-        if (storedUser.name && !name) {
-          setName(storedUser.name);
-          console.log('[Checkout] Name populated from localStorage:', storedUser.name);
+        if (userInfo.name) {
+          setName(userInfo.name);
+          console.log('[Checkout] Name populated from api:', userInfo.name);
         }
       }
     }
-  }, [user]);
+  }, [user, isLoading]);
 
   // Calculate pricing based on subscription or course
   const subscriptionPrice = subscriptionFromState 
@@ -384,7 +443,7 @@ export default function Checkout() {
               <button
                 onClick={handleProceedToPayment}
                 disabled={isProcessing}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 shadow-lg"
+                className="btn-primary-lg w-full text-lg gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
                   <>
