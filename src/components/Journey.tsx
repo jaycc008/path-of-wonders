@@ -31,9 +31,6 @@ export default function Journey() {
             className={`space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
               }`}
           >
-            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold">
-              Our Journey
-            </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
               Empowering Teens Through Story-Driven Science Education
             </h2>

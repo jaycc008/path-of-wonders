@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Home from './pages/Home';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
+import CoursePurchaseSuccess from './pages/CoursePurchaseSuccess';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
@@ -18,6 +19,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
+          <Route path="/course/success" element={<CoursePurchaseSuccess />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
         </Routes>

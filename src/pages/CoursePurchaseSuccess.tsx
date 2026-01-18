@@ -4,7 +4,7 @@ import { CheckCircle2, ArrowRight, Loader2, User, Mail, Calendar, Receipt } from
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PrimaryButton from '../components/PrimaryButton';
-import { getSubscriptionSuccess } from '../api/subscription';
+import { getCoursePurchaseSuccess } from '../api/course';
 import { api } from '../api';
 
 interface PaymentData {
@@ -35,14 +35,9 @@ interface PaymentData {
   created: number;
   payment_status: string;
   status: string;
-  subscription?: {
-    current_period_start: number;
-    current_period_end: number;
-    status: string;
-  };
 }
 
-export default function SubscriptionSuccess() {
+export default function CoursePurchaseSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +65,7 @@ export default function SubscriptionSuccess() {
 
       try {
         setIsLoading(true);
-        const response = await getSubscriptionSuccess(sessionId);
+        const response = await getCoursePurchaseSuccess(sessionId);
         
         if (response.status && response.data) {
           // Store payment data (response.data is the Stripe checkout session object)
@@ -136,7 +131,7 @@ export default function SubscriptionSuccess() {
                   </div>
                   <div>
                     <h1 className="text-3xl font-bold text-white mb-1">Payment Successful!</h1>
-                    <p className="text-green-100">Your subscription has been activated</p>
+                    <p className="text-green-100">Your course has been purchased</p>
                   </div>
                 </div>
               </div>
@@ -156,10 +151,10 @@ export default function SubscriptionSuccess() {
                   </p>
                 </div>
 
-                {/* Subscription Details */}
+                {/* Course Details */}
                 {paymentData.line_items?.data?.[0] && (
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Details</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Details</h3>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-gray-900 font-medium">{paymentData.line_items.data[0].description}</p>
                     </div>

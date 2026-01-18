@@ -5,11 +5,15 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Course, getCourses } from '../api/course';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import PrimaryButton from '../components/PrimaryButton';
+import { encodeToBase64 } from '../utils/encoding';
 
 export default function CourseDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -120,11 +124,94 @@ export default function CourseDetails() {
     }
   }, [id, location.state]);
 
-  const handleEnroll = () => {
+  // Update page metadata for SEO
+  useEffect(() => {
     if (course) {
-      navigate('/checkout', {
-        state: { course }
-      });
+      const courseTitle = course.name || course.title || 'Course';
+      const courseDescription = course.description || 'Explore this course and unlock your potential.';
+      const courseImage = course.thumbnail_url || course.image || '';
+      const courseUrl = `${window.location.origin}/courses/${course.id}`;
+
+      // Update document title
+      document.title = `${courseTitle} | Path Of Wonders`;
+
+      // Update or create meta tags
+      const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
+        let meta = document.querySelector(`meta[${attribute}="${name}"]`);
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute(attribute, name);
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
+      };
+
+      // Basic meta tags
+      updateMetaTag('description', courseDescription);
+      updateMetaTag('keywords', `${courseTitle}, online course, ${course.category || 'education'}, learning`);
+
+      // Open Graph tags
+      updateMetaTag('og:title', courseTitle, 'property');
+      updateMetaTag('og:description', courseDescription, 'property');
+      updateMetaTag('og:image', courseImage, 'property');
+      updateMetaTag('og:type', 'website', 'property');
+      updateMetaTag('og:url', courseUrl, 'property');
+
+      // Twitter Card tags
+      updateMetaTag('twitter:card', 'summary_large_image');
+      updateMetaTag('twitter:title', courseTitle);
+      updateMetaTag('twitter:description', courseDescription);
+      updateMetaTag('twitter:image', courseImage);
+
+      // Canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.setAttribute('href', courseUrl);
+
+      // Cleanup function to reset title when component unmounts
+      return () => {
+        document.title = 'Path Of Wonders';
+      };
+    }
+  }, [course]);
+
+  const handleEnroll = () => {
+    if (!course) return;
+    
+    // Always encode course data in URL (even when authenticated) so it persists after logout/login
+    const checkoutUrl = '/checkout';
+    
+      // Encode course data using UTF-8 safe encoding
+      const courseJson = JSON.stringify({ course });
+      const encodedCourse = encodeToBase64(courseJson);
+    
+    // Build checkout URL with course data as query param
+    const checkoutUrlWithData = `${checkoutUrl}?course=${encodeURIComponent(encodedCourse)}`;
+    
+    // Check if user is authenticated
+    if (!authLoading && isAuthenticated) {
+      // User is authenticated - navigate directly to checkout with course data in URL
+      navigate(checkoutUrlWithData);
+    } else {
+      // User is not authenticated - encode checkout URL in return_url query param
+      const returnUrl = `${window.location.origin}${checkoutUrlWithData}`;
+      
+      // Get login URL from environment variable
+      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+      
+      // Check if it's a full URL (external) or relative path (internal)
+      if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
+        // External login page - redirect with return URL as query parameter
+        const returnUrlParam = encodeURIComponent(returnUrl);
+        window.location.href = `${loginUrl}?return_url=${returnUrlParam}`;
+      } else {
+        // Internal route - use React Router to navigate to login page
+        navigate(`${loginUrl}?return_url=${encodeURIComponent(returnUrl)}`);
+      }
     }
   };
 
@@ -189,6 +276,7 @@ export default function CourseDetails() {
                     <video
                       src={course.intro_video_url}
                       controls
+                      controlsList="nodownload"
                       className="w-full h-full object-cover"
                       poster={course.thumbnail_url || course.image || undefined}
                     >
@@ -380,13 +468,16 @@ export default function CourseDetails() {
                   </div>
 
                   {/* Enroll Button */}
-                  <button
+                  <PrimaryButton
                     onClick={handleEnroll}
-                    className="w-full px-6 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 mb-4"
+                    size="lg"
+                    fullWidth
+                    icon={ArrowRight}
+                    iconPosition="right"
+                    className="mb-4"
                   >
                     Enroll Now
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
+                  </PrimaryButton>
 
                   {/* Features */}
                   <div className="space-y-4 pt-6 border-t border-gray-200">

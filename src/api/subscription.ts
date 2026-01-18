@@ -83,6 +83,16 @@ export const getSubscription = async (): Promise<Subscription | null> => {
   }
 };
 
+// Billing address interface
+export interface BillingAddress {
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+}
+
 // Purchase request interface
 export interface PurchaseRequest {
   subscription_id: string;
@@ -90,6 +100,8 @@ export interface PurchaseRequest {
   promotion_code?: string;
   name: string;
   email: string;
+  billing_address?: BillingAddress;
+  save_address?: boolean;
 }
 
 // Purchase response interface
@@ -112,6 +124,8 @@ export interface PurchaseResponse {
  * @param email - Customer's email address
  * @param discountId - Optional discount ID if discount is applied
  * @param promotionCode - Optional promotion code
+ * @param billingAddress - Optional billing address (Stripe format)
+ * @param saveAddress - Optional flag to save address to user profile
  * @returns Promise with purchase response containing checkout URL or session info
  */
 export const initiatePurchase = async (
@@ -119,7 +133,9 @@ export const initiatePurchase = async (
   name: string,
   email: string,
   discountId?: string,
-  promotionCode?: string
+  promotionCode?: string,
+  billingAddress?: BillingAddress,
+  saveAddress?: boolean
 ): Promise<PurchaseResponse> => {
   try {
     const payload: PurchaseRequest = {
@@ -134,6 +150,14 @@ export const initiatePurchase = async (
 
     if (promotionCode) {
       payload.promotion_code = promotionCode;
+    }
+
+    if (billingAddress) {
+      payload.billing_address = billingAddress;
+    }
+
+    if (saveAddress !== undefined) {
+      payload.save_address = saveAddress;
     }
 
     const response = await api.post<PurchaseResponse>('subscriptions/purchase', payload);

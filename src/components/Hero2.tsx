@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
 import heroImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
+import PrimaryButton from './PrimaryButton';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -34,12 +35,12 @@ export default function Hero() {
             className={`flex flex-col md:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
           >
-            <button className="px-8 py-4 border-2 border-blue-600 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <button className="px-8 py-4 border-2 border-blue-600 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 uppercase">
               Start Learning Today
             </button>
-            <button className="px-8 py-4 border-2 border-neutral-600 bg-white text-neutral-600 rounded-full font-semibold hover:bg-neutral-50 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <PrimaryButton size="lg" className="uppercase">
               Learn More
-            </button>
+            </PrimaryButton>
           </div>
         </div>
 
@@ -63,12 +64,6 @@ export default function Hero() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-gray-400/50 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-gray-400/50 rounded-full mt-2 animate-pulse"></div>
         </div>
       </div>
     </section>

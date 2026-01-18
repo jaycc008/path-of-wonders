@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Lock, CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Sparkles, Loader2, Tag, X, MapPin } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Subscription, initiatePurchase } from '../api/subscription';
 import { initiateCoursePurchase } from '../api/course';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api';
+import PrimaryButton from '../components/PrimaryButton';
+import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
 
 interface Course {
   id: number;
-  title: string;
+  name?: string;
+  title?: string;
   description: string;
-  image: string;
+  image?: string;
+  thumbnail_url?: string;
   price: number;
 }
 
@@ -34,11 +38,49 @@ export default function Checkout() {
     let subscriptionFromQuery: Subscription | null = null;
     let courseFromQuery: Course | null = null;
     
+    // Helper function to decode and parse encoded data
+    const decodeAndParse = (param: string): any => {
+      try {
+        // Step 1: Decode URL encoding
+        const urlDecoded = decodeURIComponent(param);
+        
+        // Step 2: Decode base64
+        let decodedJson = decodeFromBase64(urlDecoded);
+        
+        // Step 3: Validate that we got JSON, not the base64 string back
+        // If decodeFromBase64 failed, it might return the original string
+        if (!decodedJson.trim().startsWith('{') && !decodedJson.trim().startsWith('[')) {
+          // decodeFromBase64 might have failed, try direct atob
+          try {
+            const binaryString = atob(urlDecoded);
+            decodedJson = decodeURIComponent(
+              binaryString
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+            );
+          } catch (atobError) {
+            // If atob also fails, the string might not be base64
+            // Try treating it as already decoded JSON
+            if (urlDecoded.trim().startsWith('{') || urlDecoded.trim().startsWith('[')) {
+              decodedJson = urlDecoded;
+            } else {
+              throw new Error('Failed to decode base64 string');
+            }
+          }
+        }
+        
+        // Step 4: Parse JSON
+        return JSON.parse(decodedJson);
+      } catch (error: any) {
+        console.error('[Checkout] Error decoding/parsing param:', error);
+        throw error;
+      }
+    };
+    
     if (subscriptionParam) {
       try {
-        // Decode base64 JSON
-        const decodedJson = atob(decodeURIComponent(subscriptionParam));
-        const parsedData = JSON.parse(decodedJson);
+        const parsedData = decodeAndParse(subscriptionParam);
         subscriptionFromQuery = parsedData.subscription || null;
       } catch (error) {
         console.error('[Checkout] Error parsing subscription from query param:', error);
@@ -47,9 +89,7 @@ export default function Checkout() {
     
     if (courseParam) {
       try {
-        // Decode base64 JSON
-        const decodedJson = atob(decodeURIComponent(courseParam));
-        const parsedData = JSON.parse(decodedJson);
+        const parsedData = decodeAndParse(courseParam);
         courseFromQuery = parsedData.course || null;
       } catch (error) {
         console.error('[Checkout] Error parsing course from query param:', error);
@@ -82,14 +122,14 @@ export default function Checkout() {
       const baseCheckoutUrl = '/checkout';
       let returnUrl = `${window.location.origin}${baseCheckoutUrl}`;
       
-      // Encode subscription or course data in query parameters
+      // Encode subscription or course data in query parameters using UTF-8 safe encoding
       if (subscriptionFromState) {
         const subscriptionJson = JSON.stringify({ subscription: subscriptionFromState });
-        const encodedSubscription = btoa(subscriptionJson);
+        const encodedSubscription = encodeToBase64(subscriptionJson);
         returnUrl = `${returnUrl}?subscription=${encodeURIComponent(encodedSubscription)}`;
       } else if (courseFromState) {
         const courseJson = JSON.stringify({ course: courseFromState });
-        const encodedCourse = btoa(courseJson);
+        const encodedCourse = encodeToBase64(courseJson);
         returnUrl = `${returnUrl}?course=${encodeURIComponent(encodedCourse)}`;
       }
       
@@ -108,21 +148,26 @@ export default function Checkout() {
     }
   }, [isAuthenticated, isLoading, navigate, courseFromState, subscriptionFromState]);
   
-  // Mock course data (fallback)
-  const mockCourse: Course = courseFromState || {
-    id: 1,
-    title: 'Consciousness Development',
-    description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles.',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',
-    price: 299,
-  };
-
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [emailError, setEmailError] = useState('');
   const [nameError, setNameError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponMessage, setCouponMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  
+  // Billing address state
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('US'); // Default to US
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [addressErrors, setAddressErrors] = useState<{[key: string]: string}>({});
 
   // Populate email and name from user data when available
   useEffect(() => {
@@ -138,7 +183,9 @@ export default function Checkout() {
       
       return {
         email: userData?.email || '',
-        name: userData?.name || ''
+        name: userData?.name || '',
+        billingAddress: userData?.billing_address || userData?.address || null,
+        addresses: userData?.addresses || []
       };
     };
     
@@ -152,6 +199,53 @@ export default function Checkout() {
       if (userInfo.name) {
         setName(userInfo.name);
         console.log('[Checkout] Name populated from user:', userInfo.name);
+      }
+      
+      // Populate billing address from default address if available
+      if (userInfo.addresses && Array.isArray(userInfo.addresses) && userInfo.addresses.length > 0) {
+        // Find default address (is_default === true) or use first address
+        const defaultAddress = userInfo.addresses.find((addr: any) => addr.is_default === true) || userInfo.addresses[0];
+        
+        if (defaultAddress) {
+          setAddressLine1(defaultAddress.address_line1 || '');
+          setAddressLine2(defaultAddress.address_line2 || '');
+          setCity(defaultAddress.city || '');
+          setState(defaultAddress.state || '');
+          setPostalCode(defaultAddress.postal_code || '');
+          
+          // Convert country name to country code if needed, or use as is
+          const countryValue = defaultAddress.country || 'US';
+          // Map common country names to ISO codes
+          const countryMap: {[key: string]: string} = {
+            'India': 'IN',
+            'United States': 'US',
+            'United States of America': 'US',
+            'Canada': 'CA',
+            'United Kingdom': 'GB',
+            'Australia': 'AU'
+          };
+          setCountry(countryMap[countryValue] || countryValue);
+          console.log('[Checkout] Billing address populated from default address');
+        }
+      } else if (userInfo.billingAddress) {
+        // Fallback to billingAddress if addresses array is not available
+        const address = userInfo.billingAddress;
+        setAddressLine1(address.line1 || address.address_line1 || address.street || '');
+        setAddressLine2(address.line2 || address.address_line2 || address.street2 || '');
+        setCity(address.city || '');
+        setState(address.state || address.state_province || '');
+        setPostalCode(address.postal_code || address.postal || address.zip || '');
+        const countryValue = address.country || 'US';
+        const countryMap: {[key: string]: string} = {
+          'India': 'IN',
+          'United States': 'US',
+          'United States of America': 'US',
+          'Canada': 'CA',
+          'United Kingdom': 'GB',
+          'Australia': 'AU'
+        };
+        setCountry(countryMap[countryValue] || countryValue);
+        console.log('[Checkout] Billing address populated from billingAddress');
       }
     } else {
       // Fallback: try to get user data directly from localStorage/api
@@ -167,6 +261,53 @@ export default function Checkout() {
           setName(userInfo.name);
           console.log('[Checkout] Name populated from api:', userInfo.name);
         }
+        
+        // Populate billing address from default address if available
+        if (userInfo.addresses && Array.isArray(userInfo.addresses) && userInfo.addresses.length > 0) {
+          // Find default address (is_default === true) or use first address
+          const defaultAddress = userInfo.addresses.find((addr: any) => addr.is_default === true) || userInfo.addresses[0];
+          
+          if (defaultAddress) {
+            setAddressLine1(defaultAddress.address_line1 || '');
+            setAddressLine2(defaultAddress.address_line2 || '');
+            setCity(defaultAddress.city || '');
+            setState(defaultAddress.state || '');
+            setPostalCode(defaultAddress.postal_code || '');
+            
+            // Convert country name to country code if needed, or use as is
+            const countryValue = defaultAddress.country || 'US';
+            // Map common country names to ISO codes
+            const countryMap: {[key: string]: string} = {
+              'India': 'IN',
+              'United States': 'US',
+              'United States of America': 'US',
+              'Canada': 'CA',
+              'United Kingdom': 'GB',
+              'Australia': 'AU'
+            };
+            setCountry(countryMap[countryValue] || countryValue);
+            console.log('[Checkout] Billing address populated from default address (api)');
+          }
+        } else if (userInfo.billingAddress) {
+          // Fallback to billingAddress if addresses array is not available
+          const address = userInfo.billingAddress;
+          setAddressLine1(address.line1 || address.address_line1 || address.street || '');
+          setAddressLine2(address.line2 || address.address_line2 || address.street2 || '');
+          setCity(address.city || '');
+          setState(address.state || address.state_province || '');
+          setPostalCode(address.postal_code || address.postal || address.zip || '');
+          const countryValue = address.country || 'US';
+          const countryMap: {[key: string]: string} = {
+            'India': 'IN',
+            'United States': 'US',
+            'United States of America': 'US',
+            'Canada': 'CA',
+            'United Kingdom': 'GB',
+            'Australia': 'AU'
+          };
+          setCountry(countryMap[countryValue] || countryValue);
+          console.log('[Checkout] Billing address populated from billingAddress (api)');
+        }
       }
     }
   }, [user, isLoading]);
@@ -174,8 +315,8 @@ export default function Checkout() {
   // Calculate pricing based on subscription or course
   const subscriptionPrice = subscriptionFromState 
     ? (subscriptionFromState.discount?.final_price ?? subscriptionFromState.price)
-    : mockCourse.price;
-  const originalPrice = subscriptionFromState?.price ?? mockCourse.price;
+    : courseFromState?.price ?? 0;
+  const originalPrice = subscriptionFromState?.price ?? courseFromState?.price ?? 0;
   const discount = subscriptionFromState?.discount?.final_price 
     ? originalPrice - subscriptionPrice 
     : 0;
@@ -199,8 +340,56 @@ export default function Checkout() {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponMessage({ type: 'error', text: 'Please enter a coupon code' });
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    setCouponMessage(null);
+
+    try {
+      // TODO: Implement coupon validation API call
+      // This is a placeholder for future implementation
+      console.log('[Checkout] Applying coupon:', couponCode);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Placeholder: For now, just show a message that it will be implemented
+      setCouponMessage({ 
+        type: 'error', 
+        text: 'Coupon feature will be available soon' 
+      });
+      
+      // When implemented, it should look something like:
+      // const response = await validateCoupon(couponCode, courseFromState?.id || subscriptionFromState?.id);
+      // if (response.valid) {
+      //   setAppliedCoupon(couponCode);
+      //   setCouponMessage({ type: 'success', text: response.message || 'Coupon applied successfully!' });
+      // } else {
+      //   setCouponMessage({ type: 'error', text: response.message || 'Invalid coupon code' });
+      // }
+    } catch (error: any) {
+      setCouponMessage({ 
+        type: 'error', 
+        text: error.message || 'Failed to apply coupon. Please try again.' 
+      });
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponMessage(null);
+  };
+
   const validateForm = (): boolean => {
     let isValid = true;
+    const errors: {[key: string]: string} = {};
 
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setEmailError('Please enter a valid email address');
@@ -216,6 +405,33 @@ export default function Checkout() {
       setNameError('');
     }
 
+    // Validate billing address (all fields required per Stripe)
+    if (!addressLine1 || addressLine1.trim().length < 3) {
+      errors.addressLine1 = 'Please enter a valid street address';
+      isValid = false;
+    }
+
+    if (!city || city.trim().length < 2) {
+      errors.city = 'Please enter your city';
+      isValid = false;
+    }
+
+    if (!state || state.trim().length < 2) {
+      errors.state = 'Please enter your state/province';
+      isValid = false;
+    }
+
+    if (!postalCode || postalCode.trim().length < 3) {
+      errors.postalCode = 'Please enter a valid postal/ZIP code';
+      isValid = false;
+    }
+
+    if (!country || country.trim().length !== 2) {
+      errors.country = 'Please select a country';
+      isValid = false;
+    }
+
+    setAddressErrors(errors);
     return isValid;
   };
 
@@ -231,6 +447,16 @@ export default function Checkout() {
     try {
       let checkoutUrl: string | undefined;
 
+      // Prepare billing address in Stripe format
+      const billingAddressData = addressLine1 && city && state && postalCode && country ? {
+        line1: addressLine1,
+        line2: addressLine2 || undefined,
+        city: city,
+        state: state,
+        postal_code: postalCode,
+        country: country
+      } : undefined;
+
       if (isSubscription && subscriptionFromState) {
         // Handle subscription purchase
         console.log('[Checkout] Initiating subscription purchase:', subscriptionFromState.id);
@@ -239,7 +465,9 @@ export default function Checkout() {
           name,
           email,
           subscriptionFromState.discount?.id,
-          undefined // promotion_code can be added later if needed
+          appliedCoupon || undefined, // promotion_code from coupon
+          billingAddressData, // billing_address
+          saveAddress // save_address flag
         );
 
         if (purchaseResponse.status && purchaseResponse.data?.checkout_url) {
@@ -255,14 +483,32 @@ export default function Checkout() {
           courseFromState.id,
           name,
           email,
-          undefined // promotion_code can be added later if needed
+          appliedCoupon || undefined, // promotion_code from coupon
+          billingAddressData, // billing_address
+          saveAddress // save_address flag
         );
 
-        if (purchaseResponse.status && purchaseResponse.data?.checkout_url) {
+        console.log('[Checkout] Course purchase response:', purchaseResponse);
+
+        // Check for both 'status' and 'success' to handle different API response formats
+        const isSuccess = (purchaseResponse as any).status === true || purchaseResponse.success === true;
+        
+        if (isSuccess && purchaseResponse.data?.checkout_url) {
           checkoutUrl = purchaseResponse.data.checkout_url;
           console.log('[Checkout] Course checkout URL received:', checkoutUrl);
         } else {
-          throw new Error(purchaseResponse.message || 'Failed to get checkout URL for course');
+          console.error('[Checkout] Course purchase failed:', {
+            isSuccess,
+            hasCheckoutUrl: !!purchaseResponse.data?.checkout_url,
+            message: purchaseResponse.message,
+            dataMessage: (purchaseResponse as any).data?.message,
+            fullResponse: purchaseResponse
+          });
+          throw new Error(
+            purchaseResponse.message || 
+            (purchaseResponse as any).data?.message || 
+            'Failed to get checkout URL for course'
+          );
         }
       } else {
         throw new Error('No subscription or course selected');
@@ -305,6 +551,30 @@ export default function Checkout() {
   // Don't render if not authenticated (will redirect)
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Show error if no course or subscription selected
+  if (!courseFromState && !subscriptionFromState) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-16">
+        <Header />
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="bg-white rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">No Item Selected</h1>
+            <p className="text-gray-600 mb-6">Please select a course or subscription to proceed with checkout.</p>
+            <PrimaryButton
+              onClick={() => navigate(isSubscription ? '/' : '/courses')}
+              size="lg"
+              icon={ArrowLeft}
+              iconPosition="left"
+            >
+              {isSubscription ? 'Back to Home' : 'Browse Courses'}
+            </PrimaryButton>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -377,23 +647,23 @@ export default function Checkout() {
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : courseFromState ? (
                   <div className="flex gap-4">
                     <img
-                      src={mockCourse.image}
-                      alt={mockCourse.title}
+                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
+                      alt={courseFromState.name || courseFromState.title || 'Course'}
                       className="w-24 h-24 rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
-                        {mockCourse.title}
+                        {courseFromState.name || courseFromState.title || 'Course'}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2">
-                        {mockCourse.description}
+                        {courseFromState.description}
                       </p>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Contact Information */}
@@ -447,6 +717,274 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* Coupon Section */}
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-blue-600" />
+                  Have a Coupon Code?
+                </h2>
+                {appliedCoupon ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="text-sm font-semibold text-green-900">Coupon Applied</p>
+                          <p className="text-sm text-green-700">{appliedCoupon}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="text-green-700 hover:text-green-900 transition-colors"
+                        aria-label="Remove coupon"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        id="coupon"
+                        name="coupon"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value.toUpperCase());
+                          setCouponMessage(null);
+                        }}
+                        placeholder="Enter coupon code"
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
+                        disabled={isApplyingCoupon}
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={isApplyingCoupon || !couponCode.trim()}
+                        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {isApplyingCoupon ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Applying...</span>
+                          </>
+                        ) : (
+                          'Apply'
+                        )}
+                      </button>
+                    </div>
+                    {couponMessage && (
+                      <div className={`p-3 rounded-lg text-sm ${
+                        couponMessage.type === 'success' 
+                          ? 'bg-green-50 border border-green-200 text-green-800' 
+                          : 'bg-red-50 border border-red-200 text-red-800'
+                      }`}>
+                        {couponMessage.text}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Billing Address Section */}
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  Billing Address
+                </h2>
+                <div className="space-y-4">
+                  {/* Address Line 1 */}
+                  <div>
+                    <label htmlFor="addressLine1" className="block text-sm font-medium text-gray-700 mb-2">
+                      Street Address *
+                    </label>
+                    <input
+                      type="text"
+                      id="addressLine1"
+                      name="addressLine1"
+                      value={addressLine1}
+                      onChange={(e) => {
+                        setAddressLine1(e.target.value);
+                        if (addressErrors.addressLine1) {
+                          setAddressErrors({...addressErrors, addressLine1: ''});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        addressErrors.addressLine1 ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="123 Main Street"
+                    />
+                    {addressErrors.addressLine1 && (
+                      <p className="mt-1 text-sm text-red-600">{addressErrors.addressLine1}</p>
+                    )}
+                  </div>
+
+                  {/* Address Line 2 */}
+                  <div>
+                    <label htmlFor="addressLine2" className="block text-sm font-medium text-gray-700 mb-2">
+                      Apartment, Suite, etc. (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      id="addressLine2"
+                      name="addressLine2"
+                      value={addressLine2}
+                      onChange={(e) => setAddressLine2(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="Apt 4B"
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {/* City */}
+                    <div>
+                      <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value={city}
+                        onChange={(e) => {
+                          setCity(e.target.value);
+                          if (addressErrors.city) {
+                            setAddressErrors({...addressErrors, city: ''});
+                          }
+                        }}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                          addressErrors.city ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="New York"
+                      />
+                      {addressErrors.city && (
+                        <p className="mt-1 text-sm text-red-600">{addressErrors.city}</p>
+                      )}
+                    </div>
+
+                    {/* State/Province */}
+                    <div>
+                      <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
+                        State/Province *
+                      </label>
+                      <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        value={state}
+                        onChange={(e) => {
+                          setState(e.target.value);
+                          if (addressErrors.state) {
+                            setAddressErrors({...addressErrors, state: ''});
+                          }
+                        }}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                          addressErrors.state ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="NY"
+                      />
+                      {addressErrors.state && (
+                        <p className="mt-1 text-sm text-red-600">{addressErrors.state}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {/* Postal/ZIP Code */}
+                    <div>
+                      <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
+                        Postal/ZIP Code *
+                      </label>
+                      <input
+                        type="text"
+                        id="postalCode"
+                        name="postalCode"
+                        value={postalCode}
+                        onChange={(e) => {
+                          setPostalCode(e.target.value);
+                          if (addressErrors.postalCode) {
+                            setAddressErrors({...addressErrors, postalCode: ''});
+                          }
+                        }}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                          addressErrors.postalCode ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="10001"
+                      />
+                      {addressErrors.postalCode && (
+                        <p className="mt-1 text-sm text-red-600">{addressErrors.postalCode}</p>
+                      )}
+                    </div>
+
+                    {/* Country */}
+                    <div>
+                      <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
+                        Country *
+                      </label>
+                      <select
+                        id="country"
+                        name="country"
+                        value={country}
+                        onChange={(e) => {
+                          setCountry(e.target.value);
+                          if (addressErrors.country) {
+                            setAddressErrors({...addressErrors, country: ''});
+                          }
+                        }}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                          addressErrors.country ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="IT">Italy</option>
+                        <option value="ES">Spain</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="BE">Belgium</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="AT">Austria</option>
+                        <option value="SE">Sweden</option>
+                        <option value="NO">Norway</option>
+                        <option value="DK">Denmark</option>
+                        <option value="FI">Finland</option>
+                        <option value="PL">Poland</option>
+                        <option value="IN">India</option>
+                        <option value="CN">China</option>
+                        <option value="JP">Japan</option>
+                        <option value="KR">South Korea</option>
+                        <option value="SG">Singapore</option>
+                        <option value="NZ">New Zealand</option>
+                        <option value="BR">Brazil</option>
+                        <option value="MX">Mexico</option>
+                        <option value="AR">Argentina</option>
+                      </select>
+                      {addressErrors.country && (
+                        <p className="mt-1 text-sm text-red-600">{addressErrors.country}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Save Address Checkbox */}
+                  <div className="flex items-center gap-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="saveAddress"
+                      name="saveAddress"
+                      checked={saveAddress}
+                      onChange={(e) => setSaveAddress(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="saveAddress" className="text-sm text-gray-700 cursor-pointer">
+                      Save this address for future purchases
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               {/* Error Message Display */}
               {paymentError && (
                 <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -458,24 +996,18 @@ export default function Checkout() {
               )}
 
               {/* Proceed to Payment Button */}
-              <button
+              <PrimaryButton
                 onClick={handleProceedToPayment}
                 disabled={isProcessing}
-                className="btn-primary-lg w-full text-lg gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                isLoading={isProcessing}
+                size="lg"
+                fullWidth
+                icon={ArrowRight}
+                iconPosition="right"
+                className="gap-2"
               >
-                {isProcessing ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Redirecting to Stripe...
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-5 h-5" />
-                    Proceed to Payment
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
+                {isProcessing ? 'Redirecting to Stripe...' : 'Proceed to Payment'}
+              </PrimaryButton>
             </div>
           </div>
 
@@ -502,21 +1034,21 @@ export default function Checkout() {
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : courseFromState ? (
                   <div className="flex gap-4 mb-4">
                     <img
-                      src={mockCourse.image}
-                      alt={mockCourse.title}
+                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
+                      alt={courseFromState.name || courseFromState.title || 'Course'}
                       className="w-20 h-20 rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-1">
-                        {mockCourse.title}
+                        {courseFromState.name || courseFromState.title || 'Course'}
                       </h3>
                       <p className="text-sm text-gray-600">Full Course Access</p>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Price Breakdown */}

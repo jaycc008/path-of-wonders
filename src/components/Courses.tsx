@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { getCourses, Course } from '../api/course';
+import { encodeToBase64 } from '../utils/encoding';
 
 export default function Courses() {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ export default function Courses() {
   const [activeCourse, setActiveCourse] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   // Fetch courses from API
@@ -31,6 +34,15 @@ export default function Courses() {
     fetchCourses();
   }, []);
 
+  // Reset video playing state when active course changes
+  useEffect(() => {
+    setIsVideoPlaying(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [activeCourse]);
+
   const handleCourseClick = (index: number) => {
     if (index !== activeCourse) {
       setIsTransitioning(true);
@@ -42,9 +54,15 @@ export default function Courses() {
   };
 
   const handleEnroll = (course: Course) => {
-    navigate('/checkout', {
-      state: { course }
-    });
+    // Always encode course data in URL so it persists after logout/login
+    const checkoutUrl = '/checkout';
+    
+    // Encode course data using UTF-8 safe encoding
+    const courseJson = JSON.stringify({ course });
+    const encodedCourse = encodeToBase64(courseJson);
+    
+    // Navigate to checkout with course data in URL
+    navigate(`${checkoutUrl}?course=${encodeURIComponent(encodedCourse)}`);
   };
 
   return (
@@ -58,9 +76,6 @@ export default function Courses() {
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold mb-4">
-            Course Gallery
-          </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Explore Our Courses
           </h2>
@@ -80,20 +95,78 @@ export default function Courses() {
             <div className={`relative group transition-all duration-500 ${
               isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
             }`}>
-              {/* Course Image with Play Button */}
+              {/* Course Video/Image with Play Button */}
               <div className="relative rounded-2xl overflow-hidden mb-6 shadow-2xl">
-                <img
-                  src={courses[activeCourse]?.thumbnail_url || courses[activeCourse]?.image || ''}
-                  alt={courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
-                  className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
-                <button className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer group/play">
-                  <div className="w-24 h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
-                    <Play className="w-12 h-12 text-blue-600 ml-1" fill="currentColor" />
+                {isVideoPlaying && courses[activeCourse]?.intro_video_url ? (
+                  <div className="relative w-full h-[400px] bg-black">
+                    <video
+                      ref={videoRef}
+                      src={courses[activeCourse]?.intro_video_url}
+                      controls
+                      controlsList="nodownload"
+                      autoPlay
+                      className="w-full h-full object-contain"
+                      onEnded={() => setIsVideoPlaying(false)}
+                      onPause={() => {
+                        // Optionally reset when paused
+                      }}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                    <button
+                      onClick={() => {
+                        setIsVideoPlaying(false);
+                        if (videoRef.current) {
+                          videoRef.current.pause();
+                          videoRef.current.currentTime = 0;
+                        }
+                      }}
+                      className="absolute top-4 right-4 z-10 px-4 py-2 bg-black/70 hover:bg-black/90 text-white rounded-full font-semibold text-sm transition-colors backdrop-blur-sm"
+                    >
+                      Close
+                    </button>
                   </div>
-                </button>
+                ) : (
+                  <>
+                    <img
+                      src={courses[activeCourse]?.thumbnail_url || courses[activeCourse]?.image || ''}
+                      alt={courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
+                      className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
+                    {courses[activeCourse]?.intro_video_url ? (
+                      <button 
+                        onClick={() => setIsVideoPlaying(true)}
+                        className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer group/play"
+                      >
+                        <div className="w-24 h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
+                          <Play className="w-12 h-12 text-blue-600 ml-1" fill="currentColor" />
+                        </div>
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => {
+                          // If no video, navigate to course details
+                          const course = courses[activeCourse];
+                          if (course && course.id) {
+                            const courseJson = JSON.stringify({ course });
+                            const encodedCourse = encodeToBase64(courseJson);
+                            const courseId = String(course.id);
+                            navigate(`/courses/${courseId}?course=${encodeURIComponent(encodedCourse)}`, {
+                              state: { course }
+                            });
+                          }
+                        }}
+                        className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer group/play"
+                      >
+                        <div className="w-24 h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
+                          <Play className="w-12 h-12 text-blue-600 ml-1" fill="currentColor" />
+                        </div>
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Course Title */}
@@ -102,9 +175,30 @@ export default function Courses() {
               </h3>
 
               {/* Course Description */}
-              <p className="text-lg text-gray-600 leading-relaxed mb-8 transition-all duration-500">
-                {courses[activeCourse]?.description || ''}
-              </p>
+              <div className="mb-8 transition-all duration-500">
+                <p className="text-lg text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                  {courses[activeCourse]?.description || ''}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const course = courses[activeCourse];
+                    if (course && course.id) {
+                      // Encode course data in URL using UTF-8 safe encoding
+                      const courseJson = JSON.stringify({ course });
+                      const encodedCourse = encodeToBase64(courseJson);
+                      // Convert course.id to string to ensure proper routing
+                      const courseId = String(course.id);
+                      navigate(`/courses/${courseId}?course=${encodeURIComponent(encodedCourse)}`, {
+                        state: { course }
+                      });
+                    }
+                  }}
+                  className="text-blue-600 hover:text-blue-700 font-semibold transition-colors underline-offset-4 hover:underline"
+                >
+                  Learn More →
+                </button>
+              </div>
 
               {/* What You Will Learn Section */}
               {courses[activeCourse]?.whatYouWillLearn && courses[activeCourse].whatYouWillLearn.length > 0 && (
@@ -164,15 +258,10 @@ export default function Courses() {
                     <div
                       className={`relative rounded-2xl transition-all duration-500 ${
                         index === activeCourse
-                          ? 'ring-4 ring-blue-500 shadow-2xl shadow-blue-500/50'
-                          : 'shadow-lg hover:shadow-xl ring-2 ring-transparent hover:ring-blue-200'
+                          ? 'ring-2 ring-blue-500 shadow-md shadow-blue-500/20'
+                          : 'shadow-md hover:shadow-lg ring-1 ring-transparent hover:ring-blue-200'
                       }`}
                     >
-                      {/* Glow Effect for Active Course */}
-                      {index === activeCourse && (
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-lg opacity-50 -z-10 animate-pulse"></div>
-                      )}
-                      
                       <div className="relative">
                         <img
                           src={course.thumbnail_url || course.image || ''}
@@ -186,21 +275,6 @@ export default function Courses() {
                             ? 'bg-gradient-to-t from-black/80 via-black/40 to-transparent' 
                             : 'bg-gradient-to-t from-black/70 via-black/30 to-transparent'
                         }`}></div>
-                        
-                        {/* Enroll Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEnroll(course);
-                          }}
-                          className={`absolute top-4 right-4 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 ${
-                            index === activeCourse
-                              ? 'btn-primary shadow-lg'
-                              : 'bg-white/90 text-gray-800 hover:bg-white backdrop-blur-sm'
-                          }`}
-                        >
-                          Enroll Now
-                        </button>
                         
                         {/* Course Number Badge */}
                         <div className={`absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 ${
