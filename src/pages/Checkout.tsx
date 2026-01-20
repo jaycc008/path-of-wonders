@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Sparkles, Loader2, Tag, X, MapPin } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Sparkles, Loader2, MapPin } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import CouponInput from '../components/CouponInput';
 import { Subscription, initiatePurchase } from '../api/subscription';
 import { initiateCoursePurchase } from '../api/course';
 import { useAuth } from '../contexts/AuthContext';
@@ -104,7 +105,7 @@ export default function Checkout() {
   // Prioritize: location state > query params > redirect state
   const courseFromState = locationState?.course || courseFromQuery || redirectState?.course;
   const subscriptionFromState = locationState?.subscription || subscriptionFromQuery || redirectState?.subscription;
-  
+  console.log(subscriptionFromState,"fromState")
   // Clear redirect state if we have it (we've successfully restored it)
   useEffect(() => {
     if (redirectState && isAuthenticated) {
@@ -154,10 +155,7 @@ export default function Checkout() {
   const [nameError, setNameError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-  const [couponMessage, setCouponMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   
   // Billing address state
   const [addressLine1, setAddressLine1] = useState('');
@@ -321,8 +319,7 @@ export default function Checkout() {
     ? originalPrice - subscriptionPrice 
     : 0;
   const subtotal = subscriptionPrice;
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + tax;
+  const total = subtotal;
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -340,51 +337,12 @@ export default function Checkout() {
     }
   };
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
-      setCouponMessage({ type: 'error', text: 'Please enter a coupon code' });
-      return;
-    }
-
-    setIsApplyingCoupon(true);
-    setCouponMessage(null);
-
-    try {
-      // TODO: Implement coupon validation API call
-      // This is a placeholder for future implementation
-      console.log('[Checkout] Applying coupon:', couponCode);
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Placeholder: For now, just show a message that it will be implemented
-      setCouponMessage({ 
-        type: 'error', 
-        text: 'Coupon feature will be available soon' 
-      });
-      
-      // When implemented, it should look something like:
-      // const response = await validateCoupon(couponCode, courseFromState?.id || subscriptionFromState?.id);
-      // if (response.valid) {
-      //   setAppliedCoupon(couponCode);
-      //   setCouponMessage({ type: 'success', text: response.message || 'Coupon applied successfully!' });
-      // } else {
-      //   setCouponMessage({ type: 'error', text: response.message || 'Invalid coupon code' });
-      // }
-    } catch (error: any) {
-      setCouponMessage({ 
-        type: 'error', 
-        text: error.message || 'Failed to apply coupon. Please try again.' 
-      });
-    } finally {
-      setIsApplyingCoupon(false);
-    }
+  const handleCouponApplied = (code: string) => {
+    setAppliedCoupon(code);
   };
 
-  const handleRemoveCoupon = () => {
+  const handleCouponRemoved = () => {
     setAppliedCoupon(null);
-    setCouponCode('');
-    setCouponMessage(null);
   };
 
   const validateForm = (): boolean => {
@@ -460,12 +418,19 @@ export default function Checkout() {
       if (isSubscription && subscriptionFromState) {
         // Handle subscription purchase
         console.log('[Checkout] Initiating subscription purchase:', subscriptionFromState.id);
+        
+        // Use applied coupon from component (which may be from subscription discount or user input)
+        // If no applied coupon but subscription has discount promotion code, use that as fallback
+        const promotionCode = appliedCoupon 
+          || subscriptionFromState.discount?.stripe_promotion_code_id 
+          || undefined;
+        
         const purchaseResponse = await initiatePurchase(
           subscriptionFromState.id,
           name,
           email,
           subscriptionFromState.discount?.id,
-          appliedCoupon || undefined, // promotion_code from coupon
+          promotionCode, // promotion_code from discount or user input
           billingAddressData, // billing_address
           saveAddress // save_address flag
         );
@@ -613,10 +578,19 @@ export default function Checkout() {
                       <div className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">
                         {subscriptionFromState.name}
                       </div>
-                      {subscriptionFromState.discount && subscriptionFromState.discount.discount_percent && (
-                        <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
-                          {subscriptionFromState.discount.discount_percent}% OFF
-                        </div>
+                      {subscriptionFromState.discount && (
+                        <>
+                          {subscriptionFromState.discount.discount_percent && (
+                            <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                              {subscriptionFromState.discount.discount_percent}% OFF
+                            </div>
+                          )}
+                          {subscriptionFromState.discount.discount_amount && !subscriptionFromState.discount.discount_percent && (
+                            <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                              ${subscriptionFromState.discount.discount_amount.toFixed(2)} OFF
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="flex items-center gap-4 mb-3">
@@ -718,73 +692,12 @@ export default function Checkout() {
               </div>
 
               {/* Coupon Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-blue-600" />
-                  Have a Coupon Code?
-                </h2>
-                {appliedCoupon ? (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="text-sm font-semibold text-green-900">Coupon Applied</p>
-                          <p className="text-sm text-green-700">{appliedCoupon}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleRemoveCoupon}
-                        className="text-green-700 hover:text-green-900 transition-colors"
-                        aria-label="Remove coupon"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        id="coupon"
-                        name="coupon"
-                        value={couponCode}
-                        onChange={(e) => {
-                          setCouponCode(e.target.value.toUpperCase());
-                          setCouponMessage(null);
-                        }}
-                        placeholder="Enter coupon code"
-                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
-                        disabled={isApplyingCoupon}
-                      />
-                      <button
-                        onClick={handleApplyCoupon}
-                        disabled={isApplyingCoupon || !couponCode.trim()}
-                        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        {isApplyingCoupon ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Applying...</span>
-                          </>
-                        ) : (
-                          'Apply'
-                        )}
-                      </button>
-                    </div>
-                    {couponMessage && (
-                      <div className={`p-3 rounded-lg text-sm ${
-                        couponMessage.type === 'success' 
-                          ? 'bg-green-50 border border-green-200 text-green-800' 
-                          : 'bg-red-50 border border-red-200 text-red-800'
-                      }`}>
-                        {couponMessage.text}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <CouponInput
+                discount={subscriptionFromState?.discount || null}
+                onCouponApplied={handleCouponApplied}
+                onCouponRemoved={handleCouponRemoved}
+                disabled={isProcessing}
+              />
 
               {/* Billing Address Section */}
               <div className="mb-8">
@@ -1028,9 +941,18 @@ export default function Checkout() {
                         {Math.floor(subscriptionFromState.duration_days / 30)} {Math.floor(subscriptionFromState.duration_days / 30) === 1 ? 'month' : 'months'} subscription
                       </p>
                     </div>
-                    {subscriptionFromState.discount && subscriptionFromState.discount.discount_percent && (
-                      <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                        {subscriptionFromState.discount.discount_percent}% Discount Applied
+                    {subscriptionFromState.discount && (
+                      <div className="mt-2">
+                        {subscriptionFromState.discount.discount_percent && (
+                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold mb-2">
+                            {subscriptionFromState.discount.discount_percent}% Discount Applied
+                          </div>
+                        )}
+                        {subscriptionFromState.discount.discount_amount && !subscriptionFromState.discount.discount_percent && (
+                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold mb-2">
+                            ${subscriptionFromState.discount.discount_amount.toFixed(2)} Discount Applied
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1053,7 +975,7 @@ export default function Checkout() {
 
               {/* Price Breakdown */}
               <div className="space-y-3 mb-6">
-                {subscriptionFromState?.discount?.final_price && (
+                {subscriptionFromState?.discount?.final_price && originalPrice > subscriptionPrice && (
                   <div className="flex justify-between text-gray-500 text-sm">
                     <span>Original Price</span>
                     <span className="line-through">${originalPrice.toFixed(2)}</span>
@@ -1065,14 +987,15 @@ export default function Checkout() {
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
+                    <span>
+                      Discount
+                      {subscriptionFromState?.discount?.discount_percent && (
+                        <span className="text-xs ml-1">({subscriptionFromState.discount.discount_percent}%)</span>
+                      )}
+                    </span>
                     <span className="font-medium">-${discount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-600">
-                  <span>Tax</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
-                </div>
                 <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>

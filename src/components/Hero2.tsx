@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
 import heroImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
 import PrimaryButton from './PrimaryButton';
+import SecondaryButton from './SecondaryButton';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -35,9 +36,9 @@ export default function Hero() {
             className={`flex flex-col md:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
           >
-            <button className="px-8 py-4 border-2 border-blue-600 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 uppercase">
+            <SecondaryButton size="lg" className="uppercase">
               Start Learning Today
-            </button>
+            </SecondaryButton>
             <PrimaryButton size="lg" className="uppercase">
               Learn More
             </PrimaryButton>

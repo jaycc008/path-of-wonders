@@ -7,7 +7,8 @@ import { Course, getCourses } from '../api/course';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
-import { encodeToBase64 } from '../utils/encoding';
+import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
+import bookCoverImage from '../assets/images/bookcover.jpeg';
 
 export default function CourseDetails() {
   const { id } = useParams<{ id: string }>();
@@ -37,81 +38,7 @@ export default function CourseDetails() {
         
         if (foundCourse) {
           setCourse(foundCourse);
-        } else {
-          // Fallback to sample data
-          const sampleCourses: Course[] = [
-            {
-              id: 1,
-              name: 'Consciousness Development',
-              title: 'Consciousness Development',
-              description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles. Transform your understanding of reality and unlock your true potential.',
-              image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',
-              price: 299,
-              category: 'Consciousness',
-              duration: '8 weeks',
-              students_count: 1250,
-              rating: 4.8,
-              level: 'Beginner',
-            },
-            {
-              id: 2,
-              name: 'Quantum Science Fundamentals',
-              title: 'Quantum Science Fundamentals',
-              description: 'Master the principles of quantum mechanics and their applications in understanding reality and consciousness. Learn from leading experts in the field.',
-              image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
-              price: 349,
-              category: 'Science',
-              duration: '10 weeks',
-              students_count: 890,
-              rating: 4.9,
-              level: 'Intermediate',
-            },
-            {
-              id: 3,
-              name: 'Financial Literacy Mastery',
-              title: 'Financial Literacy Mastery',
-              description: 'Build wealth and financial independence through proven strategies and mindful money management. Learn to make your money work for you.',
-              image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80',
-              price: 279,
-              category: 'Finance',
-              duration: '6 weeks',
-              students_count: 2100,
-              rating: 4.7,
-              level: 'Beginner',
-            },
-            {
-              id: 4,
-              name: 'Mindful Leadership',
-              title: 'Mindful Leadership',
-              description: 'Develop leadership skills through consciousness-based practices and authentic self-expression. Lead with purpose and impact.',
-              image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-              price: 329,
-              category: 'Leadership',
-              duration: '8 weeks',
-              students_count: 650,
-              rating: 4.6,
-              level: 'Advanced',
-            },
-            {
-              id: 5,
-              name: 'Advanced Consciousness Studies',
-              title: 'Advanced Consciousness Studies',
-              description: 'Deep dive into advanced topics of consciousness, meditation, and transformative practices. Elevate your understanding to the next level.',
-              image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
-              price: 399,
-              category: 'Consciousness',
-              duration: '12 weeks',
-              students_count: 420,
-              rating: 5.0,
-              level: 'Advanced',
-            },
-          ];
-          
-          const found = sampleCourses.find((c) => c.id.toString() === id);
-          if (found) {
-            setCourse(found);
-          }
-        }
+        } 
       } catch (error) {
         console.error('Failed to fetch course:', error);
       } finally {
@@ -184,13 +111,25 @@ export default function CourseDetails() {
     
     // Always encode course data in URL (even when authenticated) so it persists after logout/login
     const checkoutUrl = '/checkout';
+
+    const courseData = {
+      id: course.id,
+      name: course.name,
+      description: course.description,
+      thumbnail_url: course.thumbnail_url,
+      price: course.price,
+    };
     
-      // Encode course data using UTF-8 safe encoding
-      const courseJson = JSON.stringify({ course });
-      const encodedCourse = encodeToBase64(courseJson);
+    // Encode course data using UTF-8 safe encoding
+    const courseJson = JSON.stringify({ course: courseData });
+    const encodedCourse = encodeToBase64(courseJson);
     
     // Build checkout URL with course data as query param
     const checkoutUrlWithData = `${checkoutUrl}?course=${encodeURIComponent(encodedCourse)}`;
+
+    // Try decode the encoded course data
+    const decodedCourse = decodeFromBase64(encodedCourse);
+    console.log('Decoded course:', decodedCourse);
     
     // Check if user is authenticated
     if (!authLoading && isAuthenticated) {
@@ -504,9 +443,9 @@ export default function CourseDetails() {
                   </div>
                   
                   <div className="mb-4">
-                    <div className="w-full h-48 rounded-lg overflow-hidden mb-4 border border-gray-200">
+                    <div className="w-full max-w-xs mx-auto aspect-[2/3] rounded-lg overflow-hidden mb-4 border border-gray-200">
                       <img
-                        src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80"
+                        src={bookCoverImage}
                         alt="Course eBook"
                         className="w-full h-full object-cover"
                       />

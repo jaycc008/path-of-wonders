@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Play, Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { Course } from '../../api/course';
+import SecondaryButton from '../../components/SecondaryButton';
 
 interface CourseCardProps {
   course: Course;
@@ -92,13 +93,14 @@ export default function CourseCard({ course }: CourseCardProps) {
         )}
 
         {/* Learn More Button */}
-        <button
+        <SecondaryButton
           onClick={handleLearnMore}
-          className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2"
+          fullWidth
+          icon={ArrowRight}
+          iconPosition="right"
         >
           Learn More
-          <ArrowRight className="w-5 h-5" />
-        </button>
+        </SecondaryButton>
       </div>
     </div>
   );

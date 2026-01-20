@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Award, Users, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Award, Users, Zap, ArrowRight } from 'lucide-react';
+import SecondaryButton from './SecondaryButton';
 import journeyImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 
 export default function Journey() {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -50,9 +53,14 @@ export default function Journey() {
                 </div>
               ))}
             </div>
-            <button className="px-8 py-4 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 hover:shadow-xl hover:scale-105 transition-all duration-300">
-              Discover Our Story
-            </button>
+            <SecondaryButton 
+              onClick={() => navigate('/about')}
+              size="lg"
+              icon={ArrowRight}
+              iconPosition="right"
+            >
+              Learn More
+            </SecondaryButton>
           </div>
 
           <div

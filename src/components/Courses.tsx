@@ -1,8 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play } from 'lucide-react';
+import { Play, ArrowRight } from 'lucide-react';
 import { getCourses, Course } from '../api/course';
 import { encodeToBase64 } from '../utils/encoding';
+import SecondaryButton from './SecondaryButton';
 
 export default function Courses() {
   const navigate = useNavigate();
@@ -53,25 +54,13 @@ export default function Courses() {
     }
   };
 
-  const handleEnroll = (course: Course) => {
-    // Always encode course data in URL so it persists after logout/login
-    const checkoutUrl = '/checkout';
-    
-    // Encode course data using UTF-8 safe encoding
-    const courseJson = JSON.stringify({ course });
-    const encodedCourse = encodeToBase64(courseJson);
-    
-    // Navigate to checkout with course data in URL
-    navigate(`${checkoutUrl}?course=${encodeURIComponent(encodedCourse)}`);
-  };
-
   return (
     <section ref={sectionRef} className="py-24 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+      <div className="absolute inset-0 opacity-50">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
       </div>
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -222,16 +211,16 @@ export default function Courses() {
               </div>
               )}
 
-              {/* Enroll Now Button */}
-              <button 
-                onClick={() => handleEnroll(courses[activeCourse])}
-                className="btn-primary-lg w-full md:w-auto flex items-center justify-center gap-2 group"
+              {/* All Courses Button */}
+              <SecondaryButton
+                onClick={() => navigate('/courses')}
+                size="lg"
+                icon={ArrowRight}
+                iconPosition="right"
+                className="w-full md:w-auto"
               >
-                Enroll Now
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </button>
+                All Courses
+              </SecondaryButton>
             </div>
           </div>
 
