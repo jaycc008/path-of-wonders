@@ -7,6 +7,7 @@ import { Course, getCourses } from '../api/course';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
+import SecondaryButton from '../components/SecondaryButton';
 import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
 import bookCoverImage from '../assets/images/bookcover.jpeg';
 
@@ -461,16 +462,17 @@ export default function CourseDetails() {
                     </div>
                   </div>
 
-                  <button
+                  <SecondaryButton
                     onClick={() => {
                       // Handle book purchase - you can implement this later
                       console.log('Purchase eBook');
                     }}
-                    className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-all duration-300 flex items-center justify-center gap-2"
+                    fullWidth
+                    icon={Book}
+                    iconPosition="left"
                   >
-                    <Book className="w-5 h-5" />
                     Buy eBook
-                  </button>
+                  </SecondaryButton>
                 </div>
               </div>
             </div>

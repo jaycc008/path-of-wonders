@@ -3,9 +3,16 @@ import { CheckCircle2, Loader2, Tag, X } from 'lucide-react';
 import { validateDiscount, getPromotionCode } from '../api/stripe';
 import { Discount } from '../api/subscription';
 
+interface CouponDiscountInfo {
+  code: string;
+  discount_type?: 'amount' | 'percent';
+  discount_value?: number; // Amount in cents for amount type, percentage for percent type
+  currency?: string;
+}
+
 interface CouponInputProps {
   discount?: Discount | null;
-  onCouponApplied?: (code: string) => void;
+  onCouponApplied?: (discountInfo: CouponDiscountInfo) => void;
   onCouponRemoved?: () => void;
   disabled?: boolean;
 }
@@ -42,7 +49,14 @@ const CouponInput = memo(({
             setAppliedCoupon(promotionCode);
             setHasPreFilledCode(false);
             setIsFetchingPromoCode(false);
-            onCouponApplied?.(promotionCode);
+            // For subscription discount, we don't have discount info from validation
+            // Pass the code, discount info will come from subscription discount object
+            onCouponApplied?.({
+              code: promotionCode,
+              discount_type: discount?.discount_percent ? 'percent' : discount?.discount_amount ? 'amount' : undefined,
+              discount_value: discount?.discount_percent ? discount.discount_percent : discount?.discount_amount ? discount.discount_amount * 100 : undefined, // Convert to cents
+              currency: 'usd'
+            });
           } else {
             throw new Error('Failed to retrieve promotion code details');
           }
@@ -88,7 +102,13 @@ const CouponInput = memo(({
           type: 'success', 
           text: response.data.message || 'Coupon applied successfully!' 
         });
-        onCouponApplied?.(code);
+        // Pass discount information to parent
+        onCouponApplied?.({
+          code: code,
+          discount_type: response.data.discount_type,
+          discount_value: response.data.discount_value,
+          currency: response.data.currency || 'usd'
+        });
       } else {
         setCouponMessage({ 
           type: 'error', 

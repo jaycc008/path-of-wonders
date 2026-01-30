@@ -45,11 +45,22 @@ export interface ValidateDiscountResponse {
   status: boolean;
   data: {
     valid: boolean;
+    promotion_code?: string;
+    promotion_code_id?: string;
+    coupon_id?: string;
+    discount_type?: 'amount' | 'percent';
+    discount_value?: number; // Amount in cents for amount type, percentage for percent type
+    currency?: string;
+    duration?: string;
+    duration_in_months?: number | null;
+    redeem_by?: number;
+    times_redeemed?: number;
+    max_redemptions?: number | null;
+    metadata?: { [key: string]: any };
+    message?: string;
+    // Legacy fields for backward compatibility
     discount_percent?: number;
     discount_amount?: number;
-    coupon_id?: string;
-    promotion_code?: string;
-    message?: string;
     [key: string]: any;
   };
   message?: string;

@@ -156,6 +156,11 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState<{
+    discount_type?: 'amount' | 'percent';
+    discount_value?: number;
+    currency?: string;
+  } | null>(null);
   
   // Billing address state
   const [addressLine1, setAddressLine1] = useState('');
@@ -311,14 +316,30 @@ export default function Checkout() {
   }, [user, isLoading]);
 
   // Calculate pricing based on subscription or course
-  const subscriptionPrice = subscriptionFromState 
+  const basePrice = subscriptionFromState 
     ? (subscriptionFromState.discount?.final_price ?? subscriptionFromState.price)
     : courseFromState?.price ?? 0;
   const originalPrice = subscriptionFromState?.price ?? courseFromState?.price ?? 0;
-  const discount = subscriptionFromState?.discount?.final_price 
-    ? originalPrice - subscriptionPrice 
+  
+  // Calculate discount from subscription discount
+  const subscriptionDiscount = subscriptionFromState?.discount?.final_price 
+    ? originalPrice - basePrice 
     : 0;
-  const subtotal = subscriptionPrice;
+  
+  // Calculate discount from coupon (if applied and not from subscription)
+  let couponDiscountAmount = 0;
+  if (couponDiscount && !subscriptionFromState?.discount) {
+    if (couponDiscount.discount_type === 'amount' && couponDiscount.discount_value) {
+      // discount_value is in cents, convert to dollars
+      couponDiscountAmount = couponDiscount.discount_value / 100;
+    } else if (couponDiscount.discount_type === 'percent' && couponDiscount.discount_value) {
+      // discount_value is percentage
+      couponDiscountAmount = (basePrice * couponDiscount.discount_value) / 100;
+    }
+  }
+  
+  const subtotal = Math.max(0, basePrice - couponDiscountAmount);
+  const totalDiscount = subscriptionDiscount + couponDiscountAmount;
   const total = subtotal;
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -337,12 +358,18 @@ export default function Checkout() {
     }
   };
 
-  const handleCouponApplied = (code: string) => {
-    setAppliedCoupon(code);
+  const handleCouponApplied = (discountInfo: { code: string; discount_type?: 'amount' | 'percent'; discount_value?: number; currency?: string }) => {
+    setAppliedCoupon(discountInfo.code);
+    setCouponDiscount({
+      discount_type: discountInfo.discount_type,
+      discount_value: discountInfo.discount_value,
+      currency: discountInfo.currency
+    });
   };
 
   const handleCouponRemoved = () => {
     setAppliedCoupon(null);
+    setCouponDiscount(null);
   };
 
   const validateForm = (): boolean => {
@@ -595,9 +622,9 @@ export default function Checkout() {
                     </div>
                     <div className="flex items-center gap-4 mb-3">
                       <div className="text-4xl font-bold text-gray-900">
-                        ${subscriptionPrice.toFixed(2)}
+                        ${subtotal.toFixed(2)}
                       </div>
-                      {subscriptionFromState.discount?.final_price && (
+                      {(subscriptionFromState.discount?.final_price || couponDiscount) && originalPrice > subtotal && (
                         <div className="text-2xl font-semibold text-gray-500 line-through">
                           ${originalPrice.toFixed(2)}
                         </div>
@@ -975,27 +1002,33 @@ export default function Checkout() {
 
               {/* Price Breakdown */}
               <div className="space-y-3 mb-6">
-                {subscriptionFromState?.discount?.final_price && originalPrice > subscriptionPrice && (
+                {(subscriptionFromState?.discount?.final_price || couponDiscount) && originalPrice > subtotal && (
                   <div className="flex justify-between text-gray-500 text-sm">
                     <span>Original Price</span>
                     <span className="line-through">${originalPrice.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-                {discount > 0 && (
+                {totalDiscount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>
                       Discount
                       {subscriptionFromState?.discount?.discount_percent && (
                         <span className="text-xs ml-1">({subscriptionFromState.discount.discount_percent}%)</span>
                       )}
+                      {couponDiscount?.discount_type === 'percent' && couponDiscount.discount_value && (
+                        <span className="text-xs ml-1">({couponDiscount.discount_value}%)</span>
+                      )}
+                      {couponDiscount?.discount_type === 'amount' && couponDiscount.discount_value && (
+                        <span className="text-xs ml-1">(${(couponDiscount.discount_value / 100).toFixed(2)})</span>
+                      )}
                     </span>
-                    <span className="font-medium">-${discount.toFixed(2)}</span>
+                    <span className="font-medium">-${totalDiscount.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+                </div>
                 <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>

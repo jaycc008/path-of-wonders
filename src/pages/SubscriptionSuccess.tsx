@@ -159,7 +159,7 @@ export default function SubscriptionSuccess() {
                 {/* Subscription Details */}
                 {paymentData.line_items?.data?.[0] && (
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Details</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Item Details</h3>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-gray-900 font-medium">{paymentData.line_items.data[0].description}</p>
                     </div>
