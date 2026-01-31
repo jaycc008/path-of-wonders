@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetails from './pages/CourseDetails';
+import BookCheckout from './pages/BookCheckout';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/book-checkout" element={<BookCheckout />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
           <Route path="/course/success" element={<CoursePurchaseSuccess />} />
           <Route path="/courses" element={<CoursesPage />} />

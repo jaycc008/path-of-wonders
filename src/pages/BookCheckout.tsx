@@ -7,40 +7,28 @@ import Footer from '../components/Footer';
 import CouponInput from '../components/CouponInput';
 import ContactInfoForm from '../components/forms/ContactInfoForm';
 import BillingAddressForm from '../components/forms/BillingAddressForm';
-import { Subscription, initiatePurchase } from '../api/subscription';
-import { initiateCoursePurchase } from '../api/course';
+import ShippingAddressForm from '../components/forms/ShippingAddressForm';
+import { Book as BookType } from '../api/course';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
 import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
 import { getUserInfo } from '../utils/userInfo';
 
-interface Course {
-  id: number;
-  name?: string;
-  title?: string;
-  description: string;
-  image?: string;
-  thumbnail_url?: string;
-  price: number;
-}
-
-export default function Checkout() {
+export default function BookCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
   
-  // Get course or subscription from location state, query params, or restored redirect state
-  const locationState = location.state as { course?: Course; subscription?: Subscription } | undefined;
+  // Get book from location state, query params, or restored redirect state
+  const locationState = location.state as { book?: BookType } | undefined;
   const redirectState = getRedirectState();
   
-  // Check URL query parameters for subscription or course data (from redirect after login)
+  // Check URL query parameters for book data (from redirect after login)
   const getDataFromQuery = () => {
     const params = new URLSearchParams(location.search);
-    const subscriptionParam = params.get('subscription');
-    const courseParam = params.get('course');
+    const bookParam = params.get('book');
     
-    let subscriptionFromQuery: Subscription | null = null;
-    let courseFromQuery: Course | null = null;
+    let bookFromQuery: BookType | null = null;
     
     // Helper function to decode and parse encoded data
     const decodeAndParse = (param: string): any => {
@@ -82,33 +70,22 @@ export default function Checkout() {
       }
     };
     
-    if (subscriptionParam) {
+    if (bookParam) {
       try {
-        const parsedData = decodeAndParse(subscriptionParam);
-        subscriptionFromQuery = parsedData.subscription || null;
+        const parsedData = decodeAndParse(bookParam);
+        bookFromQuery = parsedData.book || null;
       } catch (error) {
-        console.error('[Checkout] Error parsing subscription from query param:', error);
+        console.error('[BookCheckout] Error parsing book from query param:', error);
       }
     }
     
-    if (courseParam) {
-      try {
-        const parsedData = decodeAndParse(courseParam);
-        courseFromQuery = parsedData.course || null;
-      } catch (error) {
-        console.error('[Checkout] Error parsing course from query param:', error);
-      }
-    }
-    
-    return { subscriptionFromQuery, courseFromQuery };
+    return { bookFromQuery };
   };
   
-  const { subscriptionFromQuery, courseFromQuery } = getDataFromQuery();
+  const { bookFromQuery } = getDataFromQuery();
   
   // Prioritize: location state > query params > redirect state
-  const courseFromState = locationState?.course || courseFromQuery || redirectState?.course;
-  const subscriptionFromState = locationState?.subscription || subscriptionFromQuery || redirectState?.subscription;
-  console.log(subscriptionFromState,"fromState")
+  const bookFromState = locationState?.book || bookFromQuery || redirectState?.book;
   // Clear redirect state if we have it (we've successfully restored it)
   useEffect(() => {
     if (redirectState && isAuthenticated) {
@@ -116,25 +93,18 @@ export default function Checkout() {
     }
   }, [redirectState, isAuthenticated, clearRedirectUrl]);
   
-  // Determine if this is a subscription checkout
-  const isSubscription = !!subscriptionFromState;
-
   // Protect route - redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Build return URL with subscription/course data in query params
-      const baseCheckoutUrl = '/checkout';
+      // Build return URL with book data in query params
+      const baseCheckoutUrl = '/book-checkout';
       let returnUrl = `${window.location.origin}${baseCheckoutUrl}`;
       
-      // Encode subscription or course data in query parameters using UTF-8 safe encoding
-      if (subscriptionFromState) {
-        const subscriptionJson = JSON.stringify({ subscription: subscriptionFromState });
-        const encodedSubscription = encodeToBase64(subscriptionJson);
-        returnUrl = `${returnUrl}?subscription=${encodeURIComponent(encodedSubscription)}`;
-      } else if (courseFromState) {
-        const courseJson = JSON.stringify({ course: courseFromState });
-        const encodedCourse = encodeToBase64(courseJson);
-        returnUrl = `${returnUrl}?course=${encodeURIComponent(encodedCourse)}`;
+      // Encode book data in query parameters using UTF-8 safe encoding
+      if (bookFromState) {
+        const bookJson = JSON.stringify({ book: bookFromState });
+        const encodedBook = encodeToBase64(bookJson);
+        returnUrl = `${returnUrl}?book=${encodeURIComponent(encodedBook)}`;
       }
       
       // Get login URL from environment variable
@@ -150,7 +120,7 @@ export default function Checkout() {
         navigate(`${loginUrl}?return_url=${encodeURIComponent(returnUrl)}`);
       }
     }
-  }, [isAuthenticated, isLoading, navigate, courseFromState, subscriptionFromState]);
+  }, [isAuthenticated, isLoading, navigate, bookFromState]);
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
@@ -161,10 +131,24 @@ export default function Checkout() {
     currency?: string;
   } | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
+  const [sameAsBilling, setSameAsBilling] = useState(true);
+  
+  // Printing and Shipping charges (will be calculated via API later)
+  // TODO: Calculate these via API based on shipping address and book details
+  const [printingCharges] = useState<number>(0);
+  const [shippingCharges] = useState<number>(0);
   
   // Form refs for accessing form values
   const contactFormRef = useRef<FormikProps<{ name: string; email: string }>>(null);
   const billingFormRef = useRef<FormikProps<{
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  }>>(null);
+  const shippingFormRef = useRef<FormikProps<{
     addressLine1: string;
     addressLine2: string;
     city: string;
@@ -186,42 +170,54 @@ export default function Checkout() {
           postalCode: '',
           country: 'US',
         },
+        shipping: {
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: 'US',
+        },
       };
     }
 
     const userInfo = getUserInfo(user);
+    const defaultAddress = userInfo.billingAddress || {
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'US',
+    };
+    
     return {
       contact: {
         name: userInfo.name,
         email: userInfo.email,
       },
-      billing: userInfo.billingAddress || {
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: 'US',
-      },
+      billing: defaultAddress,
+      shipping: defaultAddress,
     };
   };
 
   const initialFormValues = getInitialFormValues();
+  
+  // Track current billing address for shipping form (stable reference)
+  const [currentBillingAddress, setCurrentBillingAddress] = useState(initialFormValues.billing);
+  
+  // Update current billing address when initial values change
+  useEffect(() => {
+    setCurrentBillingAddress(initialFormValues.billing);
+  }, [initialFormValues.billing]);
 
-  // Calculate pricing based on subscription or course
-  const basePrice = subscriptionFromState 
-    ? (subscriptionFromState.discount?.final_price ?? subscriptionFromState.price)
-    : courseFromState?.price ?? 0;
-  const originalPrice = subscriptionFromState?.price ?? courseFromState?.price ?? 0;
+  // Calculate pricing based on book
+  const basePrice = bookFromState?.price ?? 0;
+  const originalPrice = basePrice;
   
-  // Calculate discount from subscription discount
-  const subscriptionDiscount = subscriptionFromState?.discount?.final_price 
-    ? originalPrice - basePrice 
-    : 0;
-  
-  // Calculate discount from coupon (if applied and not from subscription)
+  // Calculate discount from coupon
   let couponDiscountAmount = 0;
-  if (couponDiscount && !subscriptionFromState?.discount) {
+  if (couponDiscount) {
     if (couponDiscount.discount_type === 'amount' && couponDiscount.discount_value) {
       // discount_value is in cents, convert to dollars
       couponDiscountAmount = couponDiscount.discount_value / 100;
@@ -232,8 +228,8 @@ export default function Checkout() {
   }
   
   const subtotal = Math.max(0, basePrice - couponDiscountAmount);
-  const totalDiscount = subscriptionDiscount + couponDiscountAmount;
-  const total = subtotal;
+  const totalDiscount = couponDiscountAmount;
+  const total = subtotal + printingCharges + shippingCharges;
 
   const handleContactInfoSubmit = (values: { name: string; email: string }) => {
     // Formik handles validation, values are stored in form state
@@ -249,7 +245,21 @@ export default function Checkout() {
     country: string;
   }) => {
     // Formik handles validation, values are stored in form state
-    console.log('[Checkout] Billing address updated:', values);
+    console.log('[BookCheckout] Billing address updated:', values);
+    // Update current billing address state for shipping form
+    setCurrentBillingAddress(values);
+  };
+
+  const handleShippingAddressSubmit = (values: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  }) => {
+    // Formik handles validation, values are stored in form state
+    console.log('[BookCheckout] Shipping address updated:', values);
   };
 
   const handleCouponApplied = (discountInfo: { code: string; discount_type?: 'amount' | 'percent'; discount_value?: number; currency?: string }) => {
@@ -259,6 +269,7 @@ export default function Checkout() {
       discount_value: discountInfo.discount_value,
       currency: discountInfo.currency
     });
+    console.log('[BookCheckout] Coupon applied:', discountInfo.code);
   };
 
   const handleCouponRemoved = () => {
@@ -270,6 +281,7 @@ export default function Checkout() {
     // Validate all forms
     const contactErrors = await contactFormRef.current?.validateForm();
     const billingErrors = await billingFormRef.current?.validateForm();
+    const shippingErrors = sameAsBilling ? null : await shippingFormRef.current?.validateForm();
 
     if (contactErrors && Object.keys(contactErrors).length > 0) {
       contactFormRef.current?.setTouched({
@@ -290,6 +302,17 @@ export default function Checkout() {
       return;
     }
 
+    if (shippingErrors && Object.keys(shippingErrors).length > 0) {
+      shippingFormRef.current?.setTouched({
+        addressLine1: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        country: true,
+      });
+      return;
+    }
+
     // Get form values
     const contactValues = contactFormRef.current?.values || { name: '', email: '' };
     const billingValues = billingFormRef.current?.values || {
@@ -300,97 +323,33 @@ export default function Checkout() {
       postalCode: '',
       country: 'US',
     };
+    const shippingValues = sameAsBilling 
+      ? billingValues 
+      : (shippingFormRef.current?.values || billingValues);
 
     // Clear any previous error
     setPaymentError('');
     setIsProcessing(true);
 
     try {
-      let checkoutUrl: string | undefined;
+      // TODO: Implement book purchase API call
+      // For now, just log the data
+      console.log('[BookCheckout] Book purchase data:', {
+        book: bookFromState,
+        contact: contactValues,
+        billing: billingValues,
+        shipping: shippingValues,
+        printingCharges,
+        shippingCharges,
+        total,
+      });
 
-      // Prepare billing address in Stripe format
-      const billingAddressData = {
-        line1: billingValues.addressLine1,
-        line2: billingValues.addressLine2 || undefined,
-        city: billingValues.city,
-        state: billingValues.state,
-        postal_code: billingValues.postalCode,
-        country: billingValues.country,
-      };
-
-      if (isSubscription && subscriptionFromState) {
-        // Handle subscription purchase
-        console.log('[Checkout] Initiating subscription purchase:', subscriptionFromState.id);
-        
-        // Use applied coupon from component (which may be from subscription discount or user input)
-        // If no applied coupon but subscription has discount promotion code, use that as fallback
-        const promotionCode = appliedCoupon 
-          || subscriptionFromState.discount?.stripe_promotion_code_id 
-          || undefined;
-        
-        const purchaseResponse = await initiatePurchase(
-          subscriptionFromState.id,
-          contactValues.name,
-          contactValues.email,
-          subscriptionFromState.discount?.id,
-          promotionCode, // promotion_code from discount or user input
-          billingAddressData, // billing_address
-          saveAddress // save_address flag
-        );
-
-        if (purchaseResponse.status && purchaseResponse.data?.checkout_url) {
-          checkoutUrl = purchaseResponse.data.checkout_url;
-          console.log('[Checkout] Subscription checkout URL received:', checkoutUrl);
-        } else {
-          throw new Error(purchaseResponse.message || 'Failed to get checkout URL for subscription');
-        }
-      } else if (courseFromState) {
-        // Handle course purchase
-        console.log('[Checkout] Initiating course purchase:', courseFromState.id);
-        const purchaseResponse = await initiateCoursePurchase(
-          courseFromState.id,
-          contactValues.name,
-          contactValues.email,
-          appliedCoupon || undefined, // promotion_code from coupon
-          billingAddressData, // billing_address
-          saveAddress // save_address flag
-        );
-
-        console.log('[Checkout] Course purchase response:', purchaseResponse);
-
-        // Check for both 'status' and 'success' to handle different API response formats
-        const isSuccess = (purchaseResponse as any).status === true || purchaseResponse.success === true;
-        
-        if (isSuccess && purchaseResponse.data?.checkout_url) {
-          checkoutUrl = purchaseResponse.data.checkout_url;
-          console.log('[Checkout] Course checkout URL received:', checkoutUrl);
-        } else {
-          console.error('[Checkout] Course purchase failed:', {
-            isSuccess,
-            hasCheckoutUrl: !!purchaseResponse.data?.checkout_url,
-            message: purchaseResponse.message,
-            dataMessage: (purchaseResponse as any).data?.message,
-            fullResponse: purchaseResponse
-          });
-          throw new Error(
-            purchaseResponse.message || 
-            (purchaseResponse as any).data?.message || 
-            'Failed to get checkout URL for course'
-          );
-        }
-      } else {
-        throw new Error('No subscription or course selected');
-      }
-
-      // Redirect to Stripe checkout
-      if (checkoutUrl) {
-        console.log('[Checkout] Redirecting to Stripe checkout:', checkoutUrl);
-        window.location.href = checkoutUrl;
-      } else {
-        throw new Error('Checkout URL not available');
-      }
+      // TODO: Replace with actual API call
+      // const purchaseResponse = await initiateBookPurchase(...);
+      
+      throw new Error('Book purchase API not yet implemented');
     } catch (error: any) {
-      console.error('[Checkout] Error initiating payment:', error);
+      console.error('[BookCheckout] Error initiating payment:', error);
       setIsProcessing(false);
       
       // Extract error message from various possible response structures
@@ -421,22 +380,22 @@ export default function Checkout() {
     return null;
   }
 
-  // Show error if no course or subscription selected
-  if (!courseFromState && !subscriptionFromState) {
+  // Show error if no book selected
+  if (!bookFromState) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-16">
         <Header />
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="bg-white rounded-2xl p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">No Item Selected</h1>
-            <p className="text-gray-600 mb-6">Please select a course or subscription to proceed with checkout.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">No Book Selected</h1>
+            <p className="text-gray-600 mb-6">Please select a book to proceed with checkout.</p>
             <PrimaryButton
-              onClick={() => navigate(isSubscription ? '/' : '/courses')}
+              onClick={() => navigate('/courses')}
               size="lg"
               icon={ArrowLeft}
               iconPosition="left"
             >
-              {isSubscription ? 'Back to Home' : 'Browse Courses'}
+              Back to Courses
             </PrimaryButton>
           </div>
         </div>
@@ -456,7 +415,7 @@ export default function Checkout() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">{isSubscription ? 'Back' : 'Back to Courses'}</span>
+          <span className="font-medium">Back to Courses</span>
         </button>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -466,7 +425,7 @@ export default function Checkout() {
               {/* Header */}
               <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                  {isSubscription ? 'Complete Your Subscription' : 'Complete Your Enrollment'}
+                  Complete Your Book Purchase
                 </h1>
                 <p className="text-gray-600">
                   Secure checkout powered by Stripe
@@ -475,72 +434,30 @@ export default function Checkout() {
 
               {/* Summary Card */}
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-8 border border-blue-100">
-                {isSubscription && subscriptionFromState ? (
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">
-                        {subscriptionFromState.name}
-                      </div>
-                      {subscriptionFromState.discount && (
-                        <>
-                          {subscriptionFromState.discount.discount_percent && (
-                            <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
-                              {subscriptionFromState.discount.discount_percent}% OFF
-                            </div>
-                          )}
-                          {subscriptionFromState.discount.discount_amount && !subscriptionFromState.discount.discount_percent && (
-                            <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
-                              ${subscriptionFromState.discount.discount_amount.toFixed(2)} OFF
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="text-4xl font-bold text-gray-900">
-                        ${subtotal.toFixed(2)}
-                      </div>
-                      {(subscriptionFromState.discount?.final_price || couponDiscount) && originalPrice > subtotal && (
-                        <div className="text-2xl font-semibold text-gray-500 line-through">
-                          ${originalPrice.toFixed(2)}
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      {Math.floor(subscriptionFromState.duration_days / 30)} {Math.floor(subscriptionFromState.duration_days / 30) === 1 ? 'month' : 'months'} subscription
-                    </p>
-                    {subscriptionFromState.includes && subscriptionFromState.includes.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm font-semibold text-gray-700 mb-2">Includes:</p>
-                        {subscriptionFromState.includes.slice(0, 3).map((item: string, index: number) => (
-                          <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                            <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                            <span>{item}</span>
-                          </div>
-                        ))}
-                        {subscriptionFromState.includes.length > 3 && (
-                          <p className="text-xs text-gray-500">+ {subscriptionFromState.includes.length - 3} more benefits</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : courseFromState ? (
+                {bookFromState && (
                   <div className="flex gap-4">
-                    <img
-                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
-                      alt={courseFromState.name || courseFromState.title || 'Course'}
-                      className="w-24 h-24 rounded-lg object-cover"
-                    />
+                    {bookFromState.cover_url && (
+                      <img
+                        src={bookFromState.cover_url}
+                        alt={bookFromState.title}
+                        className="w-24 h-24 rounded-lg object-cover"
+                      />
+                    )}
                     <div className="flex-1">
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
-                        {courseFromState.name || courseFromState.title || 'Course'}
+                        {bookFromState.title}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2">
-                        {courseFromState.description}
+                        {bookFromState.description}
                       </p>
+                      {bookFromState.author && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          by {bookFromState.author.name}
+                        </p>
+                      )}
                     </div>
                   </div>
-                ) : null}
+                )}
               </div>
 
               {/* Contact Information */}
@@ -552,7 +469,7 @@ export default function Checkout() {
 
               {/* Coupon Section */}
               <CouponInput
-                discount={subscriptionFromState?.discount || null}
+                discount={null}
                 onCouponApplied={handleCouponApplied}
                 onCouponRemoved={handleCouponRemoved}
                 disabled={isProcessing}
@@ -565,6 +482,16 @@ export default function Checkout() {
                 onSubmit={handleBillingAddressSubmit}
                 onSaveAddressChange={setSaveAddress}
                 saveAddress={saveAddress}
+              />
+
+              {/* Shipping Address Section */}
+              <ShippingAddressForm
+                ref={shippingFormRef}
+                initialValues={initialFormValues.shipping}
+                billingAddress={currentBillingAddress}
+                onSubmit={handleShippingAddressSubmit}
+                sameAsBilling={sameAsBilling}
+                onSameAsBillingChange={setSameAsBilling}
               />
 
               {/* Error Message Display */}
@@ -600,51 +527,33 @@ export default function Checkout() {
 
               {/* Item Summary */}
               <div className="mb-6 pb-6 border-b border-gray-200">
-                {isSubscription && subscriptionFromState ? (
-                  <div>
-                    <div className="mb-3">
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {subscriptionFromState.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {Math.floor(subscriptionFromState.duration_days / 30)} {Math.floor(subscriptionFromState.duration_days / 30) === 1 ? 'month' : 'months'} subscription
-                      </p>
-                    </div>
-                    {subscriptionFromState.discount && (
-                      <div className="mt-2">
-                        {subscriptionFromState.discount.discount_percent && (
-                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold mb-2">
-                            {subscriptionFromState.discount.discount_percent}% Discount Applied
-                          </div>
-                        )}
-                        {subscriptionFromState.discount.discount_amount && !subscriptionFromState.discount.discount_percent && (
-                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold mb-2">
-                            ${subscriptionFromState.discount.discount_amount.toFixed(2)} Discount Applied
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : courseFromState ? (
+                {bookFromState && (
                   <div className="flex gap-4 mb-4">
-                    <img
-                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
-                      alt={courseFromState.name || courseFromState.title || 'Course'}
-                      className="w-20 h-20 rounded-lg object-cover"
-                    />
+                    {bookFromState.cover_url && (
+                      <img
+                        src={bookFromState.cover_url}
+                        alt={bookFromState.title}
+                        className="w-20 h-20 rounded-lg object-cover"
+                      />
+                    )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-1">
-                        {courseFromState.name || courseFromState.title || 'Course'}
+                        {bookFromState.title}
                       </h3>
-                      <p className="text-sm text-gray-600">Full Course Access</p>
+                      <p className="text-sm text-gray-600">Physical Book</p>
+                      {bookFromState.author && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          by {bookFromState.author.name}
+                        </p>
+                      )}
                     </div>
                   </div>
-                ) : null}
+                )}
               </div>
 
               {/* Price Breakdown */}
               <div className="space-y-3 mb-6">
-                {(subscriptionFromState?.discount?.final_price || couponDiscount) && originalPrice > subtotal && (
+                {couponDiscount && originalPrice > subtotal && (
                   <div className="flex justify-between text-gray-500 text-sm">
                     <span>Original Price</span>
                     <span className="line-through">${originalPrice.toFixed(2)}</span>
@@ -654,9 +563,6 @@ export default function Checkout() {
                   <div className="flex justify-between text-green-600">
                     <span>
                       Discount
-                      {subscriptionFromState?.discount?.discount_percent && (
-                        <span className="text-xs ml-1">({subscriptionFromState.discount.discount_percent}%)</span>
-                      )}
                       {couponDiscount?.discount_type === 'percent' && couponDiscount.discount_value && (
                         <span className="text-xs ml-1">({couponDiscount.discount_value}%)</span>
                       )}
@@ -668,8 +574,16 @@ export default function Checkout() {
                   </div>
                 )}
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
+                  <span>Book Price</span>
                   <span className="font-medium">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Printing Charges</span>
+                  <span className="font-medium">${printingCharges.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping Charges</span>
+                  <span className="font-medium">${shippingCharges.toFixed(2)}</span>
                 </div>
                 <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
                   <span>Total</span>
@@ -681,33 +595,22 @@ export default function Checkout() {
               <div className="mb-6">
                 <h3 className="font-semibold text-gray-900 mb-3">What's Included:</h3>
                 <ul className="space-y-2">
-                  {isSubscription && subscriptionFromState?.includes ? (
-                    (subscriptionFromState.includes as string[]).map((item: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>{item}</span>
-                      </li>
-                    ))
-                  ) : (
-                    <>
-                      <li className="flex items-start gap-2 text-sm text-gray-600">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Full course access</span>
-                      </li>
-                      <li className="flex items-start gap-2 text-sm text-gray-600">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Lifetime access to materials</span>
-                      </li>
-                      <li className="flex items-start gap-2 text-sm text-gray-600">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Certificate of completion</span>
-                      </li>
-                      <li className="flex items-start gap-2 text-sm text-gray-600">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>24/7 support</span>
-                      </li>
-                    </>
-                  )}
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span>Physical printed book</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span>High-quality printing</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span>Secure packaging</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span>Tracking information provided</span>
+                  </li>
                 </ul>
               </div>
 

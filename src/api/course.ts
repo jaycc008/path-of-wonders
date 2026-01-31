@@ -24,6 +24,30 @@ export interface Chapter {
   [key: string]: any;
 }
 
+// Author interface for book
+export interface BookAuthor {
+  name: string;
+  author_dp_url?: string;
+}
+
+// Book interface
+export interface Book {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  long_description?: string;
+  price: number;
+  cover_url?: string;
+  backcover_url?: string;
+  stripe_product_id?: string;
+  stripe_price_id?: string;
+  author?: BookAuthor;
+  status?: string;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
 // Course interface
 export interface Course {
   id: number;
@@ -44,6 +68,7 @@ export interface Course {
   level?: string;
   modules_count?: number;
   chapters_count?: number;
+  book?: Book;
   [key: string]: any;
 }
 
@@ -106,6 +131,28 @@ export const getCourses = async (): Promise<CoursesResponse> => {
     return response.data;
   } catch (error) {
     console.error('Error fetching courses:', error);
+    throw error;
+  }
+};
+
+// Single course response interface
+export interface CourseResponse {
+  status: boolean;
+  data: Course;
+  message?: string;
+}
+
+/**
+ * Get a single course by ID
+ * @param courseId - The course ID (UUID string or number)
+ * @returns Promise with course response including book data
+ */
+export const getCourseById = async (courseId: number | string): Promise<CourseResponse> => {
+  try {
+    const response = await api.get<CourseResponse>(`courses/${courseId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching course:', error);
     throw error;
   }
 };
@@ -188,6 +235,30 @@ export const getCoursePurchaseSuccess = async (sessionId: string): Promise<Cours
     return response.data;
   } catch (error) {
     console.error('Error fetching course purchase success details:', error);
+    throw error;
+  }
+};
+
+// Book response interface
+export interface BookResponse {
+  status: boolean;
+  data: Book;
+  message?: string;
+}
+
+/**
+ * Get book for a specific course
+ * @param courseId - The course ID (UUID string or number)
+ * @returns Promise with book response
+ * 
+ * API Endpoint: GET /api/v1/courses/{course_id}/book
+ */
+export const getCourseBook = async (courseId: number | string): Promise<BookResponse> => {
+  try {
+    const response = await api.get<BookResponse>(`courses/${courseId}/book`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching course book:', error);
     throw error;
   }
 };

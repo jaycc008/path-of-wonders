@@ -3,13 +3,12 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Play, Clock, Users, Star, BookOpen, Award, ArrowRight, Book, FileText, Video, GraduationCap, Infinity, FolderOpen } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Course, getCourses } from '../api/course';
+import { Course, getCourses, getCourseById, getCourseBook, Book as BookType } from '../api/course';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
-import SecondaryButton from '../components/SecondaryButton';
+import BookCard from '../components/BookCard';
 import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
-import bookCoverImage from '../assets/images/bookcover.jpeg';
 
 export default function CourseDetails() {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +16,11 @@ export default function CourseDetails() {
   const location = useLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
+  const [book, setBook] = useState<BookType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBookLoading, setIsBookLoading] = useState(true);
 
+  // Fetch course data
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -31,17 +33,27 @@ export default function CourseDetails() {
           return;
         }
 
-        // Otherwise, fetch from API
-        const response = await getCourses();
-        const foundCourse = response.data.items?.find(
-          (c) => c.id.toString() === id
-        );
-        
-        if (foundCourse) {
-          setCourse(foundCourse);
-        } 
+        // Otherwise, fetch from API using the single course endpoint
+        if (id) {
+          const response = await getCourseById(id);
+          if (response.data) {
+            setCourse(response.data);
+          }
+        }
       } catch (error) {
         console.error('Failed to fetch course:', error);
+        // Fallback to fetching all courses if single course endpoint fails
+        try {
+          const response = await getCourses();
+          const foundCourse = response.data.items?.find(
+            (c) => c.id.toString() === id
+          );
+          if (foundCourse) {
+            setCourse(foundCourse);
+          }
+        } catch (fallbackError) {
+          console.error('Failed to fetch courses:', fallbackError);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -51,6 +63,31 @@ export default function CourseDetails() {
       fetchCourse();
     }
   }, [id, location.state]);
+
+  // Fetch book data separately (doesn't block course loading)
+  useEffect(() => {
+    const fetchBook = async () => {
+      if (!id) return;
+      
+      setIsBookLoading(true);
+      try {
+        const bookResponse = await getCourseBook(id);
+        if (bookResponse.data) {
+          setBook(bookResponse.data);
+        }
+      } catch (bookError) {
+        console.error('Failed to fetch book:', bookError);
+        // If book endpoint fails, try to use book from course data if available
+        if (course?.book) {
+          setBook(course.book);
+        }
+      } finally {
+        setIsBookLoading(false);
+      }
+    };
+
+    fetchBook();
+  }, [id, course?.book]);
 
   // Update page metadata for SEO
   useEffect(() => {
@@ -437,43 +474,7 @@ export default function CourseDetails() {
                 </div>
 
                 {/* Book Section */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 mt-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Book className="w-6 h-6 text-blue-600" />
-                    <h3 className="text-xl font-bold text-gray-900">Course eBook</h3>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <div className="w-full max-w-xs mx-auto aspect-[2/3] rounded-lg overflow-hidden mb-4 border border-gray-200">
-                      <img
-                        src={bookCoverImage}
-                        alt="Course eBook"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                      Enhance your learning with our comprehensive eBook companion. This digital guide includes 
-                      detailed notes, additional resources, practice exercises, and in-depth explanations that 
-                      complement the course material perfectly.
-                    </p>
-                    <div className="flex items-baseline gap-2 mb-4">
-                      <span className="text-2xl font-bold text-gray-900">$49</span>
-                      <span className="text-sm text-gray-500 line-through">$79</span>
-                    </div>
-                  </div>
-
-                  <SecondaryButton
-                    onClick={() => {
-                      // Handle book purchase - you can implement this later
-                      console.log('Purchase eBook');
-                    }}
-                    fullWidth
-                    icon={Book}
-                    iconPosition="left"
-                  >
-                    Buy eBook
-                  </SecondaryButton>
-                </div>
+                <BookCard book={book} isLoading={isBookLoading} />
               </div>
             </div>
           </div>
