@@ -3,6 +3,7 @@ import { Book } from 'lucide-react';
 import { Book as BookType } from '../api/course';
 import SecondaryButton from './SecondaryButton';
 import { encodeToBase64 } from '../utils/encoding';
+import { buildBookCheckoutUrl } from '../constants/routes';
 
 interface BookCardProps {
   book: BookType | null;
@@ -20,7 +21,7 @@ export default function BookCard({ book, isLoading = true }: BookCardProps) {
     const encodedBook = encodeToBase64(bookJson);
     
     // Build checkout URL with book data as query param
-    const checkoutUrl = `/book-checkout?book=${encodeURIComponent(encodedBook)}`;
+    const checkoutUrl = buildBookCheckoutUrl(encodedBook);
     
     // Navigate to book checkout page
     navigate(checkoutUrl);

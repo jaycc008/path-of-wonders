@@ -34,7 +34,7 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 relative overflow-hidden">
+    <section id="subscription" ref={sectionRef} className="py-24 relative overflow-hidden">
       {/* Base Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900"></div>
       
