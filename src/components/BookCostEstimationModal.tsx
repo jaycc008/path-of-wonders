@@ -1,4 +1,4 @@
-import { ArrowRight, X, AlertTriangle, FileText, Ruler } from 'lucide-react';
+import { ArrowRight, X, AlertTriangle, FileText } from 'lucide-react';
 import { Book as BookType } from '../api/course';
 import { BookCostEstimationResponseData } from '../api/books';
 import PrimaryButton from './PrimaryButton';
@@ -39,7 +39,7 @@ export default function BookCostEstimationModal({
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="p-6 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-24">
           {/* Book Summary */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             {book && (
@@ -217,21 +217,21 @@ export default function BookCostEstimationModal({
               <p className="text-sm text-red-800">{paymentError}</p>
             </div>
           )}
+        </div>
 
-          {/* Action Button */}
-          <div className="pt-4 border-t border-gray-200">
-            <PrimaryButton
-              onClick={onConfirmPurchase}
-              disabled={isProcessing}
-              isLoading={isProcessing}
-              size="lg"
-              fullWidth
-              icon={ArrowRight}
-              iconPosition="right"
-            >
-              {isProcessing ? 'Redirecting to Stripe...' : 'Proceed to Payment'}
-            </PrimaryButton>
-          </div>
+        {/* Fixed Action Button */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex-shrink-0">
+          <PrimaryButton
+            onClick={onConfirmPurchase}
+            disabled={isProcessing}
+            isLoading={isProcessing}
+            size="lg"
+            fullWidth
+            icon={ArrowRight}
+            iconPosition="right"
+          >
+            {isProcessing ? 'Redirecting to Stripe...' : `Proceed to Payment ($${parseFloat(costEstimation.total_cost_incl_tax).toFixed(2)})`}
+          </PrimaryButton>
         </div>
       </div>
     </div>
