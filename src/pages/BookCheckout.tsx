@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FormikProps } from 'formik';
-import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Loader2, Info } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CouponInput from '../components/CouponInput';
 import ContactInfoForm from '../components/forms/ContactInfoForm';
 import BillingAddressForm from '../components/forms/BillingAddressForm';
 import ShippingAddressForm from '../components/forms/ShippingAddressForm';
+import BookCostEstimationModal from '../components/BookCostEstimationModal';
 import { Book as BookType } from '../api/course';
+import { getBookCostEstimation, BookCostEstimationResponseData } from '../api/books';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
 import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
@@ -123,6 +125,7 @@ export default function BookCheckout() {
   }, [isAuthenticated, isLoading, navigate, bookFromState]);
   
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isEstimating, setIsEstimating] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponDiscount, setCouponDiscount] = useState<{
@@ -132,14 +135,11 @@ export default function BookCheckout() {
   } | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
   const [sameAsBilling, setSameAsBilling] = useState(true);
-  
-  // Printing and Shipping charges (will be calculated via API later)
-  // TODO: Calculate these via API based on shipping address and book details
-  const [printingCharges] = useState<number>(0);
-  const [shippingCharges] = useState<number>(0);
+  const [showEstimationModal, setShowEstimationModal] = useState(false);
+  const [costEstimation, setCostEstimation] = useState<BookCostEstimationResponseData | null>(null);
   
   // Form refs for accessing form values
-  const contactFormRef = useRef<FormikProps<{ name: string; email: string }>>(null);
+  const contactFormRef = useRef<FormikProps<{ name: string; email: string; phone?: string }>>(null);
   const billingFormRef = useRef<FormikProps<{
     addressLine1: string;
     addressLine2: string;
@@ -161,7 +161,7 @@ export default function BookCheckout() {
   const getInitialFormValues = () => {
     if (isLoading) {
       return {
-        contact: { name: '', email: '' },
+        contact: { name: '', email: '', phone: '' },
         billing: {
           addressLine1: '',
           addressLine2: '',
@@ -195,21 +195,25 @@ export default function BookCheckout() {
       contact: {
         name: userInfo.name,
         email: userInfo.email,
+        phone: userInfo.phone || '',
       },
       billing: defaultAddress,
       shipping: defaultAddress,
     };
   };
 
-  const initialFormValues = getInitialFormValues();
+  const initialFormValues = useMemo(() => getInitialFormValues(), [isLoading, user]);
   
   // Track current billing address for shipping form (stable reference)
-  const [currentBillingAddress, setCurrentBillingAddress] = useState(initialFormValues.billing);
+  // Initialize once and update only when user or loading state changes
+  const [currentBillingAddress, setCurrentBillingAddress] = useState(() => initialFormValues.billing);
   
-  // Update current billing address when initial values change
+  // Update current billing address when user data changes
   useEffect(() => {
-    setCurrentBillingAddress(initialFormValues.billing);
-  }, [initialFormValues.billing]);
+    if (!isLoading && user) {
+      setCurrentBillingAddress(initialFormValues.billing);
+    }
+  }, [isLoading, user]);
 
   // Calculate pricing based on book
   const basePrice = bookFromState?.price ?? 0;
@@ -229,9 +233,8 @@ export default function BookCheckout() {
   
   const subtotal = Math.max(0, basePrice - couponDiscountAmount);
   const totalDiscount = couponDiscountAmount;
-  const total = subtotal + printingCharges + shippingCharges;
 
-  const handleContactInfoSubmit = (values: { name: string; email: string }) => {
+  const handleContactInfoSubmit = (values: { name: string; email: string; phone?: string }) => {
     // Formik handles validation, values are stored in form state
     console.log('[Checkout] Contact info updated:', values);
   };
@@ -287,6 +290,7 @@ export default function BookCheckout() {
       contactFormRef.current?.setTouched({
         name: true,
         email: true,
+        phone: true,
       });
       return;
     }
@@ -314,7 +318,7 @@ export default function BookCheckout() {
     }
 
     // Get form values
-    const contactValues = contactFormRef.current?.values || { name: '', email: '' };
+    const contactValues = contactFormRef.current?.values || { name: '', email: '', phone: '' };
     const billingValues = billingFormRef.current?.values || {
       addressLine1: '',
       addressLine2: '',
@@ -329,6 +333,69 @@ export default function BookCheckout() {
 
     // Clear any previous error
     setPaymentError('');
+    setIsEstimating(true);
+
+    try {
+      if (!bookFromState) {
+        throw new Error('No book selected');
+      }
+
+      if (!contactValues.phone) {
+        throw new Error('Phone number is required');
+      }
+
+      // Convert shipping address to API format
+      const shippingAddress = {
+        city: shippingValues.city,
+        country_code: shippingValues.country,
+        postcode: shippingValues.postalCode,
+        state_code: shippingValues.state,
+        street1: shippingValues.addressLine1,
+        phone_number: contactValues.phone,
+      };
+
+      // Call cost estimation API
+      const estimation = await getBookCostEstimation(
+        bookFromState.id,
+        shippingAddress,
+        1 // quantity
+      );
+
+      setCostEstimation(estimation);
+      setShowEstimationModal(true);
+    } catch (error: any) {
+      console.error('[BookCheckout] Error getting cost estimation:', error);
+      setIsEstimating(false);
+      
+      // Extract error message from various possible response structures
+      const errorMessage = 
+        error.response?.data?.detail || 
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to get cost estimation. Please try again.';
+      
+      setPaymentError(errorMessage);
+    } finally {
+      setIsEstimating(false);
+    }
+  };
+
+  const handleConfirmPurchase = async () => {
+    // Get form values
+    const contactValues = contactFormRef.current?.values || { name: '', email: '', phone: '' };
+    const billingValues = billingFormRef.current?.values || {
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'US',
+    };
+    const shippingValues = sameAsBilling 
+      ? billingValues 
+      : (shippingFormRef.current?.values || billingValues);
+
+    setPaymentError('');
     setIsProcessing(true);
 
     try {
@@ -339,9 +406,7 @@ export default function BookCheckout() {
         contact: contactValues,
         billing: billingValues,
         shipping: shippingValues,
-        printingCharges,
-        shippingCharges,
-        total,
+        costEstimation,
       });
 
       // TODO: Replace with actual API call
@@ -385,7 +450,7 @@ export default function BookCheckout() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-16">
         <Header />
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto p-2">
           <div className="bg-white rounded-2xl p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">No Book Selected</h1>
             <p className="text-gray-600 mb-6">Please select a book to proceed with checkout.</p>
@@ -408,17 +473,10 @@ export default function BookCheckout() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">Back to Courses</span>
-        </button>
+      <div className="max-w-7xl mx-auto py-12 px-2">
+       
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-4 mt-16">
           {/* Left Side - Checkout Form (2 columns) */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl  p-8 md:p-10">
@@ -507,15 +565,15 @@ export default function BookCheckout() {
               {/* Proceed to Payment Button */}
               <PrimaryButton
                 onClick={handleProceedToPayment}
-                disabled={isProcessing}
-                isLoading={isProcessing}
+                disabled={isProcessing || isEstimating}
+                isLoading={isEstimating}
                 size="lg"
                 fullWidth
                 icon={ArrowRight}
                 iconPosition="right"
                 className="gap-2"
               >
-                {isProcessing ? 'Redirecting to Stripe...' : 'Proceed to Payment'}
+                {isEstimating ? 'Calculating Costs...' : 'Get Cost Estimation'}
               </PrimaryButton>
             </div>
           </div>
@@ -573,21 +631,17 @@ export default function BookCheckout() {
                     <span className="font-medium">-${totalDiscount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-600">
-                  <span>Book Price</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+                <div className="pt-1  border-gray-200 flex justify-between text-xl font-bold text-gray-900">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Printing Charges</span>
-                  <span className="font-medium">${printingCharges.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping Charges</span>
-                  <span className="font-medium">${shippingCharges.toFixed(2)}</span>
-                </div>
-                <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-blue-800">
+                      Get full cost breakdown including shipping and taxes on the next step
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -638,6 +692,18 @@ export default function BookCheckout() {
       </div>
 
       <Footer />
+
+      {/* Cost Estimation Modal */}
+      <BookCostEstimationModal
+        isOpen={showEstimationModal}
+        onClose={() => setShowEstimationModal(false)}
+        book={bookFromState}
+        costEstimation={costEstimation}
+        basePrice={basePrice}
+        paymentError={paymentError}
+        isProcessing={isProcessing}
+        onConfirmPurchase={handleConfirmPurchase}
+      />
     </div>
   );
 }

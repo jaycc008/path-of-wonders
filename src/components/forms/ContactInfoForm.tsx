@@ -7,8 +7,9 @@ interface ContactInfoFormProps {
   initialValues: {
     name: string;
     email: string;
+    phone?: string;
   };
-  onSubmit: (values: { name: string; email: string }) => void;
+  onSubmit: (values: { name: string; email: string; phone?: string }) => void;
 }
 
 const validationSchema = Yup.object({
@@ -18,9 +19,12 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email('Please enter a valid email address')
     .required('Email address is required'),
+  phone: Yup.string()
+    .matches(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, 'Please enter a valid phone number')
+    .required('Phone number is required'),
 });
 
-const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string }>, ContactInfoFormProps>(
+const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; phone?: string }>, ContactInfoFormProps>(
   ({ initialValues, onSubmit }, ref) => {
     return (
       <div className="mb-8">
@@ -66,6 +70,21 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string }>,
                     placeholder="your.email@example.com"
                   />
                   <ErrorMessage name="email" component="p" className="mt-1 text-sm text-red-600" />
+                </div>
+
+                {/* Phone Field */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number *
+                  </label>
+                  <Field
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                  <ErrorMessage name="phone" component="p" className="mt-1 text-sm text-red-600" />
                 </div>
               </div>
             </Form>

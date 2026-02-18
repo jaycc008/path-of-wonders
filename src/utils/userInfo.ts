@@ -3,6 +3,7 @@ import { api } from '../api';
 export interface UserInfo {
   email: string;
   name: string;
+  phone?: string;
   billingAddress: {
     addressLine1: string;
     addressLine2: string;
@@ -54,6 +55,7 @@ export const extractUserInfo = (userObj: any): UserInfo => {
   return {
     email: userData?.email || '',
     name: userData?.name || '',
+    phone: userData?.phone || userData?.phone_number || '',
     billingAddress,
   };
 };
