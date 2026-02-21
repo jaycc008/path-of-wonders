@@ -13,6 +13,7 @@ import { Book as BookType } from '../api/course';
 import { getBookCostEstimation, BookCostEstimationResponseData } from '../api/books';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
+import PurchaseButton from '../components/PurchaseButton';
 import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
 import { getUserInfo } from '../utils/userInfo';
 
@@ -137,6 +138,7 @@ export default function BookCheckout() {
   const [sameAsBilling, setSameAsBilling] = useState(true);
   const [showEstimationModal, setShowEstimationModal] = useState(false);
   const [costEstimation, setCostEstimation] = useState<BookCostEstimationResponseData | null>(null);
+  const [savedAddressId, setSavedAddressId] = useState<string | null>(null);
   
   // Form refs for accessing form values
   const contactFormRef = useRef<FormikProps<{ name: string; email: string; phone?: string }>>(null);
@@ -344,6 +346,69 @@ export default function BookCheckout() {
         throw new Error('Phone number is required');
       }
 
+      // Check if shipping country is India - if so, skip estimation and go directly to purchase
+      const isIndia = shippingValues.country === 'IN' || shippingValues.country === 'India';
+      
+      if (isIndia) {
+        // For India, skip estimation and go directly to purchase with fulfillment_type='direct'
+        // Get address_id first
+        let addressId = '';
+        
+        // Check if user has saved addresses
+        if (user?.data?.addresses && Array.isArray(user.data.addresses) && user.data.addresses.length > 0) {
+          // Try to find a matching address first
+          const matchingAddress = user.data.addresses.find((addr: any) => {
+            return addr.city === shippingValues.city &&
+                   addr.postal_code === shippingValues.postalCode &&
+                   addr.state === shippingValues.state &&
+                   (addr.line1 === shippingValues.addressLine1 || addr.address_line1 === shippingValues.addressLine1);
+          });
+          
+          if (matchingAddress?.id) {
+            addressId = matchingAddress.id;
+          } else {
+            // Use default address or first address as fallback
+            const defaultAddress = user.data.addresses.find((addr: any) => addr.is_default === true) || user.data.addresses[0];
+            if (defaultAddress?.id) {
+              addressId = defaultAddress.id;
+            }
+          }
+        }
+        
+        if (!addressId) {
+          throw new Error('Please save your shipping address first or contact support.');
+        }
+        
+        // Direct purchase for India
+        setIsEstimating(false);
+        setIsProcessing(true);
+        
+        try {
+          const { purchaseBook } = await import('../api/books');
+          const response = await purchaseBook(bookFromState.id, addressId, 1, 'direct');
+          
+          if (response.status && response.data?.checkout_url) {
+            // Redirect to Stripe checkout
+            window.location.href = response.data.checkout_url;
+          } else {
+            throw new Error(response.message || 'Failed to get checkout URL');
+          }
+        } catch (purchaseError: any) {
+          console.error('[BookCheckout] Error purchasing book:', purchaseError);
+          setIsProcessing(false);
+          
+          const errorMessage = 
+            purchaseError.response?.data?.detail || 
+            purchaseError.response?.data?.message || 
+            purchaseError.message || 
+            'Failed to initiate payment. Please try again.';
+          
+          setPaymentError(errorMessage);
+        }
+        return;
+      }
+
+      // For non-India countries, proceed with cost estimation
       // Convert shipping address to API format
       const shippingAddress = {
         city: shippingValues.city,
@@ -361,6 +426,33 @@ export default function BookCheckout() {
         1 // quantity
       );
 
+      // Try to get address_id from user's saved addresses
+      // The purchase API requires address_id, so we need to use an existing saved address
+      // or the backend might create it during purchase if the address matches
+      let addressId = '';
+      
+      // Check if user has saved addresses
+      if (user?.data?.addresses && Array.isArray(user.data.addresses) && user.data.addresses.length > 0) {
+        // Try to find a matching address first
+        const matchingAddress = user.data.addresses.find((addr: any) => {
+          return addr.city === shippingValues.city &&
+                 addr.postal_code === shippingValues.postalCode &&
+                 addr.state === shippingValues.state &&
+                 (addr.line1 === shippingValues.addressLine1 || addr.address_line1 === shippingValues.addressLine1);
+        });
+        
+        if (matchingAddress?.id) {
+          addressId = matchingAddress.id;
+        } else {
+          // Use default address or first address as fallback
+          const defaultAddress = user.data.addresses.find((addr: any) => addr.is_default === true) || user.data.addresses[0];
+          if (defaultAddress?.id) {
+            addressId = defaultAddress.id;
+          }
+        }
+      }
+      
+      setSavedAddressId(addressId || null);
       setCostEstimation(estimation);
       setShowEstimationModal(true);
     } catch (error: any) {
@@ -380,52 +472,8 @@ export default function BookCheckout() {
     }
   };
 
-  const handleConfirmPurchase = async () => {
-    // Get form values
-    const contactValues = contactFormRef.current?.values || { name: '', email: '', phone: '' };
-    const billingValues = billingFormRef.current?.values || {
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: 'US',
-    };
-    const shippingValues = sameAsBilling 
-      ? billingValues 
-      : (shippingFormRef.current?.values || billingValues);
-
-    setPaymentError('');
-    setIsProcessing(true);
-
-    try {
-      // TODO: Implement book purchase API call
-      // For now, just log the data
-      console.log('[BookCheckout] Book purchase data:', {
-        book: bookFromState,
-        contact: contactValues,
-        billing: billingValues,
-        shipping: shippingValues,
-        costEstimation,
-      });
-
-      // TODO: Replace with actual API call
-      // const purchaseResponse = await initiateBookPurchase(...);
-      
-      throw new Error('Book purchase API not yet implemented');
-    } catch (error: any) {
-      console.error('[BookCheckout] Error initiating payment:', error);
-      setIsProcessing(false);
-      
-      // Extract error message from various possible response structures
-      const errorMessage = 
-        error.response?.data?.detail || 
-        error.response?.data?.message || 
-        error.message || 
-        'Failed to initiate payment. Please try again.';
-      
-      setPaymentError(errorMessage);
-    }
+  const handlePurchaseError = (error: string) => {
+    setPaymentError(error);
   };
 
   // Show loading state while checking authentication
@@ -563,18 +611,25 @@ export default function BookCheckout() {
               )}
 
               {/* Proceed to Payment Button */}
-              <PrimaryButton
-                onClick={handleProceedToPayment}
-                disabled={isProcessing || isEstimating}
-                isLoading={isEstimating}
-                size="lg"
-                fullWidth
-                icon={ArrowRight}
-                iconPosition="right"
-                className="gap-2"
-              >
-                {isEstimating ? 'Calculating Costs...' : 'Get Cost Estimation'}
-              </PrimaryButton>
+              {(() => {
+                // Determine fulfillment type based on shipping country
+                const shippingValues = sameAsBilling 
+                  ? (billingFormRef.current?.values || { country: 'US' })
+                  : (shippingFormRef.current?.values || billingFormRef.current?.values || { country: 'US' });
+                const isIndia = shippingValues.country === 'IN' || shippingValues.country === 'India';
+                const fulfillmentType = isIndia ? 'direct' : 'lulu';
+                
+                return (
+                  <PurchaseButton
+                    onClick={handleProceedToPayment}
+                    disabled={isEstimating || isProcessing}
+                    isLoading={isEstimating || isProcessing}
+                    fulfillmentType={fulfillmentType}
+                    size="lg"
+                    fullWidth
+                  />
+                );
+              })()}
             </div>
           </div>
 
@@ -700,9 +755,10 @@ export default function BookCheckout() {
         book={bookFromState}
         costEstimation={costEstimation}
         basePrice={basePrice}
-        paymentError={paymentError}
-        isProcessing={isProcessing}
-        onConfirmPurchase={handleConfirmPurchase}
+        bookId={bookFromState?.id || ''}
+        addressId={savedAddressId || ''}
+        quantity={1}
+        onError={handlePurchaseError}
       />
     </div>
   );

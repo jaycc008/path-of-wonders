@@ -157,3 +157,169 @@ export const getBookCostEstimation = async (
   }
 };
 
+// Book purchase request interface
+export interface BookPurchaseRequest {
+  address_id: string; // UUID as string
+  quantity: number; // Minimum 1, default 1
+  fulfillment_type: 'lulu' | 'direct'; // Fulfillment type: lulu for international, direct for India
+}
+
+// Checkout session response interface
+export interface CheckoutSessionResponse {
+  payment_id: string; // UUID as string
+  checkout_url: string;
+  stripe_session_id: string;
+}
+
+// Book purchase response interface
+export interface BookPurchaseResponse {
+  status: boolean;
+  data: CheckoutSessionResponse;
+  message?: string;
+}
+
+/**
+ * Purchase a book
+ * @param bookId - The book ID (UUID string or number)
+ * @param addressId - User's shipping address ID (UUID string)
+ * @param quantity - Number of books to purchase (default: 1, minimum: 1)
+ * @param fulfillmentType - Fulfillment type: 'lulu' for international orders, 'direct' for India (default: 'lulu')
+ * @returns Promise with purchase response containing checkout URL
+ * 
+ * API Endpoint: POST /api/v1/books/{book_id}/purchase
+ * Authentication: Required (Cookie or Bearer token)
+ * Status Code: 201 Created
+ * 
+ * Gets Lulu cost estimation (for lulu), creates pending payment, and creates Stripe checkout with custom amount.
+ * For direct fulfillment (India), backend handles everything and returns checkout URL.
+ * Response includes checkout_url for Stripe redirect, payment_id, and stripe_session_id
+ */
+export const purchaseBook = async (
+  bookId: number | string,
+  addressId: string,
+  quantity: number = 1,
+  fulfillmentType: 'lulu' | 'direct' = 'lulu'
+): Promise<BookPurchaseResponse> => {
+  try {
+    if (quantity < 1) {
+      throw new Error('Quantity must be at least 1');
+    }
+
+    const payload: BookPurchaseRequest = {
+      address_id: addressId,
+      quantity,
+      fulfillment_type: fulfillmentType,
+    };
+
+    const response = await api.post<BookPurchaseResponse>(
+      `books/${bookId}/purchase`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error purchasing book:', error);
+    throw error;
+  }
+};
+
+// Payment details interface
+export interface PaymentDetails {
+  id: string;
+  user_id: string;
+  payment_type: string;
+  status: string;
+  amount: number;
+  stripe_payment_id: string;
+  receipt_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Order details interface
+export interface OrderDetails {
+  id: string;
+  user_id: string;
+  book_id: string;
+  payment_id: string;
+  address_id: string;
+  status: string;
+  fulfillment_type: 'lulu' | 'direct';
+  lulu_print_job_id: string | null;
+  lulu_status: string | null;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  carrier: string | null;
+  shipping_method: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Address details interface
+export interface AddressDetails {
+  id: string;
+  user_id: string;
+  full_name: string;
+  phone_number: string | null;
+  address_line1: string;
+  address_line2: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  landmark: string | null;
+  status: string;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Book purchase success details interface
+export interface BookPurchaseSuccessDetails {
+  session_id: string;
+  payment_status: string;
+  status: string;
+  amount_total: number;
+  currency: string;
+  payment: PaymentDetails;
+  order: OrderDetails;
+  book: {
+    id: string;
+    course_id: string;
+    title: string;
+    description: string;
+    long_description: string;
+    price: number;
+    cover_url: string;
+    author: {
+      name: string;
+      author_dp_url: string;
+    };
+    status: string;
+    created_at: string;
+    updated_at: string | null;
+  };
+  address: AddressDetails;
+}
+
+// Book purchase success response interface
+export interface BookPurchaseSuccessResponse {
+  status: boolean;
+  data: BookPurchaseSuccessDetails;
+  message?: string;
+}
+
+/**
+ * Get book purchase success details by session ID
+ * @param sessionId - Stripe checkout session ID
+ * @returns Promise with book purchase success details
+ */
+export const getBookPurchaseSuccess = async (sessionId: string): Promise<BookPurchaseSuccessResponse> => {
+  try {
+    const response = await api.get<BookPurchaseSuccessResponse>(`books/success?session_id=${sessionId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching book purchase success details:', error);
+    throw error;
+  }
+};
+

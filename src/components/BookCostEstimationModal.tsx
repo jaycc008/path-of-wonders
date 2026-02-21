@@ -1,7 +1,8 @@
-import { ArrowRight, X, AlertTriangle, FileText } from 'lucide-react';
+import { useState } from 'react';
+import { X, AlertTriangle, FileText } from 'lucide-react';
 import { Book as BookType } from '../api/course';
-import { BookCostEstimationResponseData } from '../api/books';
-import PrimaryButton from './PrimaryButton';
+import { BookCostEstimationResponseData, purchaseBook } from '../api/books';
+import PurchaseButton from './PurchaseButton';
 
 interface BookCostEstimationModalProps {
   isOpen: boolean;
@@ -9,9 +10,10 @@ interface BookCostEstimationModalProps {
   book: BookType | null;
   costEstimation: BookCostEstimationResponseData | null;
   basePrice: number;
-  paymentError?: string;
-  isProcessing?: boolean;
-  onConfirmPurchase: () => void;
+  bookId: string | number;
+  addressId: string;
+  quantity?: number;
+  onError?: (error: string) => void;
 }
 
 export default function BookCostEstimationModal({
@@ -20,14 +22,63 @@ export default function BookCostEstimationModal({
   book,
   costEstimation,
   basePrice,
-  paymentError,
-  isProcessing = false,
-  onConfirmPurchase,
+  bookId,
+  addressId,
+  quantity = 1,
+  onError,
 }: BookCostEstimationModalProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string>('');
+
   if (!isOpen || !costEstimation) return null;
 
+  const handleConfirmPurchase = async () => {
+    if (!bookId) {
+      const errorMsg = 'Book information is missing. Please try again.';
+      setPaymentError(errorMsg);
+      onError?.(errorMsg);
+      return;
+    }
+
+    if (!addressId) {
+      const errorMsg = 'Shipping address is required. Please save your address first or contact support.';
+      setPaymentError(errorMsg);
+      onError?.(errorMsg);
+      return;
+    }
+
+    setPaymentError('');
+    setIsProcessing(true);
+
+    try {
+      // For cost estimation modal, we always use 'lulu' fulfillment type
+      // (India orders skip the modal and go directly to purchase)
+      const response = await purchaseBook(bookId, addressId, quantity, 'lulu');
+
+      if (response.status && response.data?.checkout_url) {
+        // Redirect to Stripe checkout
+        window.location.href = response.data.checkout_url;
+      } else {
+        throw new Error(response.message || 'Failed to get checkout URL');
+      }
+    } catch (error: any) {
+      console.error('[BookCostEstimationModal] Error purchasing book:', error);
+      setIsProcessing(false);
+      
+      // Extract error message from various possible response structures
+      const errorMessage = 
+        error.response?.data?.detail || 
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to initiate payment. Please try again.';
+      
+      setPaymentError(errorMessage);
+      onError?.(errorMessage);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col">
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900">Order Summary</h2>
@@ -221,17 +272,15 @@ export default function BookCostEstimationModal({
 
         {/* Fixed Action Button */}
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex-shrink-0">
-          <PrimaryButton
-            onClick={onConfirmPurchase}
-            disabled={isProcessing}
+          <PurchaseButton
+            onClick={handleConfirmPurchase}
+            disabled={isProcessing || !addressId}
             isLoading={isProcessing}
+            fulfillmentType="lulu"
+            totalAmount={parseFloat(costEstimation.total_cost_incl_tax)}
             size="lg"
             fullWidth
-            icon={ArrowRight}
-            iconPosition="right"
-          >
-            {isProcessing ? 'Redirecting to Stripe...' : `Proceed to Payment ($${parseFloat(costEstimation.total_cost_incl_tax).toFixed(2)})`}
-          </PrimaryButton>
+          />
         </div>
       </div>
     </div>
