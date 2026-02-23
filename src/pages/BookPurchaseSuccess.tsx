@@ -116,7 +116,7 @@ export default function BookPurchaseSuccess() {
                       Order Confirmed
                     </h1>
                     <p className="text-sm text-gray-600">
-                      Your book order has been successfully placed and is being processed
+                      Your book order has been successfully placed and is being processed.
                     </p>
                   </div>
                 </div>
