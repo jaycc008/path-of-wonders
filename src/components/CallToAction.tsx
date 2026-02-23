@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Subscription } from '../api/subscription';
+import { useAuth } from '../contexts/AuthContext';
+import { encodeToBase64 } from '../utils/encoding';
 
 interface CallToActionProps {
   subscription: Subscription | null;
@@ -10,6 +12,7 @@ interface CallToActionProps {
 
 export default function CallToAction({ subscription, isLoading }: CallToActionProps) {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +34,7 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 relative overflow-hidden">
+    <section id="subscription" ref={sectionRef} className="py-24 relative overflow-hidden">
       {/* Base Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900"></div>
       
@@ -84,9 +87,10 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                 )}
                 
                 <div className="text-center mb-8">
-                  <div className="inline-block px-4 py-1 bg-blue-500/30 rounded-full text-blue-200 text-sm font-semibold mb-6">
+                  {/* Subscription Title */}
+                  <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white">
                     {subscription.name}
-                  </div>
+                  </h3>
                   <div className="mb-3">
                     {subscription.discount && subscription.discount.final_price !== null ? (
                       <div className="flex flex-col items-center">
@@ -130,9 +134,38 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                 <button
                   onClick={() => {
                     if (!subscription) return;
-                    navigate('/checkout', {
-                      state: { subscription }
-                    });
+                    
+                    // Always encode subscription data in URL (even when authenticated) so it persists after logout/login
+                    const checkoutUrl = '/checkout';
+                    
+                    // Encode subscription data using UTF-8 safe encoding
+                    const subscriptionJson = JSON.stringify({ subscription });
+                    const encodedSubscription = encodeToBase64(subscriptionJson);
+                    
+                    // Build checkout URL with subscription data as query param
+                    const checkoutUrlWithData = `${checkoutUrl}?subscription=${encodeURIComponent(encodedSubscription)}`;
+                    
+                    // Check if user is authenticated
+                    if (!authLoading && isAuthenticated) {
+                      // User is authenticated - navigate directly to checkout with subscription data in URL
+                      navigate(checkoutUrlWithData);
+                    } else {
+                      // User is not authenticated - encode checkout URL in return_url query param
+                      const returnUrl = `${window.location.origin}${checkoutUrlWithData}`;
+                      
+                      // Get login URL from environment variable
+                      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+                      
+                      // Check if it's a full URL (external) or relative path (internal)
+                      if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
+                        // External login page - redirect with return URL as query parameter
+                        const returnUrlParam = encodeURIComponent(returnUrl);
+                        window.location.href = `${loginUrl}?return_url=${returnUrlParam}`;
+                      } else {
+                        // Internal route - use React Router to navigate to login page
+                        navigate(`${loginUrl}?return_url=${encodeURIComponent(returnUrl)}`);
+                      }
+                    }
                   }}
                   disabled={!subscription}
                   className="group w-full px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"

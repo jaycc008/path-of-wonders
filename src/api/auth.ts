@@ -73,3 +73,45 @@ export const googleLogin = async (payload: GoogleLoginPayload): Promise<LoginRes
     throw error;
   }
 };
+
+// User profile interface
+export interface UserProfile {
+  id: string;
+  email: string;
+  name?: string;
+  [key: string]: any;
+}
+
+/**
+ * Get user profile - verifies authentication via cookies
+ * @returns Promise with user profile data
+ */
+export const getProfile = async (): Promise<UserProfile> => {
+  try {
+    const response = await api.get<UserProfile>('profile');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Logout response interface
+export interface LogoutResponse {
+  status?: boolean;
+  message?: string;
+  [key: string]: any;
+}
+
+/**
+ * Logout user - invalidates session on server
+ * @returns Promise with logout response
+ */
+export const logout = async (): Promise<LogoutResponse> => {
+  try {
+    const response = await api.post<LogoutResponse>('auth/logout', {});
+    return response.data;
+  } catch (error) {
+    // Even if logout API fails, we should still clear local state
+    throw error;
+  }
+};

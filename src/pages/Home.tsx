@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Journey from '../components/Journey';
 import Courses from '../components/Courses';
@@ -11,6 +12,7 @@ import Hero2 from '../components/Hero2';
 import { getSubscription, Subscription } from '../api/subscription';
 
 export default function Home() {
+  const location = useLocation();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoadingSubscription, setIsLoadingSubscription] = useState(true);
@@ -39,6 +41,19 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Auto-scroll to subscription section when hash is #subscription
+  useEffect(() => {
+    if (location.hash === '#subscription') {
+      // Small delay to ensure the page is fully rendered
+      setTimeout(() => {
+        const subscriptionElement = document.getElementById('subscription');
+        if (subscriptionElement) {
+          subscriptionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
 
   return (
     <div className="min-h-screen bg-white">

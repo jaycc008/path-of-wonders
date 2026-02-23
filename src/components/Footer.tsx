@@ -1,16 +1,20 @@
-import { GraduationCap, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import logo from '../assets/images/10dlogo2.png';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 pt-24 pb-12">
+    <footer id="contact" className="bg-gray-900 text-gray-300 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-8 md:px-12">
         <div className="grid md:grid-cols-4 gap-16 mb-16">
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="w-8 h-8 text-blue-500" />
-              <span className="text-2xl font-bold text-white">10D School</span>
+            <div className="flex items-center">
+              <img 
+                src={logo} 
+                alt="Path Of Wonders Logo" 
+                className="h-48 w-auto object-contain"
+              />
             </div>
             <p className="text-gray-400 leading-relaxed">
               Empowering learners worldwide with innovative education solutions for the digital age.
@@ -70,7 +74,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-gray-400 text-sm">
-            &copy; {currentYear} 10D School. All rights reserved.
+            &copy; {currentYear} Path Of Wonders. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">
             <a href="#" className="hover:text-blue-400 transition-colors duration-300">

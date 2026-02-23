@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { api } from '../api';
+import { getProfile } from '../api/auth';
 
 // User interface
 export interface User {
@@ -67,84 +68,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Check authentication status
-  const checkAuthStatus = () => {
-    try {
-      const token = api.getToken();
-      
-      // Update last token for change detection
-      const previousToken = lastTokenRef.current;
-      lastTokenRef.current = token;
-      
-      if (!token) {
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
-
-      // First, try to get user from stored user_data (from login response)
-      const storedUser = api.getUser();
-      if (storedUser) {
+  // Check authentication via profile API - simple one-time check
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Call profile API to check if cookie is set and valid
+        const profileData = await getProfile();
+        
+        // Cookie is valid - user is authenticated
         const userData: User = {
-          id: storedUser.id || '',
-          email: storedUser.email || '',
-          name: storedUser.name,
-          ...storedUser,
+          id: profileData.id || '',
+          email: profileData.email || '',
+          name: profileData.name,
+          ...profileData,
         };
+        
+        // Store user data
+        api.setUser(userData);
         setUser(userData);
-        setIsLoading(false);
-        return;
-      }
-
-      // Fall back to decoding token if no stored user data
-      const decodedUser = decodeToken(token);
-      
-      if (decodedUser) {
-        setUser(decodedUser);
-      } else {
-        // Invalid token, clear it
+        lastTokenRef.current = api.getToken() || 'authenticated';
+      } catch (error: any) {
+        // Profile API failed - cookie is not set or invalid
+        // Clear any stored data
         api.removeToken();
         setUser(null);
         lastTokenRef.current = null;
-      }
-    } catch (error) {
-      api.removeToken();
-      setUser(null);
-      lastTokenRef.current = null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Check if user is authenticated on mount and when token changes
-  useEffect(() => {
-    // Initial check
-    checkAuthStatus();
-
-    // Listen for storage events (when token is set from another tab/window)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'access_token' || e.key === 'user_data') {
-        checkAuthStatus();
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-
-    // Also check periodically in case token is set in same window
-    // This handles the case when external app sets token and redirects here
-    const intervalId = setInterval(() => {
-      const currentToken = api.getToken();
-      
-      // If token changed (was null/empty, now has value, or vice versa), recheck
-      if (currentToken !== lastTokenRef.current) {
-        checkAuthStatus();
-      }
-    }, 500); // Check every 500ms for faster response
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
+    checkAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -186,9 +140,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Manual auth check (can be called after external token is set)
-  const checkAuth = () => {
-    checkAuthStatus();
+  // Manual auth check (can be called after login/signup)
+  const checkAuth = async () => {
+    setIsLoading(true);
+    try {
+      const profileData = await getProfile();
+      const userData: User = {
+        id: profileData.id || '',
+        email: profileData.email || '',
+        name: profileData.name,
+        ...profileData,
+      };
+      api.setUser(userData);
+      setUser(userData);
+      lastTokenRef.current = api.getToken() || 'authenticated';
+    } catch (error: any) {
+      api.removeToken();
+      setUser(null);
+      lastTokenRef.current = null;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const value: AuthContextType = {

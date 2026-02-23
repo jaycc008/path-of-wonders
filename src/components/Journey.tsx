@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Award, Users, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Award, Users, Zap, ArrowRight } from 'lucide-react';
+import SecondaryButton from './SecondaryButton';
+import journeyImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 
 export default function Journey() {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -23,21 +27,18 @@ export default function Journey() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-gray-50">
+    <section id="about" ref={sectionRef} className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div
             className={`space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
               }`}
           >
-            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold">
-              Our Journey
-            </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
               Empowering Teens Through Story-Driven Science Education
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed">
-            10D School is dedicated to nurturing curiosity, confidence, and purpose in teenagers through engaging and meaningful learning experiences.
+            Path Of Wonders is dedicated to nurturing curiosity, confidence, and purpose in teenagers through engaging and meaningful learning experiences.
             </p>
             <div className="grid grid-cols-3 gap-6 pt-4">
               {[
@@ -52,9 +53,14 @@ export default function Journey() {
                 </div>
               ))}
             </div>
-            <button className="px-8 py-4 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 hover:shadow-xl hover:scale-105 transition-all duration-300">
-              Discover Our Story
-            </button>
+            <SecondaryButton 
+              onClick={() => navigate('/about')}
+              size="lg"
+              icon={ArrowRight}
+              iconPosition="right"
+            >
+              Learn More
+            </SecondaryButton>
           </div>
 
           <div
@@ -66,7 +72,7 @@ export default function Journey() {
               <div className="relative bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-8 transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-hidden">
                 <div className="aspect-square rounded-2xl overflow-hidden relative">
                   <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80"
+                    src={journeyImage}
                     alt="Students learning together"
                     className="w-full h-full object-cover"
                   />

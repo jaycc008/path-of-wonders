@@ -1,18 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Lock, CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { FormikProps } from 'formik';
+import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import CouponInput from '../components/CouponInput';
+import ContactInfoForm from '../components/forms/ContactInfoForm';
+import BillingAddressForm from '../components/forms/BillingAddressForm';
 import { Subscription, initiatePurchase } from '../api/subscription';
 import { initiateCoursePurchase } from '../api/course';
 import { useAuth } from '../contexts/AuthContext';
-import { api } from '../api';
+import PrimaryButton from '../components/PrimaryButton';
+import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
+import { getUserInfo } from '../utils/userInfo';
 
 interface Course {
   id: number;
-  title: string;
+  name?: string;
+  title?: string;
   description: string;
-  image: string;
+  image?: string;
+  thumbnail_url?: string;
   price: number;
 }
 
@@ -21,14 +29,86 @@ export default function Checkout() {
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
   
-  // Get course or subscription from location state or restored redirect state
+  // Get course or subscription from location state, query params, or restored redirect state
   const locationState = location.state as { course?: Course; subscription?: Subscription } | undefined;
   const redirectState = getRedirectState();
   
-  // Prioritize location state, then redirect state, then nothing
-  const courseFromState = locationState?.course || redirectState?.course;
-  const subscriptionFromState = locationState?.subscription || redirectState?.subscription;
+  // Check URL query parameters for subscription or course data (from redirect after login)
+  const getDataFromQuery = () => {
+    const params = new URLSearchParams(location.search);
+    const subscriptionParam = params.get('subscription');
+    const courseParam = params.get('course');
+    
+    let subscriptionFromQuery: Subscription | null = null;
+    let courseFromQuery: Course | null = null;
+    
+    // Helper function to decode and parse encoded data
+    const decodeAndParse = (param: string): any => {
+      try {
+        // Step 1: Decode URL encoding
+        const urlDecoded = decodeURIComponent(param);
+        
+        // Step 2: Decode base64
+        let decodedJson = decodeFromBase64(urlDecoded);
+        
+        // Step 3: Validate that we got JSON, not the base64 string back
+        // If decodeFromBase64 failed, it might return the original string
+        if (!decodedJson.trim().startsWith('{') && !decodedJson.trim().startsWith('[')) {
+          // decodeFromBase64 might have failed, try direct atob
+          try {
+            const binaryString = atob(urlDecoded);
+            decodedJson = decodeURIComponent(
+              binaryString
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+            );
+          } catch (atobError) {
+            // If atob also fails, the string might not be base64
+            // Try treating it as already decoded JSON
+            if (urlDecoded.trim().startsWith('{') || urlDecoded.trim().startsWith('[')) {
+              decodedJson = urlDecoded;
+            } else {
+              throw new Error('Failed to decode base64 string');
+            }
+          }
+        }
+        
+        // Step 4: Parse JSON
+        return JSON.parse(decodedJson);
+      } catch (error: any) {
+        console.error('[Checkout] Error decoding/parsing param:', error);
+        throw error;
+      }
+    };
+    
+    if (subscriptionParam) {
+      try {
+        const parsedData = decodeAndParse(subscriptionParam);
+        subscriptionFromQuery = parsedData.subscription || null;
+      } catch (error) {
+        console.error('[Checkout] Error parsing subscription from query param:', error);
+      }
+    }
+    
+    if (courseParam) {
+      try {
+        const parsedData = decodeAndParse(courseParam);
+        courseFromQuery = parsedData.course || null;
+      } catch (error) {
+        console.error('[Checkout] Error parsing course from query param:', error);
+      }
+    }
+    
+    return { subscriptionFromQuery, courseFromQuery };
+  };
   
+  const { subscriptionFromQuery, courseFromQuery } = getDataFromQuery();
+  
+  // Prioritize: location state > query params > redirect state
+  const courseFromState = locationState?.course || courseFromQuery || redirectState?.course;
+  const subscriptionFromState = locationState?.subscription || subscriptionFromQuery || redirectState?.subscription;
+  console.log(subscriptionFromState,"fromState")
   // Clear redirect state if we have it (we've successfully restored it)
   useEffect(() => {
     if (redirectState && isAuthenticated) {
@@ -42,142 +122,220 @@ export default function Checkout() {
   // Protect route - redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Store the current URL and state for redirect after login
-      const currentPath = location.pathname + location.search;
-      const stateToPreserve = {
-        course: courseFromState,
-        subscription: subscriptionFromState,
-      };
+      // Build return URL with subscription/course data in query params
+      const baseCheckoutUrl = '/checkout';
+      let returnUrl = `${window.location.origin}${baseCheckoutUrl}`;
       
-      // Store redirect URL and state in localStorage
-      localStorage.setItem('redirect_url', currentPath);
-      localStorage.setItem('redirect_state', JSON.stringify(stateToPreserve));
+      // Encode subscription or course data in query parameters using UTF-8 safe encoding
+      if (subscriptionFromState) {
+        const subscriptionJson = JSON.stringify({ subscription: subscriptionFromState });
+        const encodedSubscription = encodeToBase64(subscriptionJson);
+        returnUrl = `${returnUrl}?subscription=${encodeURIComponent(encodedSubscription)}`;
+      } else if (courseFromState) {
+        const courseJson = JSON.stringify({ course: courseFromState });
+        const encodedCourse = encodeToBase64(courseJson);
+        returnUrl = `${returnUrl}?course=${encodeURIComponent(encodedCourse)}`;
+      }
       
       // Get login URL from environment variable
-      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/signup';
+      const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
       
       // Check if it's a full URL (external) or relative path (internal)
       if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
         // External login page - redirect with return URL as query parameter
-        const returnUrl = encodeURIComponent(window.location.origin + currentPath);
-        window.location.href = `${loginUrl}?return_url=${returnUrl}`;
+        const returnUrlParam = encodeURIComponent(returnUrl);
+        window.location.href = `${loginUrl}?return_url=${returnUrlParam}`;
       } else {
-        // Internal route - use React Router to navigate to signup page
-        navigate(loginUrl);
+        // Internal route - use React Router to navigate to login page
+        navigate(`${loginUrl}?return_url=${encodeURIComponent(returnUrl)}`);
       }
     }
-  }, [isAuthenticated, isLoading, navigate, location.pathname, location.search, courseFromState, subscriptionFromState]);
+  }, [isAuthenticated, isLoading, navigate, courseFromState, subscriptionFromState]);
   
-  // Mock course data (fallback)
-  const mockCourse: Course = courseFromState || {
-    id: 1,
-    title: 'Consciousness Development',
-    description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles.',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',
-    price: 299,
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState<{
+    discount_type?: 'amount' | 'percent';
+    discount_value?: number;
+    currency?: string;
+  } | null>(null);
+  const [saveAddress, setSaveAddress] = useState(true);
+  
+  // Form refs for accessing form values
+  const contactFormRef = useRef<FormikProps<{ name: string; email: string }>>(null);
+  const billingFormRef = useRef<FormikProps<{
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  }>>(null);
+
+  // Get initial form values from user data
+  const getInitialFormValues = () => {
+    if (isLoading) {
+      return {
+        contact: { name: '', email: '' },
+        billing: {
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: 'US',
+        },
+      };
+    }
+
+    const userInfo = getUserInfo(user);
+    return {
+      contact: {
+        name: userInfo.name,
+        email: userInfo.email,
+      },
+      billing: userInfo.billingAddress || {
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: 'US',
+      },
+    };
   };
 
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [nameError, setNameError] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  // Populate email and name from user data when available
-  useEffect(() => {
-    if (user) {
-      if (user.email) {
-        setEmail(user.email);
-        console.log('[Checkout] Email populated from user:', user.email);
-      }
-      if (user.name) {
-        setName(user.name);
-        console.log('[Checkout] Name populated from user:', user.name);
-      }
-    } else {
-      // Fallback: try to get user data directly from localStorage
-      const storedUser = api.getUser();
-      if (storedUser) {
-        console.log('[Checkout] User not in context, getting from localStorage:', storedUser);
-        if (storedUser.email && !email) {
-          setEmail(storedUser.email);
-          console.log('[Checkout] Email populated from localStorage:', storedUser.email);
-        }
-        if (storedUser.name && !name) {
-          setName(storedUser.name);
-          console.log('[Checkout] Name populated from localStorage:', storedUser.name);
-        }
-      }
-    }
-  }, [user]);
+  const initialFormValues = getInitialFormValues();
 
   // Calculate pricing based on subscription or course
-  const subscriptionPrice = subscriptionFromState 
+  const basePrice = subscriptionFromState 
     ? (subscriptionFromState.discount?.final_price ?? subscriptionFromState.price)
-    : mockCourse.price;
-  const originalPrice = subscriptionFromState?.price ?? mockCourse.price;
-  const discount = subscriptionFromState?.discount?.final_price 
-    ? originalPrice - subscriptionPrice 
+    : courseFromState?.price ?? 0;
+  const originalPrice = subscriptionFromState?.price ?? courseFromState?.price ?? 0;
+  
+  // Calculate discount from subscription discount
+  const subscriptionDiscount = subscriptionFromState?.discount?.final_price 
+    ? originalPrice - basePrice 
     : 0;
-  const subtotal = subscriptionPrice;
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + tax;
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    if (emailError && value && /\S+@\S+\.\S+/.test(value)) {
-      setEmailError('');
+  
+  // Calculate discount from coupon (if applied and not from subscription)
+  let couponDiscountAmount = 0;
+  if (couponDiscount && !subscriptionFromState?.discount) {
+    if (couponDiscount.discount_type === 'amount' && couponDiscount.discount_value) {
+      // discount_value is in cents, convert to dollars
+      couponDiscountAmount = couponDiscount.discount_value / 100;
+    } else if (couponDiscount.discount_type === 'percent' && couponDiscount.discount_value) {
+      // discount_value is percentage
+      couponDiscountAmount = (basePrice * couponDiscount.discount_value) / 100;
     }
+  }
+  
+  const subtotal = Math.max(0, basePrice - couponDiscountAmount);
+  const totalDiscount = subscriptionDiscount + couponDiscountAmount;
+  const total = subtotal;
+
+  const handleContactInfoSubmit = (values: { name: string; email: string }) => {
+    // Formik handles validation, values are stored in form state
+    console.log('[Checkout] Contact info updated:', values);
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setName(value);
-    if (nameError && value && value.trim().length >= 2) {
-      setNameError('');
-    }
+  const handleBillingAddressSubmit = (values: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  }) => {
+    // Formik handles validation, values are stored in form state
+    console.log('[Checkout] Billing address updated:', values);
   };
 
-  const validateForm = (): boolean => {
-    let isValid = true;
+  const handleCouponApplied = (discountInfo: { code: string; discount_type?: 'amount' | 'percent'; discount_value?: number; currency?: string }) => {
+    setAppliedCoupon(discountInfo.code);
+    setCouponDiscount({
+      discount_type: discountInfo.discount_type,
+      discount_value: discountInfo.discount_value,
+      currency: discountInfo.currency
+    });
+  };
 
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      setEmailError('Please enter a valid email address');
-      isValid = false;
-    } else {
-      setEmailError('');
-    }
-
-    if (!name || name.trim().length < 2) {
-      setNameError('Please enter your full name');
-      isValid = false;
-    } else {
-      setNameError('');
-    }
-
-    return isValid;
+  const handleCouponRemoved = () => {
+    setAppliedCoupon(null);
+    setCouponDiscount(null);
   };
 
   const handleProceedToPayment = async () => {
-    if (!validateForm()) {
+    // Validate all forms
+    const contactErrors = await contactFormRef.current?.validateForm();
+    const billingErrors = await billingFormRef.current?.validateForm();
+
+    if (contactErrors && Object.keys(contactErrors).length > 0) {
+      contactFormRef.current?.setTouched({
+        name: true,
+        email: true,
+      });
       return;
     }
 
+    if (billingErrors && Object.keys(billingErrors).length > 0) {
+      billingFormRef.current?.setTouched({
+        addressLine1: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        country: true,
+      });
+      return;
+    }
+
+    // Get form values
+    const contactValues = contactFormRef.current?.values || { name: '', email: '' };
+    const billingValues = billingFormRef.current?.values || {
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'US',
+    };
+
+    // Clear any previous error
+    setPaymentError('');
     setIsProcessing(true);
 
     try {
       let checkoutUrl: string | undefined;
 
+      // Prepare billing address in Stripe format
+      const billingAddressData = {
+        line1: billingValues.addressLine1,
+        line2: billingValues.addressLine2 || undefined,
+        city: billingValues.city,
+        state: billingValues.state,
+        postal_code: billingValues.postalCode,
+        country: billingValues.country,
+      };
+
       if (isSubscription && subscriptionFromState) {
         // Handle subscription purchase
         console.log('[Checkout] Initiating subscription purchase:', subscriptionFromState.id);
+        
+        // Use applied coupon from component (which may be from subscription discount or user input)
+        // If no applied coupon but subscription has discount promotion code, use that as fallback
+        const promotionCode = appliedCoupon 
+          || subscriptionFromState.discount?.stripe_promotion_code_id 
+          || undefined;
+        
         const purchaseResponse = await initiatePurchase(
           subscriptionFromState.id,
-          name,
-          email,
+          contactValues.name,
+          contactValues.email,
           subscriptionFromState.discount?.id,
-          undefined // promotion_code can be added later if needed
+          promotionCode, // promotion_code from discount or user input
+          billingAddressData, // billing_address
+          saveAddress // save_address flag
         );
 
         if (purchaseResponse.status && purchaseResponse.data?.checkout_url) {
@@ -191,16 +349,34 @@ export default function Checkout() {
         console.log('[Checkout] Initiating course purchase:', courseFromState.id);
         const purchaseResponse = await initiateCoursePurchase(
           courseFromState.id,
-          name,
-          email,
-          undefined // promotion_code can be added later if needed
+          contactValues.name,
+          contactValues.email,
+          appliedCoupon || undefined, // promotion_code from coupon
+          billingAddressData, // billing_address
+          saveAddress // save_address flag
         );
 
-        if (purchaseResponse.status && purchaseResponse.data?.checkout_url) {
+        console.log('[Checkout] Course purchase response:', purchaseResponse);
+
+        // Check for both 'status' and 'success' to handle different API response formats
+        const isSuccess = (purchaseResponse as any).status === true || purchaseResponse.success === true;
+        
+        if (isSuccess && purchaseResponse.data?.checkout_url) {
           checkoutUrl = purchaseResponse.data.checkout_url;
           console.log('[Checkout] Course checkout URL received:', checkoutUrl);
         } else {
-          throw new Error(purchaseResponse.message || 'Failed to get checkout URL for course');
+          console.error('[Checkout] Course purchase failed:', {
+            isSuccess,
+            hasCheckoutUrl: !!purchaseResponse.data?.checkout_url,
+            message: purchaseResponse.message,
+            dataMessage: (purchaseResponse as any).data?.message,
+            fullResponse: purchaseResponse
+          });
+          throw new Error(
+            purchaseResponse.message || 
+            (purchaseResponse as any).data?.message || 
+            'Failed to get checkout URL for course'
+          );
         }
       } else {
         throw new Error('No subscription or course selected');
@@ -217,9 +393,14 @@ export default function Checkout() {
       console.error('[Checkout] Error initiating payment:', error);
       setIsProcessing(false);
       
-      // Show error message to user
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to initiate payment. Please try again.';
-      alert(errorMessage);
+      // Extract error message from various possible response structures
+      const errorMessage = 
+        error.response?.data?.detail || 
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to initiate payment. Please try again.';
+      
+      setPaymentError(errorMessage);
     }
   };
 
@@ -238,6 +419,30 @@ export default function Checkout() {
   // Don't render if not authenticated (will redirect)
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Show error if no course or subscription selected
+  if (!courseFromState && !subscriptionFromState) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-16">
+        <Header />
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="bg-white rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">No Item Selected</h1>
+            <p className="text-gray-600 mb-6">Please select a course or subscription to proceed with checkout.</p>
+            <PrimaryButton
+              onClick={() => navigate(isSubscription ? '/' : '/courses')}
+              size="lg"
+              icon={ArrowLeft}
+              iconPosition="left"
+            >
+              {isSubscription ? 'Back to Home' : 'Browse Courses'}
+            </PrimaryButton>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -276,17 +481,26 @@ export default function Checkout() {
                       <div className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">
                         {subscriptionFromState.name}
                       </div>
-                      {subscriptionFromState.discount && subscriptionFromState.discount.discount_percent && (
-                        <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
-                          {subscriptionFromState.discount.discount_percent}% OFF
-                        </div>
+                      {subscriptionFromState.discount && (
+                        <>
+                          {subscriptionFromState.discount.discount_percent && (
+                            <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                              {subscriptionFromState.discount.discount_percent}% OFF
+                            </div>
+                          )}
+                          {subscriptionFromState.discount.discount_amount && !subscriptionFromState.discount.discount_percent && (
+                            <div className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                              ${subscriptionFromState.discount.discount_amount.toFixed(2)} OFF
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="flex items-center gap-4 mb-3">
                       <div className="text-4xl font-bold text-gray-900">
-                        ${subscriptionPrice.toFixed(2)}
+                        ${subtotal.toFixed(2)}
                       </div>
-                      {subscriptionFromState.discount?.final_price && (
+                      {(subscriptionFromState.discount?.final_price || couponDiscount) && originalPrice > subtotal && (
                         <div className="text-2xl font-semibold text-gray-500 line-through">
                           ${originalPrice.toFixed(2)}
                         </div>
@@ -310,95 +524,72 @@ export default function Checkout() {
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : courseFromState ? (
                   <div className="flex gap-4">
                     <img
-                      src={mockCourse.image}
-                      alt={mockCourse.title}
+                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
+                      alt={courseFromState.name || courseFromState.title || 'Course'}
                       className="w-24 h-24 rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
-                        {mockCourse.title}
+                        {courseFromState.name || courseFromState.title || 'Course'}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2">
-                        {mockCourse.description}
+                        {courseFromState.description}
                       </p>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Contact Information */}
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
-                  Contact Information
-                </h2>
-                <div className="space-y-4">
-                  {/* Name Field */}
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={name}
-                      onChange={handleNameChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        nameError ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="John Doe"
-                    />
-                    {nameError && (
-                      <p className="mt-1 text-sm text-red-600">{nameError}</p>
-                    )}
-                  </div>
+              <ContactInfoForm
+                ref={contactFormRef}
+                initialValues={initialFormValues.contact}
+                onSubmit={handleContactInfoSubmit}
+              />
 
-                  {/* Email Field */}
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={email}
-                      onChange={handleEmailChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        emailError ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="your.email@example.com"
-                    />
-                    {emailError && (
-                      <p className="mt-1 text-sm text-red-600">{emailError}</p>
-                    )}
-                  </div>
+              {/* Coupon Section */}
+              <CouponInput
+                discount={subscriptionFromState?.discount || null}
+                onCouponApplied={handleCouponApplied}
+                onCouponRemoved={handleCouponRemoved}
+                disabled={isProcessing}
+              />
+
+              {/* Billing Address Section */}
+              <BillingAddressForm
+                ref={billingFormRef}
+                initialValues={initialFormValues.billing}
+                onSubmit={handleBillingAddressSubmit}
+                onSaveAddressChange={setSaveAddress}
+                saveAddress={saveAddress}
+              />
+
+              {/* Error Message Display */}
+              {paymentError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800 flex items-start gap-2">
+                    <span className="text-red-600 font-semibold">⚠</span>
+                    <span>{paymentError}</span>
+                  </p>
                 </div>
-              </div>
+              )}
 
               {/* Proceed to Payment Button */}
-              <button
+              <PrimaryButton
                 onClick={handleProceedToPayment}
                 disabled={isProcessing}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 shadow-lg"
+                isLoading={isProcessing}
+                size="lg"
+                fullWidth
+                icon={ArrowRight}
+                iconPosition="right"
+                className="gap-2"
               >
-                {isProcessing ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Redirecting to Stripe...
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-5 h-5" />
-                    Proceed to Payment
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
+                {isProcessing ? 'Redirecting to Stripe...' : 'Proceed to Payment'}
+              </PrimaryButton>
             </div>
           </div>
 
@@ -419,50 +610,66 @@ export default function Checkout() {
                         {Math.floor(subscriptionFromState.duration_days / 30)} {Math.floor(subscriptionFromState.duration_days / 30) === 1 ? 'month' : 'months'} subscription
                       </p>
                     </div>
-                    {subscriptionFromState.discount && subscriptionFromState.discount.discount_percent && (
-                      <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                        {subscriptionFromState.discount.discount_percent}% Discount Applied
+                    {subscriptionFromState.discount && (
+                      <div className="mt-2">
+                        {subscriptionFromState.discount.discount_percent && (
+                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold mb-2">
+                            {subscriptionFromState.discount.discount_percent}% Discount Applied
+                          </div>
+                        )}
+                        {subscriptionFromState.discount.discount_amount && !subscriptionFromState.discount.discount_percent && (
+                          <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold mb-2">
+                            ${subscriptionFromState.discount.discount_amount.toFixed(2)} Discount Applied
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : courseFromState ? (
                   <div className="flex gap-4 mb-4">
                     <img
-                      src={mockCourse.image}
-                      alt={mockCourse.title}
+                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
+                      alt={courseFromState.name || courseFromState.title || 'Course'}
                       className="w-20 h-20 rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-1">
-                        {mockCourse.title}
+                        {courseFromState.name || courseFromState.title || 'Course'}
                       </h3>
                       <p className="text-sm text-gray-600">Full Course Access</p>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Price Breakdown */}
               <div className="space-y-3 mb-6">
-                {subscriptionFromState?.discount?.final_price && (
+                {(subscriptionFromState?.discount?.final_price || couponDiscount) && originalPrice > subtotal && (
                   <div className="flex justify-between text-gray-500 text-sm">
                     <span>Original Price</span>
                     <span className="line-through">${originalPrice.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-                {discount > 0 && (
+                {totalDiscount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
-                    <span className="font-medium">-${discount.toFixed(2)}</span>
+                    <span>
+                      Discount
+                      {subscriptionFromState?.discount?.discount_percent && (
+                        <span className="text-xs ml-1">({subscriptionFromState.discount.discount_percent}%)</span>
+                      )}
+                      {couponDiscount?.discount_type === 'percent' && couponDiscount.discount_value && (
+                        <span className="text-xs ml-1">({couponDiscount.discount_value}%)</span>
+                      )}
+                      {couponDiscount?.discount_type === 'amount' && couponDiscount.discount_value && (
+                        <span className="text-xs ml-1">(${(couponDiscount.discount_value / 100).toFixed(2)})</span>
+                      )}
+                    </span>
+                    <span className="font-medium">-${totalDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-600">
-                  <span>Tax</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span>Subtotal</span>
+                  <span className="font-medium">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
                   <span>Total</span>

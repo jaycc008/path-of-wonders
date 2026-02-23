@@ -1,35 +1,40 @@
 import { useEffect, useRef, useState } from 'react';
+import courseImage1 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
+import courseImage2 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (1).jpeg';
+import courseImage3 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
+import courseImage4 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.04 PM.jpeg';
+import courseImage5 from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 
 const courses = [
   {
     id: 1,
     title: 'Consciousness Development',
     description: 'Explore the depths of human consciousness through evidence-based practices and quantum science principles.',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',
+    image: courseImage1,
   },
   {
     id: 2,
     title: 'Quantum Science Fundamentals',
     description: 'Master the principles of quantum mechanics and their applications in understanding reality and consciousness.',
-    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
+    image: courseImage2,
   },
   {
     id: 3,
     title: 'Financial Literacy Mastery',
     description: 'Build wealth and financial independence through proven strategies and mindful money management.',
-    image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80',
+    image: courseImage3,
   },
   {
     id: 4,
     title: 'Mindful Leadership',
     description: 'Develop leadership skills through consciousness-based practices and authentic self-expression.',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
+    image: courseImage4,
   },
   {
     id: 5,
     title: 'Advanced Consciousness Studies',
     description: 'Deep dive into advanced topics of consciousness, meditation, and transformative practices.',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    image: courseImage5,
   },
 ];
 
@@ -101,7 +106,7 @@ export default function Offer() {
                 <p className="text-gray-600 leading-relaxed mb-6 text-sm">
                   {course.description}
                 </p>
-                <button className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
+                <button className="btn-primary-lg w-full">
                   Enroll Now
                 </button>
               </div>

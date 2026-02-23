@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, ArrowRight, Loader2, User, Mail, Calendar, Receipt } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import PrimaryButton from '../components/PrimaryButton';
 import { getSubscriptionSuccess } from '../api/subscription';
 import { api } from '../api';
 
@@ -158,7 +159,7 @@ export default function SubscriptionSuccess() {
                 {/* Subscription Details */}
                 {paymentData.line_items?.data?.[0] && (
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Details</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Item Details</h3>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-gray-900 font-medium">{paymentData.line_items.data[0].description}</p>
                     </div>
@@ -248,13 +249,15 @@ export default function SubscriptionSuccess() {
 
                 {/* Action Buttons */}
                 <div className="space-y-4">
-                  <button
+                  <PrimaryButton
                     onClick={handleMyLearningClick}
-                    className="group w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg"
+                    size="lg"
+                    fullWidth
+                    icon={ArrowRight}
+                    iconPosition="right"
                   >
                     Go to My Learning
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
+                  </PrimaryButton>
                   
                   <button
                     onClick={() => navigate('/')}
