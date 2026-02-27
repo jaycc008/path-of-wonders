@@ -157,6 +157,7 @@ export default function BookCheckout() {
     state: string;
     postalCode: string;
     country: string;
+    phone: string;
   }>>(null);
 
   // Get initial form values from user data
@@ -179,6 +180,7 @@ export default function BookCheckout() {
           state: '',
           postalCode: '',
           country: 'US',
+          phone: '',
         },
       };
     }
@@ -200,7 +202,10 @@ export default function BookCheckout() {
         phone: userInfo.phone || '',
       },
       billing: defaultAddress,
-      shipping: defaultAddress,
+      shipping: {
+        ...defaultAddress,
+        phone: userInfo.phone || '',
+      },
     };
   };
 
@@ -262,6 +267,7 @@ export default function BookCheckout() {
     state: string;
     postalCode: string;
     country: string;
+    phone: string;
   }) => {
     // Formik handles validation, values are stored in form state
     console.log('[BookCheckout] Shipping address updated:', values);
@@ -330,8 +336,8 @@ export default function BookCheckout() {
       country: 'US',
     };
     const shippingValues = sameAsBilling 
-      ? billingValues 
-      : (shippingFormRef.current?.values || billingValues);
+      ? { ...billingValues, phone: contactValues.phone || '' }
+      : (shippingFormRef.current?.values || { ...billingValues, phone: contactValues.phone || '' });
 
     // Clear any previous error
     setPaymentError('');
@@ -342,8 +348,10 @@ export default function BookCheckout() {
         throw new Error('No book selected');
       }
 
-      if (!contactValues.phone) {
-        throw new Error('Phone number is required');
+      // Phone number is required for shipping - get from shipping form or contact form
+      const shippingPhoneNumber = shippingValues.phone || contactValues.phone;
+      if (!shippingPhoneNumber || shippingPhoneNumber.trim() === '') {
+        throw new Error('Phone number is required for shipping. Please enter your phone number in the shipping address section.');
       }
 
       // Check if shipping country is India - if so, skip estimation and go directly to purchase
@@ -416,7 +424,7 @@ export default function BookCheckout() {
         postcode: shippingValues.postalCode,
         state_code: shippingValues.state,
         street1: shippingValues.addressLine1,
-        phone_number: contactValues.phone,
+        phone_number: shippingPhoneNumber.trim(),
       };
 
       // Call cost estimation API
@@ -594,7 +602,10 @@ export default function BookCheckout() {
               <ShippingAddressForm
                 ref={shippingFormRef}
                 initialValues={initialFormValues.shipping}
-                billingAddress={currentBillingAddress}
+                billingAddress={{
+                  ...currentBillingAddress,
+                  phone: contactFormRef.current?.values?.phone || initialFormValues.contact.phone || '',
+                }}
                 onSubmit={handleShippingAddressSubmit}
                 sameAsBilling={sameAsBilling}
                 onSameAsBillingChange={setSameAsBilling}

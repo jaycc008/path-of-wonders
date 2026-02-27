@@ -162,6 +162,7 @@ export interface BookPurchaseRequest {
   address_id: string; // UUID as string
   quantity: number; // Minimum 1, default 1
   fulfillment_type: 'lulu' | 'direct'; // Fulfillment type: lulu for international, direct for India
+  phone_number?: string; // Phone number (required for lulu fulfillment)
 }
 
 // Checkout session response interface
@@ -184,6 +185,7 @@ export interface BookPurchaseResponse {
  * @param addressId - User's shipping address ID (UUID string)
  * @param quantity - Number of books to purchase (default: 1, minimum: 1)
  * @param fulfillmentType - Fulfillment type: 'lulu' for international orders, 'direct' for India (default: 'lulu')
+ * @param phoneNumber - Phone number (required for 'lulu' fulfillment, optional for 'direct')
  * @returns Promise with purchase response containing checkout URL
  * 
  * API Endpoint: POST /api/v1/books/{book_id}/purchase
@@ -198,7 +200,8 @@ export const purchaseBook = async (
   bookId: number | string,
   addressId: string,
   quantity: number = 1,
-  fulfillmentType: 'lulu' | 'direct' = 'lulu'
+  fulfillmentType: 'lulu' | 'direct' = 'lulu',
+  phoneNumber?: string
 ): Promise<BookPurchaseResponse> => {
   try {
     if (quantity < 1) {
@@ -210,6 +213,11 @@ export const purchaseBook = async (
       quantity,
       fulfillment_type: fulfillmentType,
     };
+
+    // Add phone_number for lulu fulfillment
+    if (fulfillmentType === 'lulu' && phoneNumber) {
+      payload.phone_number = phoneNumber;
+    }
 
     const response = await api.post<BookPurchaseResponse>(
       `books/${bookId}/purchase`,
@@ -281,7 +289,8 @@ export interface BookPurchaseSuccessDetails {
   amount_total: number;
   currency: string;
   payment: PaymentDetails;
-  order: OrderDetails;
+  // In some cases (e.g. early/pending responses) order and address may not be present
+  order?: OrderDetails;
   book: {
     id: string;
     course_id: string;
@@ -298,7 +307,7 @@ export interface BookPurchaseSuccessDetails {
     created_at: string;
     updated_at: string | null;
   };
-  address: AddressDetails;
+  address?: AddressDetails;
 }
 
 // Book purchase success response interface
