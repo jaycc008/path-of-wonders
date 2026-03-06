@@ -22,7 +22,7 @@ export default function Courses() {
         setIsLoading(true);
         const response = await getCourses();
         const courseList = response.data.items || [];
-        setCourses(courseList.slice(0, 5)); // Show only first 5 courses
+        setCourses(courseList); // Show all courses
       } catch (error) {
         console.error('Failed to fetch courses:', error);
         // Keep empty array on error
@@ -286,6 +286,49 @@ export default function Courses() {
                   </button>
                 </div>
               ))}
+              
+              {/* Coming Next Month Card - Show when less than 5 courses */}
+              {courses.length < 5 && (
+                <div className="relative">
+                  {/* Connecting Line */}
+                  {courses.length > 0 && (
+                    <div className={`absolute left-8 top-24 w-0.5 h-6 transition-all duration-500 ${
+                      'bg-gray-200'
+                    }`}></div>
+                  )}
+                  
+                  <div className="relative rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100/50 overflow-hidden group hover:border-blue-300 hover:shadow-lg transition-all duration-500">
+                    <div className="relative h-44 flex flex-col items-center justify-center p-6 text-center">
+                      {/* Animated Background Pattern */}
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute top-0 left-0 w-32 h-32 bg-blue-400 rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-0 right-0 w-32 h-32 bg-purple-400 rounded-full blur-3xl"></div>
+                      </div>
+                      
+                      {/* Icon */}
+                      <div className="relative z-10 w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      
+                      {/* Text Content */}
+                      <div className="relative z-10">
+                        <h4 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                          Coming Next Month
+                        </h4>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          More exciting courses are on the way. Stay tuned for new learning adventures!
+                        </p>
+                      </div>
+                      
+                      {/* Decorative Elements */}
+                      <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                      <div className="absolute bottom-2 left-2 w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
