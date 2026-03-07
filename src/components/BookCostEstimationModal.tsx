@@ -32,6 +32,7 @@ export default function BookCostEstimationModal({
 
   if (!isOpen || !costEstimation) return null;
 
+  console.log(costEstimation,"estimation");
   const handleConfirmPurchase = async () => {
     if (!bookId) {
       const errorMsg = 'Book information is missing. Please try again.';
@@ -162,7 +163,7 @@ export default function BookCostEstimationModal({
                   <span className="font-medium">${basePrice.toFixed(2)}</span>
                 </div>
 
-                {/* Discounts */}
+                {/* Discounts (from estimation API) */}
                 {costEstimation.total_discount_amount && parseFloat(costEstimation.total_discount_amount) > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount</span>
@@ -170,13 +171,12 @@ export default function BookCostEstimationModal({
                   </div>
                 )}
 
-                {/* Calculate accumulated printing & fulfillment (includes line item costs) */}
+                {/* Printing & fulfillment (API total does not include book price; it's printing + fulfillment + shipping incl. tax) */}
                 {(() => {
-                  const lineItemTotal = costEstimation.line_item_costs?.reduce((sum, item) => 
+                  const lineItemTotal = costEstimation.line_item_costs?.reduce((sum, item) =>
                     sum + parseFloat(item.total_cost_incl_tax || '0'), 0) || 0;
                   const fulfillmentTotal = parseFloat(costEstimation.fulfillment_cost?.total_cost_incl_tax || '0');
                   const accumulatedTotal = lineItemTotal + fulfillmentTotal;
-                  
                   return accumulatedTotal > 0 ? (
                     <div className="flex justify-between text-gray-600">
                       <span>Printing & Fulfillment</span>
@@ -185,7 +185,7 @@ export default function BookCostEstimationModal({
                   ) : null;
                 })()}
 
-                {/* Shipping Cost */}
+                {/* Shipping (tax already included in API figures above) */}
                 {costEstimation.shipping_cost && (
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
@@ -195,29 +195,28 @@ export default function BookCostEstimationModal({
 
                 {/* Fees */}
                 {costEstimation.fees && costEstimation.fees.length > 0 && (
-                  <>
-                    {costEstimation.fees.map((fee, index) => (
-                      <div key={index} className="flex justify-between text-gray-600 text-sm">
-                        <span>{fee.fee_type}</span>
-                        <span className="font-medium">${parseFloat(fee.total_cost_incl_tax).toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </>
+                  costEstimation.fees.map((fee, index) => (
+                    <div key={index} className="flex justify-between text-gray-600 text-sm">
+                      <span>{fee.fee_type}</span>
+                      <span className="font-medium">${parseFloat(fee.total_cost_incl_tax).toFixed(2)}</span>
+                    </div>
+                  ))
                 )}
 
-                {/* Tax */}
-                {costEstimation.total_tax && parseFloat(costEstimation.total_tax) > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>Tax</span>
-                    <span className="font-medium">${parseFloat(costEstimation.total_tax).toFixed(2)}</span>
-                  </div>
-                )}
+              
 
-                {/* Total */}
-                <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
-                  <span>Total</span>
-                  <span>${parseFloat(costEstimation.total_cost_incl_tax).toFixed(2)}</span>
-                </div>
+                {/* Total = base price + cost (excl. tax) + tax */}
+                {(() => {
+                  const costExclTax = parseFloat(costEstimation.total_cost_excl_tax || '0');
+                  const tax = parseFloat(costEstimation.total_tax || '0');
+                  const total = basePrice + costExclTax + tax;
+                  return (
+                    <div className="pt-3 border-t border-gray-200 flex justify-between text-xl font-bold text-gray-900">
+                      <span>Total</span>
+                      <span>${total.toFixed(2)}</span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -277,7 +276,7 @@ export default function BookCostEstimationModal({
             disabled={isProcessing || !addressId}
             isLoading={isProcessing}
             fulfillmentType="lulu"
-            totalAmount={parseFloat(costEstimation.total_cost_incl_tax)}
+            totalAmount={basePrice + parseFloat(costEstimation.total_cost_incl_tax || '0')}
             size="lg"
             fullWidth
           />
