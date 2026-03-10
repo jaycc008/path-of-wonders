@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import logo from '../assets/images/10dlogo2.png';
 
@@ -61,13 +62,31 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-bold text-lg mb-6">Support</h3>
             <ul className="space-y-4">
-              {['Help Center', 'Terms of Service', 'Privacy Policy', 'FAQ'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="hover:text-blue-400 transition-colors duration-300">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/privacy-policy" className="hover:text-blue-400 transition-colors duration-300">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookie-policy" className="hover:text-blue-400 transition-colors duration-300">
+                  Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-and-conditions" className="hover:text-blue-400 transition-colors duration-300">
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <a href="#" className="hover:text-blue-400 transition-colors duration-300">
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-blue-400 transition-colors duration-300">
+                  FAQ
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -77,14 +96,20 @@ export default function Footer() {
             &copy; {currentYear} Path Of Wonders. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">
+            <Link to="/privacy-policy" className="hover:text-blue-400 transition-colors duration-300">
+              Privacy Policy
+            </Link>
+            <Link to="/cookie-policy" className="hover:text-blue-400 transition-colors duration-300">
+              Cookie Policy
+            </Link>
+            <Link to="/terms-and-conditions" className="hover:text-blue-400 transition-colors duration-300">
+              Terms & Conditions
+            </Link>
             <a href="#" className="hover:text-blue-400 transition-colors duration-300">
               Accessibility
             </a>
             <a href="#" className="hover:text-blue-400 transition-colors duration-300">
               Sitemap
-            </a>
-            <a href="#" className="hover:text-blue-400 transition-colors duration-300">
-              Cookies
             </a>
           </div>
         </div>
