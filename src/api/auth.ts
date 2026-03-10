@@ -12,6 +12,7 @@ export interface SignupPayload {
   email: string;
   password: string;
   password_confirmation?: string;
+  country_of_origin?: string;
 }
 
 // Google login payload interface

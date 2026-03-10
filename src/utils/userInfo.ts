@@ -16,7 +16,10 @@ export interface UserInfo {
 
 export const extractUserInfo = (userObj: any): UserInfo => {
   const userData = userObj?.data || userObj;
-  
+  // Support profile API returning data at top level or under .user
+  const profile = userData?.user || userData;
+  const addresses = profile?.addresses ?? userData?.addresses;
+
   const countryMap: {[key: string]: string} = {
     'India': 'IN',
     'United States': 'US',
@@ -43,19 +46,28 @@ export const extractUserInfo = (userObj: any): UserInfo => {
   };
 
   let billingAddress = null;
-  
-  // Try addresses array first
-  if (userData?.addresses && Array.isArray(userData.addresses) && userData.addresses.length > 0) {
-    const defaultAddress = userData.addresses.find((addr: any) => addr.is_default === true) || userData.addresses[0];
+  let phone = profile?.phone || profile?.phone_number || userData?.phone || userData?.phone_number || '';
+
+  // Try addresses array first (profile API returns addresses with address_line1, postal_code, phone_number, etc.)
+  if (addresses && Array.isArray(addresses) && addresses.length > 0) {
+    const defaultAddress = addresses.find((addr: any) => addr.is_default === true) || addresses[0];
     billingAddress = getAddress(defaultAddress);
-  } else if (userData?.billing_address || userData?.address) {
-    billingAddress = getAddress(userData.billing_address || userData.address);
+    // Use phone_number from the default address when available
+    if (defaultAddress?.phone_number) {
+      phone = defaultAddress.phone_number;
+    }
+  } else if (profile?.billing_address || profile?.address || userData?.billing_address || userData?.address) {
+    const addr = profile?.billing_address || profile?.address || userData?.billing_address || userData?.address;
+    billingAddress = getAddress(addr);
+    if (addr?.phone_number) {
+      phone = addr.phone_number;
+    }
   }
 
   return {
-    email: userData?.email || '',
-    name: userData?.name || '',
-    phone: userData?.phone || userData?.phone_number || '',
+    email: profile?.email || userData?.email || '',
+    name: profile?.name || userData?.name || '',
+    phone: phone || '',
     billingAddress,
   };
 };

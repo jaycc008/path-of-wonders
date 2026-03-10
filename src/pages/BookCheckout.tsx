@@ -44,8 +44,7 @@ export default function BookCheckout() {
         // Step 2: Decode base64
         let decodedJson = decodeFromBase64(urlDecoded);
 
-        console.log('[BookCheckout] Decoded JSON:', decodedJson);
-        
+       
         // Step 3: Validate that we got JSON, not the base64 string back
         // If decodeFromBase64 failed, it might return the original string
         if (!decodedJson.trim().startsWith('{') && !decodedJson.trim().startsWith('[')) {
@@ -132,7 +131,7 @@ export default function BookCheckout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEstimating, setIsEstimating] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [, setAppliedCoupon] = useState<string | null>(null);
   const [couponDiscount, setCouponDiscount] = useState<{
     discount_type?: 'amount' | 'percent';
     discount_value?: number;

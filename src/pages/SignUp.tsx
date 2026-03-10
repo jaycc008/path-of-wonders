@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { ChevronLeft, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { ChevronLeft, Eye, EyeOff, AlertCircle, Loader2, ChevronDown } from 'lucide-react';
 import { signup, SignupPayload, googleLogin, getProfile } from '../api/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api';
@@ -34,9 +34,20 @@ export default function SignUp() {
     email: '',
     password: '',
     password_confirmation: '',
+    country_of_origin: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof SignupPayload, string>>>({});
   const [status, setStatus] = useState<string>('');
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const countryInputRef = useRef<HTMLDivElement>(null);
+
+  const selectedCountryLabel = formData.country_of_origin
+    ? countries.find(c => c.value === formData.country_of_origin)?.label ?? ''
+    : '';
+  const filteredCountries = countries.filter(c =>
+    c.label.toLowerCase().includes(countrySearch.toLowerCase().trim())
+  );
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -174,6 +185,17 @@ export default function SignUp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, isAuthenticated]);
 
+  // Close country dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (countryInputRef.current && !countryInputRef.current.contains(e.target as Node)) {
+        setCountryDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   /**
    * Initialize Google Identity Services
    */
@@ -307,7 +329,16 @@ export default function SignUp() {
       setStatus('');
       console.log('[SignUp] Submitting signup form');
 
-      const response = await signup(formData);
+      const payload: SignupPayload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.password_confirmation,
+      };
+      if (formData.country_of_origin?.trim()) {
+        payload.country_of_origin = formData.country_of_origin.trim();
+      }
+      const response = await signup(payload);
       console.log('[SignUp] Signup response received:', response);
 
       // Backend sets HttpOnly cookie automatically via Set-Cookie header
@@ -474,6 +505,62 @@ export default function SignUp() {
                       )}
                     </div>
 
+                    {/* Country of Origin (optional, type to search / select) */}
+                    <div ref={countryInputRef} className="relative">
+                      <label htmlFor="country_of_origin" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Country of origin
+                      </label>
+                      <div
+                        className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 flex items-center justify-between cursor-pointer focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent ${errors.country_of_origin ? 'border-red-500' : 'border-gray-300 dark:text-white'}`}
+                        onClick={() => setCountryDropdownOpen(prev => !prev)}
+                      >
+                        <input
+                          type="text"
+                          id="country_of_origin"
+                          value={countryDropdownOpen ? countrySearch : selectedCountryLabel}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setCountrySearch(v);
+                            setCountryDropdownOpen(true);
+                            if (v.trim() === '') {
+                              setFormData(prev => ({ ...prev, country_of_origin: '' }));
+                            }
+                          }}
+                          onFocus={() => setCountryDropdownOpen(true)}
+                          placeholder="Type or select country"
+                          className="flex-1 min-w-0 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        />
+                        <ChevronDown className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform ${countryDropdownOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                      {countryDropdownOpen && (
+                        <ul className="absolute z-20 w-full mt-1 max-h-48 overflow-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-lg py-1">
+                          {filteredCountries.length === 0 ? (
+                            <li className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">No country found</li>
+                          ) : (
+                            filteredCountries.map((c) => (
+                              <li
+                                key={c.value}
+                                className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                                onClick={() => {
+                                  setFormData(prev => ({ ...prev, country_of_origin: c.value }));
+                                  setCountrySearch('');
+                                  setCountryDropdownOpen(false);
+                                  if (errors.country_of_origin) {
+                                    setErrors(prev => ({ ...prev, country_of_origin: undefined }));
+                                  }
+                                }}
+                              >
+                                {c.label}
+                              </li>
+                            ))
+                          )}
+                        </ul>
+                      )}
+                      {errors.country_of_origin && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.country_of_origin}</p>
+                      )}
+                    </div>
+
                     {/* Password Field */}
                     <div>
                       <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -552,7 +639,7 @@ export default function SignUp() {
                       <label htmlFor="terms" className="block text-sm font-normal text-gray-700 dark:text-gray-400">
                         I agree to the{' '}
                         <Link to="/terms" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">
-                          Terms and Conditions
+                          Terms and Conditionss
                         </Link>
                         {' '}and{' '}
                         <Link to="/privacy" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">
