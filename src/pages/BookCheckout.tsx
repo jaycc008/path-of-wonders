@@ -37,10 +37,14 @@ export default function BookCheckout() {
     const decodeAndParse = (param: string): any => {
       try {
         // Step 1: Decode URL encoding
-        const urlDecoded = decodeURIComponent(param);
+        let urlDecoded = decodeURIComponent(param);
+        // Step 1b: Restore base64 chars corrupted by query string handling (+ often becomes space)
+        urlDecoded = urlDecoded.replace(/ /g, '+');
         
         // Step 2: Decode base64
         let decodedJson = decodeFromBase64(urlDecoded);
+
+        console.log('[BookCheckout] Decoded JSON:', decodedJson);
         
         // Step 3: Validate that we got JSON, not the base64 string back
         // If decodeFromBase64 failed, it might return the original string

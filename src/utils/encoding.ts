@@ -23,9 +23,11 @@ export const encodeToBase64 = (str: string): string => {
  */
 export const decodeFromBase64 = (str: string): string => {
   try {
+    // Restore base64 chars corrupted by URL/query handling (+ often becomes space)
+    const normalized = str.replace(/ /g, '+');
     // First decode base64, then decode UTF-8
     return decodeURIComponent(
-      atob(str)
+      atob(normalized)
         .split('')
         .map((c) => {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
