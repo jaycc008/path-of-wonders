@@ -163,7 +163,7 @@ export default function Checkout() {
   const [saveAddress, setSaveAddress] = useState(true);
   
   // Form refs for accessing form values
-  const contactFormRef = useRef<FormikProps<{ name: string; email: string }>>(null);
+  const contactFormRef = useRef<FormikProps<{ name: string; email: string; phone: string }>>(null);
   const billingFormRef = useRef<FormikProps<{
     addressLine1: string;
     addressLine2: string;
@@ -177,7 +177,7 @@ export default function Checkout() {
   const getInitialFormValues = () => {
     if (isLoading) {
       return {
-        contact: { name: '', email: '' },
+        contact: { name: '', email: '', phone: '' },
         billing: {
           addressLine1: '',
           addressLine2: '',
@@ -194,6 +194,7 @@ export default function Checkout() {
       contact: {
         name: userInfo.name,
         email: userInfo.email,
+        phone: userInfo.phone || '',
       },
       billing: userInfo.billingAddress || {
         addressLine1: '',
@@ -235,7 +236,7 @@ export default function Checkout() {
   const totalDiscount = subscriptionDiscount + couponDiscountAmount;
   const total = subtotal;
 
-  const handleContactInfoSubmit = (values: { name: string; email: string }) => {
+  const handleContactInfoSubmit = (values: { name: string; email: string; phone: string }) => {
     // Formik handles validation, values are stored in form state
     console.log('[Checkout] Contact info updated:', values);
   };
@@ -275,6 +276,7 @@ export default function Checkout() {
       contactFormRef.current?.setTouched({
         name: true,
         email: true,
+        phone: true,
       });
       return;
     }
@@ -291,7 +293,7 @@ export default function Checkout() {
     }
 
     // Get form values
-    const contactValues = contactFormRef.current?.values || { name: '', email: '' };
+    const contactValues = contactFormRef.current?.values || { name: '', email: '', phone: '' };
     const billingValues = billingFormRef.current?.values || {
       addressLine1: '',
       addressLine2: '',

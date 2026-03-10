@@ -145,7 +145,7 @@ export default function BookCheckout() {
   const [savedAddressId, setSavedAddressId] = useState<string | null>(null);
   
   // Form refs for accessing form values
-  const contactFormRef = useRef<FormikProps<{ name: string; email: string; phone?: string }>>(null);
+  const contactFormRef = useRef<FormikProps<{ name: string; email: string; phone: string }>>(null);
   const billingFormRef = useRef<FormikProps<{
     addressLine1: string;
     addressLine2: string;

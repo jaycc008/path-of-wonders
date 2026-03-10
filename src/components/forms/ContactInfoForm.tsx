@@ -7,9 +7,9 @@ interface ContactInfoFormProps {
   initialValues: {
     name: string;
     email: string;
-    phone?: string;
+    phone: string;
   };
-  onSubmit: (values: { name: string; email: string; phone?: string }) => void;
+  onSubmit: (values: { name: string; email: string; phone: string }) => void;
 }
 
 const validationSchema = Yup.object({
@@ -24,7 +24,7 @@ const validationSchema = Yup.object({
     .required('Phone number is required'),
 });
 
-const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; phone?: string }>, ContactInfoFormProps>(
+const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; phone: string }>, ContactInfoFormProps>(
   ({ initialValues, onSubmit }, ref) => {
     return (
       <div className="mb-8">
