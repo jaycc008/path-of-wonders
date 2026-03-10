@@ -12,6 +12,8 @@ import CoursesPage from './pages/CoursesPage';
 import CourseDetails from './pages/CourseDetails';
 import BookCheckout from './pages/BookCheckout';
 import PolicyPage from './pages/PolicyPage';
+import CookiePolicyPage from './pages/CookiePolicyPage';
+import FAQPage from './pages/FAQPage';
 
 function App() {
   return (
@@ -20,9 +22,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/privacy-policy" element={<PolicyPage dataId="a74f1387-b581-4076-bce5-05dbae563c41" title="Privacy Policy" />} />
-          <Route path="/cookie-policy" element={<PolicyPage dataId="793d5b02-7a73-4068-b488-b0e293687493" title="Cookie Policy" />} />
-          <Route path="/terms-and-conditions" element={<PolicyPage dataId="1ad06f9f-dfa3-4c4b-be37-6274e7f692e7" title="Terms & Conditions" />} />
+          <Route path="/privacy-policy" element={<PolicyPage dataId="a74f1387-b581-4076-bce5-05dbae563c41" />} />
+          <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+          <Route path="/terms-and-conditions" element={<PolicyPage dataId="1ad06f9f-dfa3-4c4b-be37-6274e7f692e7" />} />
+          <Route path="/faq" element={<FAQPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/checkout" element={<Checkout />} />

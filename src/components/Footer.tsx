@@ -78,14 +78,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-blue-400 transition-colors duration-300">
-                  Help Center
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-blue-400 transition-colors duration-300">
+                <Link to="/faq" className="hover:text-blue-400 transition-colors duration-300">
                   FAQ
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
