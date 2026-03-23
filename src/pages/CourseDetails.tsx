@@ -3,6 +3,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Play, Clock, Users, Star, BookOpen, Award, ArrowRight, Book, FileText, Video, GraduationCap, Infinity, FolderOpen } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/ScrollToTop';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { Course, getCourses, getCourseById, getCourseBook, Book as BookType } from '../api/course';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +21,7 @@ export default function CourseDetails() {
   const [book, setBook] = useState<BookType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isBookLoading, setIsBookLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Fetch course data
   useEffect(() => {
@@ -144,6 +147,15 @@ export default function CourseDetails() {
     }
   }, [course]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleEnroll = () => {
     if (!course) return;
     
@@ -197,10 +209,16 @@ export default function CourseDetails() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <div className="max-w-7xl mx-auto px-6 pt-20 md:pt-24 lg:pt-32">
+          <Breadcrumbs
+            items={[{ label: 'Home', to: '/' }, { label: 'Courses', to: '/courses' }, { label: 'Course' }]}
+          />
+        </div>
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
         </div>
         <Footer />
+        <ScrollToTop show={showScrollTop} />
       </div>
     );
   }
@@ -210,6 +228,13 @@ export default function CourseDetails() {
       <div className="min-h-screen bg-gray-50">
         <Header />
         <div className="max-w-7xl mx-auto px-6 py-12">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'Courses', to: '/courses' },
+              { label: 'Course not found' },
+            ]}
+          />
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Course Not Found</h1>
             <button
@@ -221,6 +246,7 @@ export default function CourseDetails() {
           </div>
         </div>
         <Footer />
+        <ScrollToTop show={showScrollTop} />
       </div>
     );
   }
@@ -232,6 +258,13 @@ export default function CourseDetails() {
       <main>
         {/* Back Button */}
         <div className="max-w-7xl mx-auto px-6 pt-20 md:pt-24 lg:pt-32">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'Courses', to: '/courses' },
+              { label: course.name || course.title || 'Course' },
+            ]}
+          />
           <button
             onClick={() => navigate('/courses')}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6"
@@ -616,6 +649,7 @@ export default function CourseDetails() {
       </main>
 
       <Footer />
+      <ScrollToTop show={showScrollTop} />
     </div>
   );
 }

@@ -1,15 +1,20 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, LayoutDashboard, Crown, CheckCircle2 } from 'lucide-react';
+import { User, LogOut, LayoutDashboard, Crown, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api';
 import { logout as logoutAPI } from '../api/auth';
 import logo from '../assets/images/10dlogo1.png';
 import PrimaryButton from './PrimaryButton';
+import MobileHeader from './MobileHeader';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
   const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,6 +67,22 @@ export default function Header() {
     setIsDropdownOpen(false);
   };
 
+  const handleLoginClick = () => {
+    const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+    const currentFullUrl = window.location.href;
+    const returnUrlParam = encodeURIComponent(currentFullUrl);
+    
+    // Check if it's a full URL (external) or relative path (internal)
+    if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
+      // External URL - add return_url parameter
+      const separator = loginUrl.includes('?') ? '&' : '?';
+      window.location.href = `${loginUrl}${separator}return_url=${returnUrlParam}`;
+    } else {
+      // Internal route - use React Router to navigate
+      navigate(`${loginUrl}?return_url=${returnUrlParam}`);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       // Call logout API to invalidate session on server
@@ -112,37 +133,58 @@ export default function Header() {
   }, [isDropdownOpen]);
 
   useEffect(() => {
+    const handleViewport = () => setIsMobile(window.innerWidth < 768);
+    handleViewport();
+    window.addEventListener('resize', handleViewport);
+    return () => window.removeEventListener('resize', handleViewport);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      setScrolled(false);
+      return;
+    }
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <MobileHeader
+        isOpen={isMobileMenuOpen}
+        setIsOpen={setIsMobileMenuOpen}
+        isAuthenticated={isAuthenticated}
+        userEmail={userInfo.email}
+        onMyLearningClick={handleMyLearningClick}
+        onLogout={handleLogout}
+        onLoginClick={handleLoginClick}
+      />
+    );
+  }
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'pt-0 px-0' : 'pt-4 px-4'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50"
     >
       <div
-        className={`transition-all duration-500 ${
-          scrolled
-            ? 'w-full bg-gray-50/95 backdrop-blur-xl shadow-lg shadow-gray-900/20'
-            : 'max-w-7xl mx-auto bg-gray-50/90 backdrop-blur-lg shadow-md shadow-gray-900/10 rounded-full '
-        }`}
+        className={`desktop-header-shell ${scrolled ? 'is-scrolled' : ''}`}
       >
-        <div className={`max-w-7xl mx-auto px-8 flex items-center justify-between transition-all duration-300 ${
-          scrolled ? 'py-3' : 'py-4'
-        }`}>
+        <div className="desktop-header-inner max-w-7xl mx-auto px-8 flex items-center justify-between py-3 md:py-4">
           <Link to="/" className="flex items-center gap-3">
             <img 
               src={logo} 
               alt="Path Of Wonders Logo" 
               className="h-10 w-10 object-contain"
             />
-            <span className="text-2xl font-bold text-gray-900 sm:block hidden">
+            <span className="text-2xl font-bold text-gray-900">
               Path Of Wonders
             </span>
           </Link>
@@ -314,30 +356,12 @@ export default function Header() {
               </div>
             ) : (
               <PrimaryButton
-                onClick={() => {
-                  const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
-                  const currentFullUrl = window.location.href;
-                  const returnUrlParam = encodeURIComponent(currentFullUrl);
-                  
-                  // Check if it's a full URL (external) or relative path (internal)
-                  if (loginUrl.startsWith('http://') || loginUrl.startsWith('https://')) {
-                    // External URL - add return_url parameter
-                    const separator = loginUrl.includes('?') ? '&' : '?';
-                    window.location.href = `${loginUrl}${separator}return_url=${returnUrlParam}`;
-                  } else {
-                    // Internal route - use React Router to navigate
-                    navigate(`${loginUrl}?return_url=${returnUrlParam}`);
-                  }
-                }}
+                onClick={handleLoginClick}
               >
                 Login/Sign Up
               </PrimaryButton>
             )}
           </nav>
-
-          <button className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-300">
-            <Menu className="w-6 h-6" />
-          </button>
         </div>
       </div>
     </header>

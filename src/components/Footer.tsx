@@ -6,7 +6,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="contact" className="bg-gray-900 text-gray-300 pt-24 pb-12">
+    <footer id="contact" className="bg-gray-800 text-gray-200 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-8 md:px-12">
         <div className="grid md:grid-cols-4 gap-16 mb-16">
           <div className="space-y-6">
@@ -17,7 +17,7 @@ export default function Footer() {
                 className="h-48 w-auto object-contain"
               />
             </div>
-            <p className="text-gray-400 leading-relaxed">
+            <p className="text-gray-300 leading-relaxed">
               Empowering learners worldwide with innovative education solutions for the digital age.
             </p>
             <div className="flex gap-4">
@@ -25,7 +25,7 @@ export default function Footer() {
                 <a
                   key={index}
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors duration-300"
+                  className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors duration-300"
                 >
                   <Icon className="w-5 h-5" />
                 </a>
@@ -86,8 +86,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-gray-400 text-sm">
+        <div className="border-t border-gray-700 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-gray-300 text-sm">
             &copy; {currentYear} Path Of Wonders. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">

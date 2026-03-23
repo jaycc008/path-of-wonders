@@ -27,7 +27,7 @@ export default function Journey() {
   }, []);
 
   return (
-    <section id="about" ref={sectionRef} className="py-24 bg-gray-50">
+    <section id="about" ref={sectionRef} className="py-24 bg-white/30 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div
@@ -68,8 +68,8 @@ export default function Journey() {
               }`}
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-3xl transform rotate-3"></div>
-              <div className="relative bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-8 transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-hidden">
+              <div className="absolute inset-0 rounded-3xl md:transform md:rotate-3"></div>
+              <div className="relative bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-8 md:transform md:-rotate-3 md:hover:rotate-0 transition-transform duration-500 overflow-hidden">
                 <div className="aspect-square rounded-2xl overflow-hidden relative">
                   <img
                     src={journeyImage}

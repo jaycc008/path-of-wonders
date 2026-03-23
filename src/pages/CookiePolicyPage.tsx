@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/ScrollToTop';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const SKELETON_DURATION_MS = 500;
 
@@ -23,16 +25,27 @@ function CookiePolicySkeleton() {
 
 export default function CookiePolicyPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const t = window.setTimeout(() => setIsLoading(false), SKELETON_DURATION_MS);
     return () => window.clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-12 min-h-[60vh] my-24">
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Cookie Policy' }]} />
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Cookie Policy</h1>
         <div className="min-h-[480px] relative">
           {isLoading ? (
@@ -83,6 +96,7 @@ export default function CookiePolicyPage() {
         </div>
       </main>
       <Footer />
+      <ScrollToTop show={showScrollTop} />
     </div>
   );
 }

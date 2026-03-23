@@ -89,13 +89,25 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 .scrollbar-hide {
@@ -267,5 +279,44 @@ body {
 @media (max-width: 768px) {
   .overview-content ul {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Desktop header: one smooth merged animation */
+.desktop-header-shell {
+  width: 100%;
+  background: rgba(249, 250, 251, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 15px -3px rgba(17, 24, 39, 0.2);
+}
+
+.desktop-header-inner {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .desktop-header-shell {
+    max-width: 80rem; /* tailwind max-w-7xl */
+    margin: 1rem auto 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 9999px;
+    background: rgba(249, 250, 251, 0.9);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 4px 6px -1px rgba(17, 24, 39, 0.1);
+    transition: max-width 100ms ease, margin 100ms ease, border-radius 100ms ease,
+      padding 100ms ease, box-shadow 100ms ease, background-color 100ms ease,
+      backdrop-filter 100ms ease;
+  }
+
+  .desktop-header-shell.is-scrolled {
+    max-width: 100%;
+    margin-top: 0;
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+    background: rgba(249, 250, 251, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 15px -3px rgba(17, 24, 39, 0.2);
   }
 }

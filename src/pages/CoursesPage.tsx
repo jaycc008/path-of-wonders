@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Breadcrumbs from './courses/Breadcrumbs';
+import ScrollToTop from '../components/ScrollToTop';
+import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryPills from './courses/CategoryPills';
 import CourseCard from './courses/CourseCard';
 import { getCourses, Course } from '../api/course';
@@ -10,6 +11,7 @@ import { Loader2, Search } from 'lucide-react';
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -107,6 +109,20 @@ export default function CoursesPage() {
     fetchCourses();
   }, []);
 
+  // Always open Courses page from top
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Filter courses by selected category and search query
   const filteredCourses = useMemo(() => {
     let filtered = courses;
@@ -134,9 +150,10 @@ export default function CoursesPage() {
       <Header />
       
       <main className="max-w-7xl mx-auto px-6 py-12">
-        <Breadcrumbs />
+      
         
         <div className="my-20">
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Courses' }]} />
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Explore Our Courses
           </h1>
@@ -184,6 +201,7 @@ export default function CoursesPage() {
       </main>
 
       <Footer />
+      <ScrollToTop show={showScrollTop} />
     </div>
   );
 }

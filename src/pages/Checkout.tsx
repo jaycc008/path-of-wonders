@@ -28,6 +28,11 @@ export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
+
+  // Always open checkout from top of page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
   
   // Get course or subscription from location state, query params, or restored redirect state
   const locationState = location.state as { course?: Course; subscription?: Subscription } | undefined;
@@ -154,6 +159,7 @@ export default function Checkout() {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [formValidationError, setFormValidationError] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponDiscount, setCouponDiscount] = useState<{
     discount_type?: 'amount' | 'percent';
@@ -161,6 +167,7 @@ export default function Checkout() {
     currency?: string;
   } | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
+  const validationAlertRef = useRef<HTMLDivElement>(null);
   
   // Form refs for accessing form values
   const contactFormRef = useRef<FormikProps<{ name: string; email: string; phone: string }>>(null);
@@ -268,6 +275,8 @@ export default function Checkout() {
   };
 
   const handleProceedToPayment = async () => {
+    setFormValidationError('');
+
     // Validate all forms
     const contactErrors = await contactFormRef.current?.validateForm();
     const billingErrors = await billingFormRef.current?.validateForm();
@@ -277,6 +286,10 @@ export default function Checkout() {
         name: true,
         email: true,
         phone: true,
+      });
+      setFormValidationError('Please complete all required contact details above.');
+      requestAnimationFrame(() => {
+        validationAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
     }
@@ -288,6 +301,10 @@ export default function Checkout() {
         state: true,
         postalCode: true,
         country: true,
+      });
+      setFormValidationError('Please complete all required billing address fields above.');
+      requestAnimationFrame(() => {
+        validationAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
     }
@@ -575,6 +592,16 @@ export default function Checkout() {
                   <p className="text-sm text-red-800 flex items-start gap-2">
                     <span className="text-red-600 font-semibold">⚠</span>
                     <span>{paymentError}</span>
+                  </p>
+                </div>
+              )}
+
+              {/* Validation Alert (shown above proceed button) */}
+              {formValidationError && (
+                <div ref={validationAlertRef} className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-900 flex items-start gap-2">
+                    <span className="text-amber-700 font-semibold">⚠</span>
+                    <span>{formValidationError} </span>
                   </p>
                 </div>
               )}

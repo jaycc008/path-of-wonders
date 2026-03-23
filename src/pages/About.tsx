@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { Target, Users, Award, Zap, Heart, Lightbulb, BookOpen, Globe } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/ScrollToTop';
+import Breadcrumbs from '../components/Breadcrumbs';
 import journeyImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 import heroImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
 
 export default function About() {
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
     const observers = sectionRefs.current.map((ref, index) => {
@@ -29,6 +32,20 @@ export default function About() {
     return () => {
       observers.forEach((observer) => observer?.disconnect());
     };
+  }, []);
+
+  // Always open About page from top
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const stats = [
@@ -69,6 +86,10 @@ export default function About() {
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-cyan-50 to-purple-50"></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <Breadcrumbs
+            className="mb-6 !text-left justify-start"
+            items={[{ label: 'Home', to: '/' }, { label: 'About' }]}
+          />
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               About Path Of Wonders
@@ -252,6 +273,7 @@ export default function About() {
       </section>
 
       <Footer />
+      <ScrollToTop show={showScrollTop} />
     </div>
   );
 }

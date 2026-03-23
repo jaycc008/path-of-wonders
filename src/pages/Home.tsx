@@ -56,12 +56,12 @@ export default function Home() {
   }, [location.hash]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div>
       <Header />
       {/* <Hero /> */}
-      <Hero2 />
+       <Hero2 />
       <Journey />
-      <Courses />
+     <Courses />
       <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
       <Testimonials />
       <Promise />

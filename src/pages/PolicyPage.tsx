@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/ScrollToTop';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const TERMLY_SCRIPT_ID = 'termly-jssdk';
 const TERMLY_SCRIPT_SRC = 'https://app.termly.io/embed-policy.min.js';
@@ -43,14 +45,17 @@ function PolicySkeleton() {
 
 interface PolicyPageProps {
   dataId: string;
+  /** Shown in breadcrumbs as the current page */
+  pageTitle: string;
 }
 
 const TERMLY_EMBED_NAME = 'termly-embed';
 
-export default function PolicyPage({ dataId }: PolicyPageProps) {
+export default function PolicyPage({ dataId, pageTitle }: PolicyPageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const embedRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -85,11 +90,23 @@ export default function PolicyPage({ dataId }: PolicyPageProps) {
     };
   }, [dataId]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-12 min-h-[60vh]">
-        <div ref={containerRef} className="min-h-[480px] relative mt-24">
+        <div className="mt-24">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: pageTitle }]} />
+        </div>
+        <div ref={containerRef} className="min-h-[480px] relative">
           {isLoading && (
             <div className="absolute inset-0 z-10 bg-white overflow-hidden" aria-hidden="true">
               <PolicySkeleton />
@@ -104,6 +121,7 @@ export default function PolicyPage({ dataId }: PolicyPageProps) {
         </div>
       </main>
       <Footer />
+      <ScrollToTop show={showScrollTop} />
     </div>
   );
 }

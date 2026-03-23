@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect, useLayoutEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -15,16 +16,45 @@ import PolicyPage from './pages/PolicyPage';
 import CookiePolicyPage from './pages/CookiePolicyPage';
 import FAQPage from './pages/FAQPage';
 
+function ScrollManager() {
+  const location = useLocation();
+
+  // Prevent browser from restoring previous scroll position on SPA route changes.
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+      return () => {
+        window.history.scrollRestoration = 'auto';
+      };
+    }
+    return undefined;
+  }, []);
+
+  // Snap to top immediately on navigation (no smooth scroll animation).
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname, location.search, location.hash]);
+
+  return null;
+}
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollManager />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/privacy-policy" element={<PolicyPage dataId="a74f1387-b581-4076-bce5-05dbae563c41" />} />
+          <Route
+            path="/privacy-policy"
+            element={<PolicyPage dataId="a74f1387-b581-4076-bce5-05dbae563c41" pageTitle="Privacy Policy" />}
+          />
           <Route path="/cookie-policy" element={<CookiePolicyPage />} />
-          <Route path="/terms-and-conditions" element={<PolicyPage dataId="1ad06f9f-dfa3-4c4b-be37-6274e7f692e7" />} />
+          <Route
+            path="/terms-and-conditions"
+            element={<PolicyPage dataId="1ad06f9f-dfa3-4c4b-be37-6274e7f692e7" pageTitle="Terms and Conditions" />}
+          />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const SKELETON_DURATION_MS = 500;
 
@@ -64,6 +65,7 @@ export default function FAQPage() {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-12 min-h-[60vh] my-24">
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'FAQ' }]} />
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Frequently Asked Questions</h1>
         <div className="min-h-[480px] relative">
           {isLoading ? (

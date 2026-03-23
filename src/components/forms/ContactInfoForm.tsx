@@ -39,7 +39,7 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; ph
           onSubmit={onSubmit}
           enableReinitialize
         >
-          {() => (
+          {({ errors, touched }) => (
             <Form>
               <div className="space-y-4">
                 {/* Name Field */}
@@ -51,7 +51,11 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; ph
                     type="text"
                     id="name"
                     name="name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all ${
+                      errors.name && touched.name
+                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
+                    }`}
                     placeholder="John Doe"
                   />
                   <ErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
@@ -66,7 +70,11 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; ph
                     type="email"
                     id="email"
                     name="email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all ${
+                      errors.email && touched.email
+                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
+                    }`}
                     placeholder="your.email@example.com"
                   />
                   <ErrorMessage name="email" component="p" className="mt-1 text-sm text-red-600" />
@@ -81,7 +89,11 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; ph
                     type="tel"
                     id="phone"
                     name="phone"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all ${
+                      errors.phone && touched.phone
+                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
+                    }`}
                     placeholder="+1 (555) 123-4567"
                   />
                   <ErrorMessage name="phone" component="p" className="mt-1 text-sm text-red-600" />

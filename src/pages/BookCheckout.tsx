@@ -21,6 +21,11 @@ export default function BookCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
+
+  // Always open checkout from top of page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
   
   // Get book from location state, query params, or restored redirect state
   const locationState = location.state as { book?: BookType } | undefined;
