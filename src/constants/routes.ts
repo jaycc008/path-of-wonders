@@ -3,6 +3,9 @@
  * Centralized route definitions to avoid hardcoded URLs throughout the codebase
  */
 
+import type { Course } from '../api/course';
+import { encodeToBase64 } from '../utils/encoding';
+
 export const ROUTES = {
   HOME: '/',
   ABOUT: '/about',
@@ -24,5 +27,15 @@ export const ROUTES = {
  */
 export const buildBookCheckoutUrl = (encodedBook: string): string => {
   return `${ROUTES.BOOK_CHECKOUT}?book=${encodeURIComponent(encodedBook)}`;
+};
+
+/**
+ * Course details path with encoded course payload (matches CourseDetails / checkout navigation).
+ */
+export const buildCourseDetailsUrl = (course: Course): string => {
+  const courseJson = JSON.stringify({ course });
+  const encodedCourse = encodeToBase64(courseJson);
+  const id = String(course.id);
+  return `${ROUTES.COURSE_DETAILS(id)}?course=${encodeURIComponent(encodedCourse)}`;
 };
 

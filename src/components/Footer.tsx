@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import logo from '../assets/images/10dlogo2.png';
 import NewsletterSubscribe from './NewsletterSubscribe';
+import { useCourses } from '../contexts/CoursesContext';
+import { buildCourseDetailsUrl, ROUTES } from '../constants/routes';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { courses, isLoading } = useCourses();
 
   return (
     <>
@@ -39,13 +42,31 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-bold text-lg mb-6">Courses</h3>
             <ul className="space-y-4">
-              {['Web Development', 'Data Science', 'Design', 'Business'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="hover:text-blue-400 transition-colors duration-300">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              {isLoading ? (
+                <li className="text-sm text-gray-400">Loading courses…</li>
+              ) : (
+                courses.map((course) =>
+                  course.id != null ? (
+                    <li key={course.id}>
+                      <Link
+                        to={buildCourseDetailsUrl(course)}
+                        state={{ course }}
+                        className="hover:text-blue-400 transition-colors duration-300"
+                      >
+                        {course.title || course.name || 'Course'}
+                      </Link>
+                    </li>
+                  ) : null
+                )
+              )}
+              {!isLoading && courses.length === 0 ? (
+                <li className="text-sm text-gray-400">New courses coming soon.</li>
+              ) : null}
+              <li>
+                <Link to={ROUTES.COURSES} className="hover:text-blue-400 transition-colors duration-300">
+                  All courses
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -103,12 +124,12 @@ export default function Footer() {
             <Link to="/terms-and-conditions" className="hover:text-blue-400 transition-colors duration-300">
               Terms & Conditions
             </Link>
-            <a href="#" className="hover:text-blue-400 transition-colors duration-300">
+            {/* <a href="#" className="hover:text-blue-400 transition-colors duration-300">
               Accessibility
             </a>
             <a href="#" className="hover:text-blue-400 transition-colors duration-300">
               Sitemap
-            </a>
+            </a> */}
           </div>
         </div>
       </div>

@@ -1,39 +1,23 @@
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, ArrowRight } from 'lucide-react';
-import { getCourses, Course } from '../api/course';
-import { encodeToBase64 } from '../utils/encoding';
+import { useCourses } from '../contexts/CoursesContext';
+import { buildCourseDetailsUrl } from '../constants/routes';
 import SecondaryButton from './SecondaryButton';
 
 export default function Courses() {
   const navigate = useNavigate();
-  const [courses, setCourses] = useState<Course[]>([]);
+  const { courses, isLoading } = useCourses();
   const [activeCourse, setActiveCourse] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Fetch courses from API
+  // Reset active index if course list length changes
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getCourses();
-        const courseList = response.data.items || [];
-        setCourses(courseList); // Show all courses
-      } catch (error) {
-        console.error('Failed to fetch courses:', error);
-        // Keep empty array on error
-        setCourses([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, []);
+    setActiveCourse((i) => (courses.length === 0 ? 0 : Math.min(i, courses.length - 1)));
+  }, [courses.length]);
 
   // Reset video playing state when active course changes
   useEffect(() => {
@@ -136,15 +120,9 @@ export default function Courses() {
                     ) : (
                       <button 
                         onClick={() => {
-                          // If no video, navigate to course details
                           const course = courses[activeCourse];
-                          if (course && course.id) {
-                            const courseJson = JSON.stringify({ course });
-                            const encodedCourse = encodeToBase64(courseJson);
-                            const courseId = String(course.id);
-                            navigate(`/courses/${courseId}?course=${encodeURIComponent(encodedCourse)}`, {
-                              state: { course }
-                            });
+                          if (course?.id != null) {
+                            navigate(buildCourseDetailsUrl(course), { state: { course } });
                           }
                         }}
                         className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer group/play"
@@ -172,15 +150,8 @@ export default function Courses() {
                   type="button"
                   onClick={() => {
                     const course = courses[activeCourse];
-                    if (course && course.id) {
-                      // Encode course data in URL using UTF-8 safe encoding
-                      const courseJson = JSON.stringify({ course });
-                      const encodedCourse = encodeToBase64(courseJson);
-                      // Convert course.id to string to ensure proper routing
-                      const courseId = String(course.id);
-                      navigate(`/courses/${courseId}?course=${encodeURIComponent(encodedCourse)}`, {
-                        state: { course }
-                      });
+                    if (course?.id != null) {
+                      navigate(buildCourseDetailsUrl(course), { state: { course } });
                     }
                   }}
                   className="text-blue-600 hover:text-blue-700 font-semibold transition-colors underline-offset-4 hover:underline"

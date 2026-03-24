@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { CoursesProvider } from './contexts/CoursesContext';
 import Home from './pages/Home';
 import About from './pages/About';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
@@ -42,8 +43,9 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <ScrollManager />
-        <Routes>
+        <CoursesProvider>
+          <ScrollManager />
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route
@@ -67,7 +69,8 @@ function App() {
           <Route path="/book/success" element={<BookPurchaseSuccess />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
-        </Routes>
+          </Routes>
+        </CoursesProvider>
       </BrowserRouter>
     </AuthProvider>
   );
