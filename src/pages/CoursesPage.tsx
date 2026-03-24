@@ -149,7 +149,7 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 py-16 md:py-20">
       
         
         <div className="my-20">
@@ -163,7 +163,7 @@ export default function CoursesPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="relative max-w-2xl">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -188,7 +188,7 @@ export default function CoursesPage() {
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           </div>
         ) : filteredCourses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 mt-10">
             {filteredCourses.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}

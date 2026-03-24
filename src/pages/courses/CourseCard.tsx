@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Clock, Users, Star, ArrowRight } from 'lucide-react';
+import { Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { Course } from '../../api/course';
 import SecondaryButton from '../../components/SecondaryButton';
 
@@ -9,6 +10,8 @@ interface CourseCardProps {
 
 export default function CourseCard({ course }: CourseCardProps) {
   const navigate = useNavigate();
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const hasIntroVideo = Boolean(course.intro_video_url);
 
   const handleLearnMore = () => {
     navigate(`/courses/${course.id}`, {
@@ -19,20 +22,35 @@ export default function CourseCard({ course }: CourseCardProps) {
   return (
     <div className="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-blue-300 transition-all duration-300">
       {/* Course Image */}
-      <div className="relative h-48 overflow-hidden bg-gray-100">
-        <img
-          src={course.thumbnail_url || course.image || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'}
-          alt={course.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
-        
-        {/* Play Button Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button className="w-16 h-16 bg-white/95 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-transform">
-            <Play className="w-6 h-6 text-blue-600 ml-1" fill="currentColor" />
-          </button>
-        </div>
+      <div className="relative h-56 md:h-60 overflow-hidden bg-gray-100">
+        {isVideoPlaying && hasIntroVideo ? (
+          <video
+            src={course.intro_video_url}
+            controls
+            controlsList="nodownload"
+            autoPlay
+            className="w-full h-full object-cover bg-black"
+          >
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <>
+            <img
+              src={course.thumbnail_url || course.image || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'}
+              alt={course.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+            {hasIntroVideo && (
+              <button
+                type="button"
+                onClick={() => setIsVideoPlaying(true)}
+                className="absolute inset-0 z-10"
+                aria-label="Play intro video"
+              />
+            )}
+          </>
+        )}
 
         {/* Category Badge */}
         {course.category && (
