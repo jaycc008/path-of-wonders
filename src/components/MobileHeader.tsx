@@ -39,7 +39,7 @@ export default function MobileHeader({
       >
         <div className="px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Path Of Wonders Logo" className="h-10 w-10 object-contain" />
+            <img src={logo} alt="Path Of Wonders Logo" className="h-9 w-9 object-contain" />
             <span className="text-sm font-semibold text-gray-900">Path Of Wonders</span>
           </Link>
           <button
