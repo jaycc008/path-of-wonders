@@ -61,7 +61,7 @@ export default function Home() {
       {/* <Hero /> */}
        <Hero2 />
       <Journey />
-     <Courses />
+     {/* <Courses /> */}
       <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
       <Testimonials />
       <Promise />

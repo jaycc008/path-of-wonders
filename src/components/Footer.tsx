@@ -90,7 +90,7 @@ export default function Footer() {
           <p className="text-gray-300 text-sm">
             &copy; {currentYear} Path Of Wonders. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className="hidden md:flex gap-6 text-sm">
             <Link to="/privacy-policy" className="hover:text-blue-400 transition-colors duration-300">
               Privacy Policy
             </Link>
