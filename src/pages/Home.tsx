@@ -9,6 +9,7 @@ import CallToAction from '../components/CallToAction';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import Hero2 from '../components/Hero2';
+import Hero from '../components/Hero';
 import { getSubscription, Subscription } from '../api/subscription';
 
 export default function Home() {
@@ -61,7 +62,7 @@ export default function Home() {
       {/* <Hero /> */}
        <Hero2 />
       <Journey />
-     {/* <Courses /> */}
+     <Courses />
       <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
       <Testimonials />
       <Promise />

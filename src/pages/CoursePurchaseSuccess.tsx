@@ -7,41 +7,102 @@ import PrimaryButton from '../components/PrimaryButton';
 import { getCoursePurchaseSuccess } from '../api/course';
 import { api } from '../api';
 
-interface PaymentData {
-  amount_total: number;
-  currency: string;
-  customer: {
-    name: string;
-    email: string;
+/** Backend may return a Stripe-like session or a slim course payload (see api/course CoursePurchaseSuccessDetails). */
+type SuccessPayload = Record<string, unknown>;
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null;
+}
+
+function getCurrencyCode(payload: SuccessPayload): string {
+  const c = payload.currency;
+  if (typeof c === 'string' && c.trim().length > 0) return c.toUpperCase();
+  return 'USD';
+}
+
+function getAmountCents(payload: SuccessPayload): number | null {
+  const n = payload.amount_total;
+  if (typeof n === 'number' && Number.isFinite(n)) return n;
+  return null;
+}
+
+function getLineDescription(payload: SuccessPayload): string | null {
+  const lineItems = payload.line_items;
+  if (isRecord(lineItems)) {
+    const data = lineItems.data;
+    if (Array.isArray(data) && data.length > 0 && isRecord(data[0])) {
+      const d = data[0].description;
+      if (typeof d === 'string' && d.length) return d;
+    }
+  }
+  const courseName = payload.course_name;
+  if (typeof courseName === 'string' && courseName.length) return courseName;
+  const title = payload.title;
+  if (typeof title === 'string' && title.length) return title;
+  return null;
+}
+
+function getCreatedUnix(payload: SuccessPayload): number {
+  const c = payload.created;
+  if (typeof c === 'number' && Number.isFinite(c)) return c;
+  return Math.floor(Date.now() / 1000);
+}
+
+function getPaymentStatusLabel(payload: SuccessPayload): string {
+  const p = payload.payment_status;
+  if (typeof p === 'string' && p.length) return p;
+  return 'paid';
+}
+
+function getCustomerDetails(payload: SuccessPayload): {
+  name?: string;
+  email?: string;
+  address?: {
+    line1?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+    country?: string;
   };
-  customer_details: {
-    name: string;
-    email: string;
-    address?: {
-      line1?: string;
-      city?: string;
-      state?: string;
-      postal_code?: string;
-      country?: string;
+} {
+  const cd = payload.customer_details;
+  if (isRecord(cd)) {
+    const name = cd.name;
+    const email = cd.email;
+    const addr = cd.address;
+    return {
+      name: typeof name === 'string' ? name : undefined,
+      email: typeof email === 'string' ? email : undefined,
+      address: isRecord(addr)
+        ? {
+            line1: typeof addr.line1 === 'string' ? addr.line1 : undefined,
+            city: typeof addr.city === 'string' ? addr.city : undefined,
+            state: typeof addr.state === 'string' ? addr.state : undefined,
+            postal_code: typeof addr.postal_code === 'string' ? addr.postal_code : undefined,
+            country: typeof addr.country === 'string' ? addr.country : undefined,
+          }
+        : undefined,
     };
-  };
-  line_items: {
-    data: Array<{
-      description: string;
-      amount_total: number;
-    }>;
-  };
-  invoice?: string;
-  created: number;
-  payment_status: string;
-  status: string;
+  }
+  return {};
+}
+
+function getInvoiceId(payload: SuccessPayload): string | undefined {
+  const inv = payload.invoice;
+  if (typeof inv === 'string' && inv.length) return inv;
+  return undefined;
+}
+
+function verifySuccessResponse(response: { status?: boolean; success?: boolean; data?: unknown; message?: string }): boolean {
+  const ok = response.status === true || response.success === true;
+  return ok && isRecord(response.data);
 }
 
 export default function CoursePurchaseSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+  const [paymentData, setPaymentData] = useState<SuccessPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleMyLearningClick = () => {
@@ -66,10 +127,9 @@ export default function CoursePurchaseSuccess() {
       try {
         setIsLoading(true);
         const response = await getCoursePurchaseSuccess(sessionId);
-        
-        if (response.status && response.data) {
-          // Store payment data (response.data is the Stripe checkout session object)
-          setPaymentData(response.data as unknown as PaymentData);
+
+        if (verifySuccessResponse(response)) {
+          setPaymentData(response.data as SuccessPayload);
         } else {
           setError(response.message || 'Failed to verify payment');
         }
@@ -139,45 +199,59 @@ export default function CoursePurchaseSuccess() {
               {/* Payment Details */}
               <div className="p-8">
                 {/* Amount Paid */}
-                <div className="text-center mb-8 pb-8 border-b border-gray-200">
-                  <p className="text-sm text-gray-600 mb-2">Amount Paid</p>
-                  <p className="text-4xl font-bold text-gray-900">
-                    {(paymentData.amount_total / 100).toLocaleString('en-IN', {
-                      style: 'currency',
-                      currency: paymentData.currency.toUpperCase(),
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
-                </div>
+                {(() => {
+                  const amountCents = getAmountCents(paymentData);
+                  if (amountCents == null) return null;
+                  return (
+                    <div className="text-center mb-8 pb-8 border-b border-gray-200">
+                      <p className="text-sm text-gray-600 mb-2">Amount Paid</p>
+                      <p className="text-4xl font-bold text-gray-900">
+                        {(amountCents / 100).toLocaleString('en-IN', {
+                          style: 'currency',
+                          currency: getCurrencyCode(paymentData),
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* Course Details */}
-                {paymentData.line_items?.data?.[0] && (
+                {getLineDescription(paymentData) && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Details</h3>
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-900 font-medium">{paymentData.line_items.data[0].description}</p>
+                      <p className="text-gray-900 font-medium">{getLineDescription(paymentData)}</p>
+                      {typeof paymentData.course_description === 'string' && paymentData.course_description.length > 0 && (
+                        <p className="text-gray-600 text-sm mt-2">{paymentData.course_description}</p>
+                      )}
                     </div>
                   </div>
                 )}
 
                 {/* Customer Information */}
+                {(() => {
+                  const details = getCustomerDetails(paymentData);
+                  const hasAny = details.name || details.email || details.address;
+                  if (!hasAny) return null;
+                  return (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Information</h3>
                   <div className="space-y-3">
-                    {paymentData.customer_details?.name && (
+                    {details.name && (
                       <div className="flex items-center gap-3 text-gray-700">
                         <User className="w-5 h-5 text-gray-400" />
-                        <span>{paymentData.customer_details.name}</span>
+                        <span>{details.name}</span>
                       </div>
                     )}
-                    {paymentData.customer_details?.email && (
+                    {details.email && (
                       <div className="flex items-center gap-3 text-gray-700">
                         <Mail className="w-5 h-5 text-gray-400" />
-                        <span>{paymentData.customer_details.email}</span>
+                        <span>{details.email}</span>
                       </div>
                     )}
-                    {paymentData.customer_details?.address && (
+                    {details.address && (
                       <div className="flex items-start gap-3 text-gray-700">
                         <div className="w-5 h-5 text-gray-400 mt-0.5">
                           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,26 +260,20 @@ export default function CoursePurchaseSuccess() {
                           </svg>
                         </div>
                         <div className="text-sm">
-                          {paymentData.customer_details.address.line1 && (
-                            <p>{paymentData.customer_details.address.line1}</p>
-                          )}
+                          {details.address.line1 && <p>{details.address.line1}</p>}
                           <p>
-                            {[
-                              paymentData.customer_details.address.city,
-                              paymentData.customer_details.address.state,
-                              paymentData.customer_details.address.postal_code,
-                            ]
+                            {[details.address.city, details.address.state, details.address.postal_code]
                               .filter(Boolean)
                               .join(', ')}
                           </p>
-                          {paymentData.customer_details.address.country && (
-                            <p>{paymentData.customer_details.address.country}</p>
-                          )}
+                          {details.address.country && <p>{details.address.country}</p>}
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
+                  );
+                })()}
 
                 {/* Payment Information */}
                 <div className="mb-8">
@@ -217,26 +285,26 @@ export default function CoursePurchaseSuccess() {
                         <span>Payment Date</span>
                       </div>
                       <span className="font-medium">
-                        {new Date(paymentData.created * 1000).toLocaleDateString('en-US', {
+                        {new Date(getCreatedUnix(paymentData) * 1000).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
                         })}
                       </span>
                     </div>
-                    {paymentData.invoice && (
+                    {getInvoiceId(paymentData) && (
                       <div className="flex items-center justify-between text-gray-700">
                         <div className="flex items-center gap-3">
                           <Receipt className="w-5 h-5 text-gray-400" />
                           <span>Invoice ID</span>
                         </div>
-                        <span className="font-medium font-mono text-sm">{paymentData.invoice}</span>
+                        <span className="font-medium font-mono text-sm">{getInvoiceId(paymentData)}</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between text-gray-700">
                       <span>Payment Status</span>
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold capitalize">
-                        {paymentData.payment_status}
+                        {getPaymentStatusLabel(paymentData)}
                       </span>
                     </div>
                   </div>

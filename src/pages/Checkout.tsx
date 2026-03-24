@@ -468,29 +468,16 @@ export default function Checkout() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">{isSubscription ? 'Back' : 'Back to Courses'}</span>
-        </button>
+      <div className="max-w-7xl mx-auto px-1 md:px-6 py-12 ">
+       
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8 my-12">
+            {/* Header */}
+           
           {/* Left Side - Checkout Form (2 columns) */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl  p-8 md:p-10">
-              {/* Header */}
-              <div className="mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                  {isSubscription ? 'Complete Your Subscription' : 'Complete Your Enrollment'}
-                </h1>
-                <p className="text-gray-600">
-                  Secure checkout powered by Stripe
-                </p>
-              </div>
+            <div className="bg-white rounded-2xl  p-3 md:p-10">
+            
 
               {/* Summary Card */}
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-8 border border-blue-100">
@@ -544,20 +531,13 @@ export default function Checkout() {
                     )}
                   </div>
                 ) : courseFromState ? (
-                  <div className="flex gap-4">
-                    <img
-                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
-                      alt={courseFromState.name || courseFromState.title || 'Course'}
-                      className="w-24 h-24 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-900 mb-1">
-                        {courseFromState.name || courseFromState.title || 'Course'}
-                      </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {courseFromState.description}
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">
+                      {courseFromState.name || courseFromState.title || 'Course'}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {courseFromState.description}
+                    </p>
                   </div>
                 ) : null}
               </div>
@@ -655,18 +635,18 @@ export default function Checkout() {
                     )}
                   </div>
                 ) : courseFromState ? (
-                  <div className="flex gap-4 mb-4">
-                    <img
-                      src={courseFromState.image || courseFromState.thumbnail_url || ''}
-                      alt={courseFromState.name || courseFromState.title || 'Course'}
-                      className="w-20 h-20 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {courseFromState.name || courseFromState.title || 'Course'}
-                      </h3>
-                      <p className="text-sm text-gray-600">Full Course Access</p>
-                    </div>
+                  <div className="mb-4">
+                    {(courseFromState.image || courseFromState.thumbnail_url) && (
+                      <img
+                        src={courseFromState.image || courseFromState.thumbnail_url}
+                        alt={courseFromState.name || courseFromState.title || 'Course'}
+                        className="w-full aspect-video rounded-lg object-cover mb-3"
+                      />
+                    )}
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {courseFromState.name || courseFromState.title || 'Course'}
+                    </h3>
+                    <p className="text-sm text-gray-600">Full Course Access</p>
                   </div>
                 ) : null}
               </div>

@@ -61,6 +61,8 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/book-checkout" element={<BookCheckout />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
+          {/* Stripe success_url may use /course-purchase/success; keep legacy /course/success */}
+          <Route path="/course-purchase/success" element={<CoursePurchaseSuccess />} />
           <Route path="/course/success" element={<CoursePurchaseSuccess />} />
           <Route path="/book/success" element={<BookPurchaseSuccess />} />
           <Route path="/courses" element={<CoursesPage />} />

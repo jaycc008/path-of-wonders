@@ -13,7 +13,7 @@ export const ROUTES = {
   COURSES: '/courses',
   COURSE_DETAILS: (id: string | number) => `/courses/${id}`,
   SUBSCRIPTION_SUCCESS: '/subscription/success',
-  COURSE_PURCHASE_SUCCESS: '/course/success',
+  COURSE_PURCHASE_SUCCESS: '/course-purchase/success',
   BOOK_PURCHASE_SUCCESS: '/book/success',
 } as const;
 

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
+import heroImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
+import heroBgImage from '../assets/images/bglight.png';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -12,13 +14,13 @@ export default function Hero() {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-sky-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
-      </div>
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat md:bg-fixed opacity-30"
+        style={{ backgroundImage: `url(${heroBgImage})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-70/25 via-cyan-70/25 to-blue-70/25" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 grid md:grid-cols-2 gap-12 items-center">
         <div
@@ -49,11 +51,15 @@ export default function Hero() {
         >
           <div className="relative group cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-300 to-blue-300 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-            <div className="relative bg-white/60 backdrop-blur-lg rounded-2xl p-4 border border-white/40">
-              <div className="aspect-video bg-gradient-to-br from-cyan-100 to-blue-100 rounded-xl flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMC0xMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30"></div>
-                <button className="relative z-10 w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
-                  <Play className="w-8 h-8 text-cyan-600 ml-1" fill="currentColor" />
+            <div className="relative bg-white/60 backdrop-blur-lg rounded-2xl p-1 md:p-4 border border-white/40">
+              <div className="aspect-video rounded-xl flex items-center justify-center relative overflow-hidden w-full">
+                <img
+                  src={heroImage}
+                  alt="Watch Now"
+                  className="absolute inset-0 w-full h-full object-cover blur-sm group-hover:blur-none transition-all duration-600"
+                />
+                <button className="relative z-10 w-14 h-14 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
+                  <Play className="w-6 h-6 md:w-8 md:h-8 text-cyan-600 ml-1" fill="currentColor" />
                 </button>
               </div>
             </div>

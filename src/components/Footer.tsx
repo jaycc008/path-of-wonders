@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import logo from '../assets/images/10dlogo2.png';
+import NewsletterSubscribe from './NewsletterSubscribe';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="contact" className="bg-gray-800 text-gray-200 pt-24 pb-12">
+    <>
+      <NewsletterSubscribe />
+      <footer id="contact" className="bg-gray-800 text-gray-200 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-8 md:px-12">
         <div className="grid md:grid-cols-4 gap-16 mb-16">
           <div className="space-y-6">
@@ -110,5 +113,6 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }
