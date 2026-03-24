@@ -73,20 +73,20 @@ export default function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="py-8 bg-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+    <section id="testimonials" className="py-12 sm:py-16 md:py-24 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
             What Our Students Say
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-1 leading-relaxed">
             Real stories from real students who transformed their careers with Path Of Wonders
           </p>
         </div>
 
-        <div className="relative max-w-6xl mx-auto">
-          <div className="p-10 md:p-12 min-h-[350px] md:min-h-[400px] flex items-center">
-            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center w-full">
+        <div className="relative max-w-6xl mx-auto px-2 sm:px-0">
+          <div className="p-4 sm:p-8 md:p-12 min-h-[280px] sm:min-h-[320px] md:min-h-[400px] flex items-center">
+            <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center w-full">
               {/* Left Side - User Info */}
               <div className="text-center flex flex-col items-center justify-center">
                 <div
@@ -94,17 +94,17 @@ export default function Testimonials() {
                     isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}
                 >
-                  <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden mx-auto mb-6 shadow-lg ring-4 ring-blue-200">
+                  <div className="w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-full overflow-hidden mx-auto mb-4 sm:mb-6 shadow-lg ring-2 sm:ring-4 ring-blue-200">
                     <img 
                       src={testimonials[currentIndex].image} 
                       alt={testimonials[currentIndex].name}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2 leading-snug">
                     {testimonials[currentIndex].name}
                   </h3>
-                  <p className="text-lg text-gray-600 mb-4">
+                  <p className="text-base sm:text-lg text-gray-600 mb-2 sm:mb-4">
                     {testimonials[currentIndex].role}
                   </p>
                 </div>
@@ -116,13 +116,13 @@ export default function Testimonials() {
                   isAnimating ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                 }`}
               >
-                <div className="flex gap-1 mb-6 justify-center md:justify-start">
+                <div className="flex gap-0.5 sm:gap-1 mb-4 sm:mb-6 justify-center md:justify-start">
                   {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
-                    <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="w-5 h-5 sm:w-6 sm:h-6 fill-yellow-400 text-yellow-400 shrink-0" />
                   ))}
                 </div>
-                <p className="text-xl text-gray-700 leading-relaxed italic">
-                  "{testimonials[currentIndex].text}"
+                <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed italic text-center md:text-left px-1 sm:px-0">
+                  &ldquo;{testimonials[currentIndex].text}&rdquo;
                 </p>
               </div>
             </div>
@@ -130,26 +130,32 @@ export default function Testimonials() {
 
           {/* Carousel Buttons */}
           <button
+            type="button"
             onClick={handlePrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 z-20"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-0 sm:-translate-x-2 md:-translate-x-12 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 z-20"
+            aria-label="Previous testimonial"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           <button
+            type="button"
             onClick={handleNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 z-20"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-0 sm:translate-x-2 md:translate-x-12 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 z-20"
+            aria-label="Next testimonial"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Dots Navigation */}
-        <div className="flex justify-center gap-3 mt-8">
+        <div className="flex justify-center gap-2 sm:gap-3 mt-6 sm:mt-8">
           {testimonials.map((_, index) => (
             <button
+              type="button"
               key={index}
               onClick={() => handleDotClick(index)}
+              aria-label={`Go to testimonial ${index + 1}`}
               className={`transition-all duration-300 rounded-full ${
                 index === currentIndex
                   ? 'w-12 h-3 bg-blue-600'

@@ -39,7 +39,7 @@ export default function Courses() {
   };
 
   return (
-    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden">
+    <section ref={sectionRef} className="py-12 sm:py-16 md:py-24 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-50">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
@@ -47,31 +47,31 @@ export default function Courses() {
         <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
       </div>
       
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
             Explore Our Courses
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-1 leading-relaxed">
             Discover transformative learning experiences designed to unlock your true potential
           </p>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-12 sm:py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : courses.length > 0 ? (
-        <div className="grid md:grid-cols-3 gap-8 items-start">
+        <div className="grid md:grid-cols-3 gap-6 sm:gap-8 items-start">
           {/* Left Side - Main Course Display */}
           <div className="md:col-span-2">
             <div className={`relative group transition-all duration-500 ${
               isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
             }`}>
               {/* Course Video/Image with Play Button */}
-              <div className="relative rounded-2xl overflow-hidden mb-6 shadow-2xl">
+              <div className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-6 shadow-2xl">
                 {isVideoPlaying && courses[activeCourse]?.intro_video_url ? (
-                  <div className="relative w-full h-[400px] bg-black">
+                  <div className="relative w-full h-[min(60vw,280px)] sm:h-[320px] md:h-[400px] bg-black">
                     <video
                       ref={videoRef}
                       src={courses[activeCourse]?.intro_video_url}
@@ -94,7 +94,7 @@ export default function Courses() {
                           videoRef.current.currentTime = 0;
                         }
                       }}
-                      className="absolute top-4 right-4 z-10 px-4 py-2 bg-black/70 hover:bg-black/90 text-white rounded-full font-semibold text-sm transition-colors backdrop-blur-sm"
+                      className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 px-3 py-1.5 sm:px-4 sm:py-2 bg-black/70 hover:bg-black/90 text-white rounded-full font-semibold text-xs sm:text-sm transition-colors backdrop-blur-sm"
                     >
                       Close
                     </button>
@@ -104,7 +104,7 @@ export default function Courses() {
                     <img
                       src={courses[activeCourse]?.thumbnail_url || courses[activeCourse]?.image || ''}
                       alt={courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
-                      className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-[min(60vw,280px)] sm:h-[320px] md:h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
@@ -113,8 +113,8 @@ export default function Courses() {
                         onClick={() => setIsVideoPlaying(true)}
                         className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer group/play"
                       >
-                        <div className="w-24 h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
-                          <Play className="w-12 h-12 text-blue-600 ml-1" fill="currentColor" />
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
+                          <Play className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-blue-600 ml-1" fill="currentColor" />
                         </div>
                       </button>
                     ) : (
@@ -127,8 +127,8 @@ export default function Courses() {
                         }}
                         className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer group/play"
                       >
-                        <div className="w-24 h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
-                          <Play className="w-12 h-12 text-blue-600 ml-1" fill="currentColor" />
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/95 rounded-full flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-sm">
+                          <Play className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-blue-600 ml-1" fill="currentColor" />
                         </div>
                       </button>
                     )}
@@ -137,13 +137,13 @@ export default function Courses() {
               </div>
 
               {/* Course Title */}
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 transition-all duration-500">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 transition-all duration-500 leading-tight">
                 {courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
               </h3>
 
               {/* Course Description */}
-              <div className="mb-8 transition-all duration-500">
-                <p className="text-lg text-gray-600 leading-relaxed line-clamp-3 mb-4">
+              <div className="mb-6 sm:mb-8 transition-all duration-500">
+                <p className="text-base sm:text-lg text-gray-600 leading-relaxed line-clamp-3 mb-3 sm:mb-4">
                   {courses[activeCourse]?.description || ''}
                 </p>
                 <button
@@ -162,20 +162,20 @@ export default function Courses() {
 
               {/* What You Will Learn Section */}
               {courses[activeCourse]?.whatYouWillLearn && courses[activeCourse].whatYouWillLearn.length > 0 && (
-              <div className="mb-8">
-                <h4 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></span>
+              <div className="mb-6 sm:mb-8">
+                <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                  <span className="w-1 h-5 sm:h-6 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full shrink-0"></span>
                   What You Will Learn
                 </h4>
-                <ul className="space-y-4">
+                <ul className="space-y-3 sm:space-y-4">
                   {courses[activeCourse].whatYouWillLearn.map((item: string, index: number) => (
-                    <li key={index} className="flex items-start gap-4 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                      <div className="w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-md">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <li key={index} className="flex items-start gap-3 sm:gap-4 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-md">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-gray-700 font-medium pt-0.5">{item}</span>
+                      <span className="text-sm sm:text-base text-gray-700 font-medium pt-0.5">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -188,7 +188,7 @@ export default function Courses() {
                 size="lg"
                 icon={ArrowRight}
                 iconPosition="right"
-                className="w-full md:w-auto"
+                className="w-full md:w-auto !text-sm sm:!text-base !px-5 !py-2.5 sm:!px-8 sm:!py-3.5"
               >
                 All Courses
               </SecondaryButton>
@@ -211,8 +211,8 @@ export default function Courses() {
                     onClick={() => handleCourseClick(index)}
                     className={`w-full text-left transition-all duration-500 relative ${
                       index === activeCourse
-                        ? 'transform scale-[1.05] translate-x-2'
-                        : 'hover:translate-x-1'
+                        ? 'transform md:scale-[1.05] md:translate-x-2 scale-[1.02]'
+                        : 'hover:translate-x-0.5 md:hover:translate-x-1'
                     }`}
                   >
                     <div
@@ -245,9 +245,9 @@ export default function Courses() {
                           {index + 1}
                         </div>
                         
-                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                          <h4 className={`text-white font-bold transition-all duration-500 ${
-                            index === activeCourse ? 'text-xl' : 'text-lg'
+                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                          <h4 className={`text-white font-bold transition-all duration-500 leading-snug ${
+                            index === activeCourse ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-lg'
                           }`}>
                             {course.title || course.name || 'Course'}
                           </h4>
@@ -269,7 +269,7 @@ export default function Courses() {
                   )}
                   
                   <div className="relative rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100/50 overflow-hidden group hover:border-blue-300 hover:shadow-lg transition-all duration-500">
-                    <div className="relative h-44 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="relative h-40 sm:h-44 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
                       {/* Animated Background Pattern */}
                       <div className="absolute inset-0 opacity-10">
                         <div className="absolute top-0 left-0 w-32 h-32 bg-blue-400 rounded-full blur-3xl"></div>
@@ -285,10 +285,10 @@ export default function Courses() {
                       
                       {/* Text Content */}
                       <div className="relative z-10">
-                        <h4 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 group-hover:text-blue-600 transition-colors">
                           Coming Next Month
                         </h4>
-                        <p className="text-sm text-gray-600 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                           More exciting courses are on the way. Stay tuned for new learning adventures!
                         </p>
                       </div>
@@ -304,8 +304,8 @@ export default function Courses() {
           </div>
         </div>
         ) : (
-          <div className="text-center py-20">
-            <p className="text-xl text-gray-600">No courses available at the moment.</p>
+          <div className="text-center py-12 sm:py-20">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 px-2">No courses available at the moment.</p>
           </div>
         )}
       </div>

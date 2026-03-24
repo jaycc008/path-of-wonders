@@ -34,7 +34,7 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
   }, []);
 
   return (
-    <section id="subscription" ref={sectionRef} className="py-24 relative overflow-hidden">
+    <section id="subscription" ref={sectionRef} className="py-12 sm:py-16 md:py-24 relative overflow-hidden">
       {/* Base Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900"></div>
       
@@ -56,20 +56,20 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
       {/* Radial Gradient Overlay for Depth */}
       <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.1) 100%)' }}></div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div
-          className={`grid md:grid-cols-2 gap-12 items-center transition-all duration-1000 ${
+          className={`grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
           {/* Left Side - Subscription Card */}
           <div className="flex justify-center">
             {isLoading ? (
-              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full flex items-center justify-center min-h-[500px]">
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full flex items-center justify-center min-h-[280px] sm:min-h-[380px] md:min-h-[500px]">
                 <Loader2 className="w-8 h-8 text-white animate-spin" />
               </div>
             ) : subscription ? (
-              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full relative overflow-hidden">
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border-2 border-white/20 shadow-2xl max-w-sm w-full relative overflow-hidden">
                 {/* Discount Badge Overlay */}
                 {subscription.discount && subscription.discount.discount_percent && (
                   <div className="absolute top-0 right-0 z-10">
@@ -86,30 +86,30 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                   </div>
                 )}
                 
-                <div className="text-center mb-8">
+                <div className="text-center mb-6 sm:mb-8">
                   {/* Subscription Title */}
-                  <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-white leading-snug px-1">
                     {subscription.name}
                   </h3>
                   <div className="mb-3">
                     {subscription.discount && subscription.discount.final_price !== null ? (
                       <div className="flex flex-col items-center">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-bold text-white line-through opacity-60">
+                        <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap justify-center">
+                          <span className="text-2xl sm:text-3xl font-bold text-white line-through opacity-60">
                             ${subscription.price}
                           </span>
-                          <span className="text-5xl font-bold text-white">
+                          <span className="text-4xl sm:text-5xl font-bold text-white">
                             ${subscription.discount.final_price}
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <span className="text-5xl font-bold text-white">
+                      <span className="text-4xl sm:text-5xl font-bold text-white">
                         ${subscription.price}
                       </span>
                     )}
-                    <div className="mt-3 flex items-center justify-center gap-2">
-                      <span className="text-lg text-white font-semibold">
+                    <div className="mt-2 sm:mt-3 flex items-center justify-center gap-2">
+                      <span className="text-base sm:text-lg text-white font-semibold">
                         {Math.floor(subscription.duration_days / 30)} {Math.floor(subscription.duration_days / 30) === 1 ? 'month' : 'months'}
                       </span>
                     </div>
@@ -117,15 +117,15 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                 </div>
 
                 {subscription.includes && subscription.includes.length > 0 && (
-                  <div className="space-y-4 mb-10">
+                  <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-10">
                     {subscription.includes.map((item, index) => (
-                      <div key={index} className="flex items-start gap-3 text-white">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div key={index} className="flex items-start gap-2 sm:gap-3 text-white">
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
-                        <span className="leading-relaxed text-sm">{item}</span>
+                        <span className="leading-relaxed text-xs sm:text-sm">{item}</span>
                       </div>
                     ))}
                   </div>
@@ -168,10 +168,10 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                     }
                   }}
                   disabled={!subscription}
-                  className="group w-full px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="group w-full px-5 py-3 sm:px-8 sm:py-4 bg-white text-blue-600 rounded-full font-bold text-base sm:text-lg hover:bg-blue-50 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   Subscribe Now
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300 shrink-0" />
                 </button>
               </div>
             ) : null}
@@ -179,30 +179,30 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
 
           {/* Right Side - Title and Description */}
           <div className="text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-sm font-semibold mb-6">
-              <Sparkles className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
               <span>Limited Time Offer</span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
               Ready to Transform Your Future?
             </h2>
 
-            <p className="text-xl text-blue-100 mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8 leading-relaxed">
               Join thousands of successful students and start your learning journey today. Get instant access to all courses with our annual subscription.
             </p>
 
-            <div className="flex flex-wrap gap-6 text-white/80 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-x-6 sm:gap-y-2 text-white/80 text-xs sm:text-sm justify-center md:justify-start">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
                 <span>No credit card required</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
                 <span>14-day money-back guarantee</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
                 <span>Cancel anytime</span>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-900/50 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-28 md:h-32 bg-gradient-to-t from-gray-900/50 to-transparent"></div>
     </section>
   );
 }
