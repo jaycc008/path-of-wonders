@@ -6,6 +6,7 @@ import PrimaryButton from './PrimaryButton';
 interface MobileHeaderProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  scrolled: boolean;
   isAuthenticated: boolean;
   userEmail: string;
   onMyLearningClick: () => void;
@@ -16,6 +17,7 @@ interface MobileHeaderProps {
 export default function MobileHeader({
   isOpen,
   setIsOpen,
+  scrolled,
   isAuthenticated,
   userEmail,
   onMyLearningClick,
@@ -24,13 +26,20 @@ export default function MobileHeader({
 }: MobileHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const showGlassHeader = scrolled || isOpen;
 
   return (
-    <header className="fixed left-0 right-0 z-50 ">
-      <div className="w-full bg-gray-50/95 backdrop-blur-xl shadow-lg shadow-gray-900/20">
+    <header className="fixed left-0 right-0 z-50">
+      <div
+        className={`w-full transition-all duration-300 ${
+          showGlassHeader
+            ? 'bg-white/70 backdrop-blur-md shadow-md shadow-gray-900/10'
+            : 'bg-transparent shadow-none'
+        }`}
+      >
         <div className="px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Path Of Wonders Logo" className="h-9 w-9 object-contain" />
+            <img src={logo} alt="Path Of Wonders Logo" className="h-10 w-10 object-contain" />
             <span className="text-sm font-semibold text-gray-900">Path Of Wonders</span>
           </Link>
           <button
@@ -48,7 +57,7 @@ export default function MobileHeader({
             isOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <nav className="px-4 pb-5 pt-2 border-t border-gray-200 bg-gray-50/95 backdrop-blur-xl flex flex-col gap-1">
+          <nav className="px-4 pb-5 pt-2 border-t border-gray-200 bg-white/90 backdrop-blur-md flex flex-col gap-1">
             <Link
               to="/"
               onClick={() => setIsOpen(false)}

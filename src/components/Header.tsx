@@ -140,13 +140,9 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    if (isMobile) {
-      setScrolled(false);
-      return;
-    }
-
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const scrollThreshold = isMobile ? 12 : 50;
+      setScrolled(window.scrollY > scrollThreshold);
     };
 
     handleScroll();
@@ -161,6 +157,7 @@ export default function Header() {
       <MobileHeader
         isOpen={isMobileMenuOpen}
         setIsOpen={setIsMobileMenuOpen}
+        scrolled={scrolled}
         isAuthenticated={isAuthenticated}
         userEmail={userInfo.email}
         onMyLearningClick={handleMyLearningClick}
