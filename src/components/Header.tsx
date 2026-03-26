@@ -174,7 +174,7 @@ export default function Header() {
       <div
         className={`desktop-header-shell ${scrolled ? 'is-scrolled' : ''}`}
       >
-        <div className="desktop-header-inner max-w-[80rem] mx-auto flex items-center justify-between py-3 md:py-4">
+        <div className="desktop-header-inner max-w-7xl mx-auto flex items-center justify-between py-3 md:py-4">
           <Link to="/" className="flex items-center gap-1">
             <img 
               src={logo} 

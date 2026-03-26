@@ -7,36 +7,27 @@ export interface NewsletterSubscribePayload {
 }
 
 /**
- * Expected JSON body from POST `/newsletter/subscribe` (after `VITE_API_BASE_URL`).
- * Extend `data` when your backend returns a subscriber id or similar.
+ * Expected JSON body from POST `/api/v1/newsletters`.
  */
-export interface NewsletterSubscribeResponse {
-  status?: boolean;
-  success?: boolean;
-  message?: string;
-  data?: Record<string, unknown>;
+export interface NewsletterResponse {
+  id: string;
+  email: string;
+  status: 'active';
+  created_at: string;
+  updated_at: string | null;
 }
-
-/** Path segment appended to `api` base URL (e.g. `http://localhost:8000/api/v1/newsletter/subscribe`). */
-export const NEWSLETTER_SUBSCRIBE_PATH = 'newsletter/subscribe';
 
 /**
  * Subscribe an email to the newsletter.
  * @throws Error if the response body explicitly sets `status` or `success` to `false`, or on network / HTTP errors.
  */
-export async function subscribeToNewsletter(email: string): Promise<NewsletterSubscribeResponse> {
+export async function subscribeToNewsletter(email: string): Promise<NewsletterResponse> {
   const payload: NewsletterSubscribePayload = {
     email: email.trim(),
   };
 
-  const response = await api.post<NewsletterSubscribeResponse>(NEWSLETTER_SUBSCRIBE_PATH, payload);
-  const data = response.data;
-
-  if (data.status === false || data.success === false) {
-    throw new Error(data.message?.trim() || 'Could not complete subscription.');
-  }
-
-  return data;
+  const response = await api.post<NewsletterResponse>('newsletters', payload);
+  return response.data as NewsletterResponse;
 }
 
 /** Map API / network failures to a short user-visible string. */

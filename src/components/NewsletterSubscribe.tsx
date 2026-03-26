@@ -26,13 +26,9 @@ export default function NewsletterSubscribe() {
     setStatus('loading');
     setFeedback('');
     try {
-      const res = await subscribeToNewsletter(trimmed);
+      await subscribeToNewsletter(trimmed);
       setStatus('success');
-      setFeedback(
-        (typeof res.message === 'string' && res.message.trim()
-          ? res.message
-          : "You're subscribed! We'll be in touch.")
-      );
+      setFeedback("You're subscribed! We'll be in touch.");
       setEmail('');
     } catch (err) {
       setStatus('error');
