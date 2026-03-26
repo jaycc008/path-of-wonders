@@ -1,7 +1,10 @@
 import { forwardRef } from 'react';
-import { Formik, Field, Form, ErrorMessage, FormikProps } from 'formik';
+import { Formik, Field, Form, FormikProps } from 'formik';
 import * as Yup from 'yup';
 import { Truck } from 'lucide-react';
+import FormField from './fields/FormField';
+import FormInput from './fields/FormInput';
+import FormSelect from './fields/FormSelect';
 
 interface ShippingAddress {
   addressLine1: string;
@@ -120,102 +123,74 @@ const ShippingAddressForm = forwardRef<FormikProps<ShippingAddress>, ShippingAdd
                     /* Show form fields when different from billing */
                     <>
                       {/* Address Line 1 */}
-                      <div>
-                        <label htmlFor="shipping_addressLine1" className="block text-sm font-medium text-gray-700 mb-2">
-                          Street Address *
-                        </label>
+                      <FormField id="shipping_addressLine1" label="Street Address" required error={touched.addressLine1 ? errors.addressLine1 : undefined}>
                         <Field
+                          as={FormInput}
                           type="text"
                           id="shipping_addressLine1"
                           name="addressLine1"
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                            errors.addressLine1 && touched.addressLine1 ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                          hasError={Boolean(errors.addressLine1 && touched.addressLine1)}
                           placeholder="123 Main Street"
                         />
-                        <ErrorMessage name="addressLine1" component="p" className="mt-1 text-sm text-red-600" />
-                      </div>
+                      </FormField>
 
                       {/* Address Line 2 */}
-                      <div>
-                        <label htmlFor="shipping_addressLine2" className="block text-sm font-medium text-gray-700 mb-2">
-                          Apartment, Suite, etc. (Optional)
-                        </label>
+                      <FormField id="shipping_addressLine2" label="Apartment, Suite, etc. (Optional)">
                         <Field
+                          as={FormInput}
                           type="text"
                           id="shipping_addressLine2"
                           name="addressLine2"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                           placeholder="Apt 4B"
                         />
-                      </div>
+                      </FormField>
 
                       <div className="grid md:grid-cols-2 gap-4">
                         {/* City */}
-                        <div>
-                          <label htmlFor="shipping_city" className="block text-sm font-medium text-gray-700 mb-2">
-                            City *
-                          </label>
+                        <FormField id="shipping_city" label="City" required error={touched.city ? errors.city : undefined}>
                           <Field
+                            as={FormInput}
                             type="text"
                             id="shipping_city"
                             name="city"
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                              errors.city && touched.city ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            hasError={Boolean(errors.city && touched.city)}
                             placeholder="New York"
                           />
-                          <ErrorMessage name="city" component="p" className="mt-1 text-sm text-red-600" />
-                        </div>
+                        </FormField>
 
                         {/* State/Province */}
-                        <div>
-                          <label htmlFor="shipping_state" className="block text-sm font-medium text-gray-700 mb-2">
-                            State/Province *
-                          </label>
+                        <FormField id="shipping_state" label="State/Province" required error={touched.state ? errors.state : undefined}>
                           <Field
+                            as={FormInput}
                             type="text"
                             id="shipping_state"
                             name="state"
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                              errors.state && touched.state ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            hasError={Boolean(errors.state && touched.state)}
                             placeholder="NY"
                           />
-                          <ErrorMessage name="state" component="p" className="mt-1 text-sm text-red-600" />
-                        </div>
+                        </FormField>
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4">
                         {/* Postal/ZIP Code */}
-                        <div>
-                          <label htmlFor="shipping_postalCode" className="block text-sm font-medium text-gray-700 mb-2">
-                            Postal/ZIP Code *
-                          </label>
+                        <FormField id="shipping_postalCode" label="Postal/ZIP Code" required error={touched.postalCode ? errors.postalCode : undefined}>
                           <Field
+                            as={FormInput}
                             type="text"
                             id="shipping_postalCode"
                             name="postalCode"
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                              errors.postalCode && touched.postalCode ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            hasError={Boolean(errors.postalCode && touched.postalCode)}
                             placeholder="10001"
                           />
-                          <ErrorMessage name="postalCode" component="p" className="mt-1 text-sm text-red-600" />
-                        </div>
+                        </FormField>
 
                         {/* Country */}
-                        <div>
-                          <label htmlFor="shipping_country" className="block text-sm font-medium text-gray-700 mb-2">
-                            Country *
-                          </label>
+                        <FormField id="shipping_country" label="Country" required error={touched.country ? errors.country : undefined}>
                           <Field
-                            as="select"
+                            as={FormSelect}
                             id="shipping_country"
                             name="country"
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                              errors.country && touched.country ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            hasError={Boolean(errors.country && touched.country)}
                           >
                             {countries.map((country) => (
                               <option key={country.value} value={country.value}>
@@ -223,8 +198,7 @@ const ShippingAddressForm = forwardRef<FormikProps<ShippingAddress>, ShippingAdd
                               </option>
                             ))}
                           </Field>
-                          <ErrorMessage name="country" component="p" className="mt-1 text-sm text-red-600" />
-                        </div>
+                        </FormField>
                       </div>
                     </>
                   )}

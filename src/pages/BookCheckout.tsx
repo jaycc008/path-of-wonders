@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FormikProps } from 'formik';
-import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Loader2, Info } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Shield, Clock, Loader2, Info } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import bgLight from '../assets/images/bglight.png';
 import CouponInput from '../components/CouponInput';
 import ContactInfoForm from '../components/forms/ContactInfoForm';
 import BillingAddressForm from '../components/forms/BillingAddressForm';
@@ -18,6 +19,11 @@ import { decodeFromBase64, encodeToBase64 } from '../utils/encoding';
 import { getUserInfo } from '../utils/userInfo';
 
 export default function BookCheckout() {
+  const pageBackgroundStyle = {
+  
+    backgroundRepeat: 'no-repeat',
+  } as const;
+
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
@@ -165,7 +171,6 @@ export default function BookCheckout() {
     state: string;
     postalCode: string;
     country: string;
-    phone: string;
   }>>(null);
 
   // Get initial form values from user data
@@ -275,7 +280,6 @@ export default function BookCheckout() {
     state: string;
     postalCode: string;
     country: string;
-    phone: string;
   }) => {
     // Formik handles validation, values are stored in form state
     console.log('[BookCheckout] Shipping address updated:', values);
@@ -357,7 +361,7 @@ export default function BookCheckout() {
       }
 
       // Phone number is required for shipping - get from shipping form or contact form
-      const shippingPhoneNumber = shippingValues.phone || contactValues.phone;
+      const shippingPhoneNumber = ('phone' in shippingValues ? shippingValues.phone : '') || contactValues.phone;
       if (!shippingPhoneNumber || shippingPhoneNumber.trim() === '') {
         throw new Error('Phone number is required for shipping. Please enter your phone number in the shipping address section.');
       }
@@ -495,7 +499,7 @@ export default function BookCheckout() {
   // Show loading state while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={pageBackgroundStyle}>
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
@@ -512,7 +516,7 @@ export default function BookCheckout() {
   // Show error if no book selected
   if (!bookFromState) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-16">
+      <div className="min-h-screen mt-16" style={pageBackgroundStyle}>
         <Header />
         <div className="max-w-7xl mx-auto p-2">
           <div className="bg-white rounded-2xl p-8 text-center">
@@ -534,7 +538,7 @@ export default function BookCheckout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen" style={pageBackgroundStyle}>
       <Header />
       
       <div className="max-w-7xl mx-auto py-12 px-2">
@@ -612,7 +616,6 @@ export default function BookCheckout() {
                 initialValues={initialFormValues.shipping}
                 billingAddress={{
                   ...currentBillingAddress,
-                  phone: contactFormRef.current?.values?.phone || initialFormValues.contact.phone || '',
                 }}
                 onSubmit={handleShippingAddressSubmit}
                 sameAsBilling={sameAsBilling}
@@ -629,26 +632,6 @@ export default function BookCheckout() {
                 </div>
               )}
 
-              {/* Proceed to Payment Button */}
-              {(() => {
-                // Determine fulfillment type based on shipping country
-                const shippingValues = sameAsBilling 
-                  ? (billingFormRef.current?.values || { country: 'US' })
-                  : (shippingFormRef.current?.values || billingFormRef.current?.values || { country: 'US' });
-                const isIndia = shippingValues.country === 'IN' || shippingValues.country === 'India';
-                const fulfillmentType = isIndia ? 'direct' : 'lulu';
-                
-                return (
-                  <PurchaseButton
-                    onClick={handleProceedToPayment}
-                    disabled={isEstimating || isProcessing}
-                    isLoading={isEstimating || isProcessing}
-                    fulfillmentType={fulfillmentType}
-                    size="lg"
-                    fullWidth
-                  />
-                );
-              })()}
             </div>
           </div>
 
@@ -718,6 +701,26 @@ export default function BookCheckout() {
                   </div>
                 </div>
               </div>
+
+              {(() => {
+                const shippingValues = sameAsBilling
+                  ? (billingFormRef.current?.values || { country: 'US' })
+                  : (shippingFormRef.current?.values || billingFormRef.current?.values || { country: 'US' });
+                const isIndia = shippingValues.country === 'IN' || shippingValues.country === 'India';
+                const fulfillmentType = isIndia ? 'direct' : 'lulu';
+
+                return (
+                  <PurchaseButton
+                    onClick={handleProceedToPayment}
+                    disabled={isEstimating || isProcessing}
+                    isLoading={isEstimating || isProcessing}
+                    fulfillmentType={fulfillmentType}
+                    size="lg"
+                    fullWidth
+                    className="mb-6"
+                  />
+                );
+              })()}
 
               {/* Features */}
               <div className="mb-6">

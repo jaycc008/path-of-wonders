@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Play, Clock, Users, Star, BookOpen, Award, ArrowRight, Book, FileText, Video, GraduationCap, Infinity, FolderOpen } from 'lucide-react';
+import { Play, Clock, Users, Star, BookOpen, Award, ArrowRight, Book, FileText, Video, GraduationCap, Infinity, FolderOpen } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
@@ -209,7 +209,7 @@ export default function CourseDetails() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-7xl mx-auto px-6 pt-20 md:pt-24 lg:pt-32">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-20 md:pt-24 lg:pt-32">
           <Breadcrumbs
             items={[{ label: 'Home', to: '/' }, { label: 'Courses', to: '/courses' }, { label: 'Course' }]}
           />
@@ -227,7 +227,7 @@ export default function CourseDetails() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 py-12">
           <Breadcrumbs
             items={[
               { label: 'Home', to: '/' },
@@ -257,7 +257,7 @@ export default function CourseDetails() {
       
       <main>
         {/* Back Button */}
-        <div className="max-w-7xl mx-auto px-6 pt-20 md:pt-24 lg:pt-32">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-20 md:pt-24 lg:pt-32">
           <Breadcrumbs
             items={[
               { label: 'Home', to: '/' },
@@ -265,29 +265,22 @@ export default function CourseDetails() {
               { label: course.name || course.title || 'Course' },
             ]}
           />
-          <button
-            onClick={() => navigate('/courses')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Courses</span>
-          </button>
         </div>
 
         {/* Hero Section */}
-        <div className="max-w-7xl mx-auto px-6 pb-12">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 pb-12">
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2">
               {/* Course Video/Image */}
-              <div className="relative h-96 rounded-2xl overflow-hidden mb-8 bg-gray-200">
+              <div className="relative mx-0 sm:mx-0 aspect-video md:aspect-auto md:h-96 rounded-none sm:rounded-2xl overflow-hidden mb-8 bg-gray-200">
                 {course.intro_video_url ? (
                   <div className="w-full h-full">
                     <video
                       src={course.intro_video_url}
                       controls
                       controlsList="nodownload"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain md:object-cover bg-black"
                       poster={course.thumbnail_url || course.image || undefined}
                     >
                       Your browser does not support the video tag.
@@ -311,7 +304,7 @@ export default function CourseDetails() {
               </div>
 
               {/* Course Title */}
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-950 mb-3">
+              <h1 className="text-2xl md:text-4xl font-bold text-gray-950 mb-3">
                 {course.name || course.title}
               </h1>
 
@@ -321,7 +314,7 @@ export default function CourseDetails() {
                   const modulesCount = course.modules_count ?? (course as any).modules_count ?? (course as any).modules?.length ?? (course as any).total_modules;
                   if (modulesCount !== undefined && modulesCount !== null && modulesCount !== '') {
                     return (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold">
+                      <div className="flex items-center gap-2 px-2 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold">
                         <FileText className="w-3.5 h-3.5" />
                         <span>{modulesCount} {modulesCount === 1 ? 'Module' : 'Modules'}</span>
                       </div>
@@ -333,7 +326,7 @@ export default function CourseDetails() {
                   const chaptersCount = course.chapters_count ?? (course as any).chapters_count ?? (course as any).chapters?.length ?? (course as any).total_chapters;
                   if (chaptersCount !== undefined && chaptersCount !== null && chaptersCount !== '') {
                     return (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full text-sm font-semibold">
+                      <div className="flex items-center gap-2 px-2 py-1.5 bg-purple-50 text-purple-700 rounded-full text-sm font-semibold">
                         <Book className="w-3.5 h-3.5" />
                         <span>{chaptersCount} {chaptersCount === 1 ? 'Chapter' : 'Chapters'}</span>
                       </div>
@@ -341,15 +334,15 @@ export default function CourseDetails() {
                   }
                   return null;
                 })()}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-semibold">
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-semibold">
                   <GraduationCap className="w-3.5 h-3.5" />
                   <span>Certificate</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full text-sm font-semibold">
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-amber-50 text-amber-700 rounded-full text-sm font-semibold">
                   <Infinity className="w-3.5 h-3.5" />
                   <span>Lifetime Access</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-50 text-cyan-700 rounded-full text-sm font-semibold">
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-cyan-50 text-cyan-700 rounded-full text-sm font-semibold">
                   <Video className="w-3.5 h-3.5" />
                   <span>HD Video</span>
                 </div>
@@ -389,7 +382,7 @@ export default function CourseDetails() {
 
               {/* Description */}
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">About This Course</h2>
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">About This Course</h2>
                 <p className="text-base text-gray-700 leading-relaxed">
                   {course.description}
                 </p>
@@ -398,7 +391,7 @@ export default function CourseDetails() {
               {/* Course Modules & Chapters Tree */}
               {course.modules && course.modules.length > 0 && (
                 <div className="mb-8 bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <FolderOpen className="w-6 h-6 text-blue-600" />
                     Course Curriculum
                   </h2>
@@ -439,8 +432,8 @@ export default function CourseDetails() {
               {course.overview_sections && course.overview_sections.length > 0 && (
                 <div className="mb-8 space-y-8">
                   {course.overview_sections.map((section, index) => (
-                    <div key={index} className="mb-8 bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
-                      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <div key={index} className="mb-8 bg-white rounded-2xl border border-gray-200 p-5 md:p-8">
+                      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <BookOpen className="w-6 h-6 text-blue-600" />
                         {section.header}
                       </h2>
@@ -471,7 +464,7 @@ export default function CourseDetails() {
                 <div className="bg-white rounded-2xl border border-gray-200 p-6">
                   {/* Price */}
                   <div className="mb-6">
-                    <div className="text-4xl font-bold text-gray-900 mb-2">
+                  <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                       ${course.price}
                     </div>
                     <p className="text-gray-600 text-sm">One-time payment</p>
@@ -514,8 +507,8 @@ export default function CourseDetails() {
         </div>
 
         {/* You May Like Section */}
-        <div className="max-w-7xl mx-auto px-6 py-12 mt-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">You May Also Like</h2>
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 py-12 mt-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">You May Also Like</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
@@ -591,7 +584,7 @@ export default function CourseDetails() {
 
                 {/* Course Content */}
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-950 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-950 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
                     {relatedCourse.name}
                   </h3>
                   

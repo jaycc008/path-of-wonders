@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from 'react';
 import { CheckCircle2, Loader2, Tag, X } from 'lucide-react';
 import { validateDiscount, getPromotionCode } from '../api/stripe';
 import { Discount } from '../api/subscription';
+import FormInput from './forms/fields/FormInput';
 
 interface CouponDiscountInfo {
   code: string;
@@ -181,14 +182,14 @@ const CouponInput = memo(({
         <div className="space-y-3">
           <div className="relative flex gap-3">
             <div className="flex-1 relative">
-              <input
+              <FormInput
                 type="text"
                 id="coupon"
                 name="coupon"
                 value={couponCode}
                 onChange={handleInputChange}
                 placeholder={isFetchingPromoCode ? "Loading promotion code..." : "Enter coupon code"}
-                className={`w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase ${
+                className={`pr-10 uppercase ${
                   hasPreFilledCode ? 'border-green-500 bg-green-50' : ''
                 } ${isFetchingPromoCode ? 'opacity-60' : ''}`}
                 disabled={isApplyingCoupon || isFetchingPromoCode || disabled}
@@ -207,7 +208,7 @@ const CouponInput = memo(({
             <button
               onClick={() => handleApplyCoupon()}
               disabled={isApplyingCoupon || !couponCode.trim() || disabled}
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isApplyingCoupon ? (
                 <>

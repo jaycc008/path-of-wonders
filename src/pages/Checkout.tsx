@@ -4,6 +4,7 @@ import { FormikProps } from 'formik';
 import { CheckCircle2, ArrowLeft, Shield, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import bgLight from '../assets/images/bglight.png';
 import CouponInput from '../components/CouponInput';
 import ContactInfoForm from '../components/forms/ContactInfoForm';
 import BillingAddressForm from '../components/forms/BillingAddressForm';
@@ -25,6 +26,10 @@ interface Course {
 }
 
 export default function Checkout() {
+  const pageBackgroundStyle = {
+    backgroundRepeat: 'no-repeat',
+  } as const;
+
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, getRedirectState, clearRedirectUrl } = useAuth();
@@ -426,7 +431,7 @@ export default function Checkout() {
   // Show loading state while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={pageBackgroundStyle}>
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
@@ -443,10 +448,10 @@ export default function Checkout() {
   // Show error if no course or subscription selected
   if (!courseFromState && !subscriptionFromState) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white mt-16">
+      <div className="min-h-screen mt-16" style={pageBackgroundStyle}>
         <Header />
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="bg-white rounded-2xl p-8 text-center">
+          <div className=" rounded-2xl p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">No Item Selected</h1>
             <p className="text-gray-600 mb-6">Please select a course or subscription to proceed with checkout.</p>
             <PrimaryButton
@@ -465,7 +470,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen" style={pageBackgroundStyle}>
       <Header />
       
       <div className="max-w-7xl mx-auto px-1 md:px-6 py-12 ">
@@ -476,7 +481,7 @@ export default function Checkout() {
            
           {/* Left Side - Checkout Form (2 columns) */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl  p-3 md:p-10">
+            <div className=" rounded-2xl  p-3 md:p-10">
             
 
               {/* Summary Card */}
@@ -586,25 +591,12 @@ export default function Checkout() {
                 </div>
               )}
 
-              {/* Proceed to Payment Button */}
-              <PrimaryButton
-                onClick={handleProceedToPayment}
-                disabled={isProcessing}
-                isLoading={isProcessing}
-                size="lg"
-                fullWidth
-                icon={ArrowRight}
-                iconPosition="right"
-                className="gap-2"
-              >
-                {isProcessing ? 'Redirecting to Stripe...' : 'Proceed to Payment'}
-              </PrimaryButton>
             </div>
           </div>
 
           {/* Right Side - Order Summary (1 column) */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl  p-6 md:p-8 sticky top-8">
+            <div className=" rounded-2xl  p-6 md:p-8 sticky top-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
               {/* Item Summary */}
@@ -685,6 +677,19 @@ export default function Checkout() {
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
+
+              <PrimaryButton
+                onClick={handleProceedToPayment}
+                disabled={isProcessing}
+                isLoading={isProcessing}
+                size="lg"
+                fullWidth
+                icon={ArrowRight}
+                iconPosition="right"
+                className="gap-2 mb-6"
+              >
+                {isProcessing ? 'Redirecting to Stripe...' : 'Proceed to Payment'}
+              </PrimaryButton>
 
               {/* Features */}
               <div className="mb-6">

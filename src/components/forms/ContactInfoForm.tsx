@@ -1,7 +1,9 @@
 import { forwardRef } from 'react';
-import { Formik, Field, Form, ErrorMessage, FormikProps } from 'formik';
+import { Formik, Field, Form, FormikProps } from 'formik';
 import * as Yup from 'yup';
-import { Sparkles } from 'lucide-react';
+import { UserCircle2 } from 'lucide-react';
+import FormField from './fields/FormField';
+import FormInput from './fields/FormInput';
 
 interface ContactInfoFormProps {
   initialValues: {
@@ -29,7 +31,7 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; ph
     return (
       <div className="mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-blue-600" />
+          <UserCircle2 className="w-5 h-5 text-blue-600" />
           Contact Information
         </h2>
         <Formik
@@ -43,61 +45,40 @@ const ContactInfoForm = forwardRef<FormikProps<{ name: string; email: string; ph
             <Form>
               <div className="space-y-4">
                 {/* Name Field */}
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
-                  </label>
+                <FormField id="name" label="Full Name" required error={touched.name ? errors.name : undefined}>
                   <Field
+                    as={FormInput}
                     type="text"
                     id="name"
                     name="name"
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all ${
-                      errors.name && touched.name
-                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
-                    }`}
+                    hasError={Boolean(errors.name && touched.name)}
                     placeholder="John Doe"
                   />
-                  <ErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
-                </div>
+                </FormField>
 
                 {/* Email Field */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
-                  </label>
+                <FormField id="email" label="Email Address" required error={touched.email ? errors.email : undefined}>
                   <Field
+                    as={FormInput}
                     type="email"
                     id="email"
                     name="email"
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all ${
-                      errors.email && touched.email
-                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
-                    }`}
+                    hasError={Boolean(errors.email && touched.email)}
                     placeholder="your.email@example.com"
                   />
-                  <ErrorMessage name="email" component="p" className="mt-1 text-sm text-red-600" />
-                </div>
+                </FormField>
 
                 {/* Phone Field */}
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number *
-                  </label>
+                <FormField id="phone" label="Phone Number" required error={touched.phone ? errors.phone : undefined}>
                   <Field
+                    as={FormInput}
                     type="tel"
                     id="phone"
                     name="phone"
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all ${
-                      errors.phone && touched.phone
-                        ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
-                    }`}
+                    hasError={Boolean(errors.phone && touched.phone)}
                     placeholder="+1 (555) 123-4567"
                   />
-                  <ErrorMessage name="phone" component="p" className="mt-1 text-sm text-red-600" />
-                </div>
+                </FormField>
               </div>
             </Form>
           )}
