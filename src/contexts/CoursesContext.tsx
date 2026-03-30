@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getCourses, Course } from '../api/course';
+import type { Course } from '../api/course';
+import { getLandingCourses, mapLandingCourseToCourse } from '../api/landingCourses';
 
 interface CoursesContextValue {
   courses: Course[];
@@ -20,9 +21,10 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     const load = async () => {
       try {
         setIsLoading(true);
-        const response = await getCourses();
+        const response = await getLandingCourses({ page: 1, page_size: 100 });
         if (!cancelled) {
-          setCourses(response.data?.items ?? []);
+          const items = response.data?.items ?? [];
+          setCourses(items.map(mapLandingCourseToCourse));
           setError(null);
         }
       } catch (e) {

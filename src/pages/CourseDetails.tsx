@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Course, getCourses, getCourseById, getCourseBook, Book as BookType } from '../api/course';
+import { Course, getCourses, getCourseDetails } from '../api/course';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
@@ -18,27 +18,19 @@ export default function CourseDetails() {
   const location = useLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
-  const [book, setBook] = useState<BookType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isBookLoading, setIsBookLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const book = course?.book ?? null;
 
   // Fetch course data
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         setIsLoading(true);
-        
-        // Try to get course from location state first (if navigated from courses page)
-        if (location.state?.course) {
-          setCourse(location.state.course);
-          setIsLoading(false);
-          return;
-        }
 
         // Otherwise, fetch from API using the single course endpoint
         if (id) {
-          const response = await getCourseById(id);
+          const response = await getCourseDetails(id);
           if (response.data) {
             setCourse(response.data);
           }
@@ -66,31 +58,6 @@ export default function CourseDetails() {
       fetchCourse();
     }
   }, [id, location.state]);
-
-  // Fetch book data separately (doesn't block course loading)
-  useEffect(() => {
-    const fetchBook = async () => {
-      if (!id) return;
-      
-      setIsBookLoading(true);
-      try {
-        const bookResponse = await getCourseBook(id);
-        if (bookResponse.data) {
-          setBook(bookResponse.data);
-        }
-      } catch (bookError) {
-        console.error('Failed to fetch book:', bookError);
-        // If book endpoint fails, try to use book from course data if available
-        if (course?.book) {
-          setBook(course.book);
-        }
-      } finally {
-        setIsBookLoading(false);
-      }
-    };
-
-    fetchBook();
-  }, [id, course?.book]);
 
   // Update page metadata for SEO
   useEffect(() => {
@@ -500,7 +467,7 @@ export default function CourseDetails() {
                 </div>
 
                 {/* Book Section */}
-                <BookCard book={book} isLoading={isBookLoading} />
+                <BookCard book={book} isLoading={isLoading} />
               </div>
             </div>
           </div>

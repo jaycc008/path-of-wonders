@@ -4,7 +4,6 @@ import { FormikProps } from 'formik';
 import { CheckCircle2, ArrowLeft, Shield, Clock, Loader2, Info } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import bgLight from '../assets/images/bglight.png';
 import CouponInput from '../components/CouponInput';
 import ContactInfoForm from '../components/forms/ContactInfoForm';
 import BillingAddressForm from '../components/forms/BillingAddressForm';

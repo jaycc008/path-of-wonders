@@ -39,13 +39,9 @@ export default function Courses() {
   };
 
   return (
-    <section ref={sectionRef} className="py-12 sm:py-16 md:py-24 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden">
+    <section ref={sectionRef} className="py-12 sm:py-16 md:py-24 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-50">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
-      </div>
+    
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
@@ -106,8 +102,6 @@ export default function Courses() {
                       alt={courses[activeCourse]?.title || courses[activeCourse]?.name || 'Course'}
                       className="w-full h-[min(60vw,280px)] sm:h-[320px] md:h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
                     {courses[activeCourse]?.intro_video_url ? (
                       <button 
                         onClick={() => setIsVideoPlaying(true)}

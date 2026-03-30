@@ -27,7 +27,7 @@ export default function BookCard({ book, isLoading = true }: BookCardProps) {
     navigate(checkoutUrl);
   };
 
-  if (isLoading || !book) {
+  if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mt-6">
         <div className="mb-4">
@@ -54,6 +54,10 @@ export default function BookCard({ book, isLoading = true }: BookCardProps) {
         <div className="h-12 w-full bg-gray-200 rounded-lg animate-pulse"></div>
       </div>
     );
+  }
+
+  if (!book) {
+    return null;
   }
 
   return (

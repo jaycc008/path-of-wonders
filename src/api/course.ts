@@ -143,7 +143,14 @@ export interface CourseResponse {
 }
 
 /**
- * Get a single course by ID
+ * GET /api/v1/courses/{id}
+ * Same envelope as the courses list: `data` is a single course object with the same fields
+ * as each element in `GET courses` → `data.items[]` (one row, not a different “expanded” shape).
+ */
+export type CourseDetailsResponse = CourseResponse;
+
+/**
+ * Get a single course by ID (legacy name; same as {@link getCourseDetails}).
  * @param courseId - The course ID (UUID string or number)
  * @returns Promise with course response including book data
  */
@@ -156,6 +163,14 @@ export const getCourseById = async (courseId: number | string): Promise<CourseRe
     throw error;
   }
 };
+
+/**
+ * Course details by ID — same path and payload shape as list items:
+ * `GET /api/v1/courses/{id}` → `{ status, data: Course, message? }`
+ */
+export const getCourseDetails = async (
+  courseId: number | string
+): Promise<CourseDetailsResponse> => getCourseById(courseId);
 
 /**
  * Initiate purchase for a course

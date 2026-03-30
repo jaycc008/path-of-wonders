@@ -5,7 +5,8 @@ import ScrollToTop from '../components/ScrollToTop';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryPills from './courses/CategoryPills';
 import CourseCard from './courses/CourseCard';
-import { getCourses, Course } from '../api/course';
+import type { Course } from '../api/course';
+import { getLandingCourses, mapLandingCourseToCourse } from '../api/landingCourses';
 import { Loader2, Search } from 'lucide-react';
 
 export default function CoursesPage() {
@@ -29,8 +30,9 @@ export default function CoursesPage() {
     const fetchCourses = async () => {
       try {
         setIsLoading(true);
-        const response = await getCourses();
-        setCourses(response.data.items || []);
+        const response = await getLandingCourses({ page: 1, page_size: 100 });
+        const items = response.data?.items ?? [];
+        setCourses(items.map(mapLandingCourseToCourse));
       } catch (error) {
         console.error('Failed to fetch courses:', error);
         // Fallback to sample data if API fails
@@ -146,7 +148,7 @@ export default function CoursesPage() {
   }, [courses, selectedCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-white">
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 md:py-20">
