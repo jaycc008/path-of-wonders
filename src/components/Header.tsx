@@ -5,11 +5,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api';
 import { logout as logoutAPI } from '../api/auth';
 import logo from '../assets/images/10dlogo1.png';
+import textLogo from '../assets/images/textlogo.png';
 import PrimaryButton from './PrimaryButton';
 import MobileHeader from './MobileHeader';
 
 export default function Header() {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() =>
@@ -174,16 +175,19 @@ export default function Header() {
       <div
         className={`desktop-header-shell ${scrolled ? 'is-scrolled' : ''}`}
       >
-        <div className="desktop-header-inner max-w-7xl mx-auto flex items-center justify-between py-3 md:py-4">
-          <Link to="/" className="flex items-center gap-1">
+        <div className="desktop-header-inner max-w-7xl mx-auto flex items-center justify-between py-2 md:py-4 rounded-full bg-white/20 px-4">
+          <Link to="/" className="flex items-center gap-2 min-h-0">
             <img 
               src={logo} 
-              alt="Path Of Wonders Logo" 
-              className="h-10 w-10 object-contain"
+              alt="" 
+              className="h-12 w-12  md:w-15 md:h-15"
+              aria-hidden
             />
-            <span className="text-2xl font-bold text-gray-900">
-              Path Of Wonders
-            </span>
+            <img
+              src={textLogo}
+              alt="Path Of Wonders"
+              className="h-7 sm:h-8 md:h-9 w-auto max-w-[min(100%,16rem)] md:max-w-[12rem] object-contain object-left"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
@@ -196,7 +200,7 @@ export default function Header() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }, 100);
               }}
-              className={`relative text-sm font-medium transition-all duration-300 group ${
+              className={`relative  font-medium transition-all duration-300 group ${
                 location.pathname === '/' 
                   ? 'text-blue-600 font-semibold' 
                   : 'text-gray-700 hover:text-gray-900'
@@ -209,7 +213,7 @@ export default function Header() {
             </a>
             <Link
               to="/about"
-              className={`relative text-sm font-medium transition-all duration-300 group ${
+              className={`relative  font-medium transition-all duration-300 group ${
                 location.pathname === '/about' 
                   ? 'text-blue-600 font-semibold' 
                   : 'text-gray-700 hover:text-gray-900'
@@ -222,7 +226,7 @@ export default function Header() {
             </Link>
             <Link
               to="/courses"
-              className={`relative text-sm font-medium transition-all duration-300 group ${
+              className={`relative  font-medium transition-all duration-300 group ${
                 location.pathname === '/courses' || location.pathname.startsWith('/courses/')
                   ? 'text-blue-600 font-semibold' 
                   : 'text-gray-700 hover:text-gray-900'
@@ -252,7 +256,7 @@ export default function Header() {
                   }
                 }
               }}
-              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+              className="relative  font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
             >
               Testimonials
               <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
@@ -276,7 +280,7 @@ export default function Header() {
                   }
                 }
               }}
-              className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+              className="relative  font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
             >
               Contact
               <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
@@ -299,7 +303,7 @@ export default function Header() {
                   {isDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className=" font-semibold text-gray-900 truncate">
                           {userInfo.name || 'User'}
                         </p>
                         <p className="text-xs text-gray-500 truncate">
@@ -335,14 +339,14 @@ export default function Header() {
                       
                       <button
                         onClick={handleMyLearningClick}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
+                        className="w-full px-4 py-2 text-left  text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
                       >
                         <LayoutDashboard className="w-4 h-4" />
                         <span>Dashboard</span>
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3"
+                        className="w-full px-4 py-2 text-left  text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Logout</span>

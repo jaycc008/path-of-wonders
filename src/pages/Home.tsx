@@ -8,9 +8,9 @@ import Testimonials from '../components/Testimonials';
 import CallToAction from '../components/CallToAction';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
-import Hero2 from '../components/Hero2';
-import Hero from '../components/Hero';
+import Hero3 from '../components/Hero3';
 import { getSubscription, Subscription } from '../api/subscription';
+import Process from '../components/Process';
 
 export default function Home() {
   const location = useLocation();
@@ -60,9 +60,10 @@ export default function Home() {
     <div>
       <Header />
       {/* <Hero /> */}
-       <Hero2 />
+       <Hero3 />
       <Journey />
      <Courses />
+     <Process />
       <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
       <Testimonials />
       <Promise />

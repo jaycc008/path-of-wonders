@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import heroImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
 import heroBgImage from '../assets/images/bglight.png';
+import { en } from '../assets/lang/en';
 import SecondaryButton from './SecondaryButton';
 import PrimaryButton from './PrimaryButton';
+
+const t = en.hero2;
 
 export default function Hero() {
   const navigate = useNavigate();
@@ -32,11 +35,11 @@ export default function Hero() {
             }`}
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 leading-tight">
-            Awakening your true Potential
+            {t.title}
             <br />
           </h1>
           <div className="text-cyan-600 text-lg sm:text-xl md:text-2xl lg:text-4xl mt-3 md:mt-6 leading-snug px-1">
-            The World’s First Science-Backed Consciousness School
+            {t.subtitle}
           </div>
         </div>
 
@@ -50,14 +53,14 @@ export default function Hero() {
               className="uppercase w-auto shrink-0 !px-3 !py-2 !text-[0.75rem] leading-snug sm:!px-6 sm:!py-2.5 sm:!text-base"
               onClick={() => navigate('/courses')}
             >
-              Start Learning Today
+              {t.ctaStartLearning}
             </SecondaryButton>
             <PrimaryButton
               size="md"
               className="uppercase w-auto shrink-0 !px-3 !py-2 !text-[0.75rem] leading-snug sm:!px-6 sm:!py-2.5 sm:!text-base"
               onClick={() => navigate('/about')}
             >
-              Know More
+              {t.ctaKnowMore}
             </PrimaryButton>
           </div>
         </div>
@@ -74,13 +77,13 @@ export default function Hero() {
                 <div className="aspect-video flex items-center justify-center relative overflow-hidden w-full md:rounded-xl">
                   <img
                     src={heroImage}
-                    alt="Watch Now"
+                    alt={t.heroImageAlt}
                     className="absolute inset-0 w-full h-full object-cover blur-sm group-hover:blur-none transition-all duration-600"
                   />
                   <button
                     type="button"
                     className="relative z-10 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl"
-                    aria-label="Play video"
+                    aria-label={t.playVideoAriaLabel}
                   >
                     <Play className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-cyan-600 ml-1" fill="currentColor" />
                   </button>
