@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Award, Users, Zap, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { en } from '../assets/lang/en';
 import SecondaryButton from './SecondaryButton';
 import journeyImage from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 
 const t = en.journey;
-const statIcons = [Users, Award, Zap] as const;
 
 export default function Journey() {
   const navigate = useNavigate();
@@ -42,18 +41,6 @@ export default function Journey() {
               {t.title}
             </h2>
             <p className="text-base md:text-lg text-gray-600 leading-relaxed">{t.description}</p>
-            <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-2 md:pt-4">
-              {t.stats.map((stat, index) => {
-                const Icon = statIcons[index];
-                return (
-                  <div key={stat.label} className="text-center">
-                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-blue-600 mx-auto mb-1 md:mb-2" />
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stat.value}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
-                  </div>
-                );
-              })}
-            </div>
             <SecondaryButton 
               onClick={() => navigate('/about')}
               size="sm"

@@ -53,11 +53,10 @@ export default function NewsletterSubscribe() {
                 id="newsletter-heading"
                 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl md:text-4xl"
               >
-                Subscribe to our newsletter
+                Not ready to join yet?
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
-                Get updates on new courses, events, and conscious learning—no clutter, just what
-                matters.
+                Get the free guide: The Attention Crisis Every Parent Should Understand.
               </p>
             </div>
 
@@ -101,7 +100,7 @@ export default function NewsletterSubscribe() {
                   </>
                 ) : (
                   <>
-                    <span>Subscribe</span>
+                    <span>Send Me the Guide</span>
                     <SendHorizontal className="h-5 w-5" aria-hidden />
                   </>
                 )}
@@ -125,8 +124,7 @@ export default function NewsletterSubscribe() {
             <p className="mt-5 flex items-start justify-center gap-2 text-center text-xs leading-relaxed text-slate-500">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600/80" aria-hidden />
               <span>
-                We respect your inbox. Unsubscribe anytime—we never share your email with third
-                parties.
+                We respect your inbox. No spam. Unsubscribe anytime.
               </span>
             </p>
             </form>

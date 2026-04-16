@@ -1,16 +1,17 @@
 export const en = {
   hero2: {
-    title: 'Awakening your true Potential',
-    subtitle: "The World's First Science-Backed Consciousness School",
-    ctaStartLearning: 'Start Learning Today',
-    ctaKnowMore: 'Know More',
+    title: 'For the minds that question everything.',
+    subtitle:
+      'Path of Wonders is a cinematic education universe built for teenagers who think, and parents who know school is not enough.',
+    ctaStartLearning: 'Join Early Access',
+    ctaKnowMore: 'Watch the Trailer →',
     heroImageAlt: 'Watch Now',
     playVideoAriaLabel: 'Play video',
   },
   hero3: {
-    title: 'A New Way of Learning, Beyond the Classroom',
-    subtitle: 'Science-backed transformation for teens who refuse average lives.',
-    cta: 'Start Their Journey',
+    title: 'For the minds that question everything.',
+    subtitle: 'Path of Wonders is a cinematic education universe built for teenagers who think, and parents who know school is not enough.',
+    cta: 'Join Early Access',
     heroImageAlt: 'Introduction video thumbnail',
     playVideoAriaLabel: 'Play introduction video',
     videoCaptionTitle: '90-sec introduction',

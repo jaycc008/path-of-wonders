@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Subscription } from '../api/subscription';
 import { useAuth } from '../contexts/AuthContext';
 import { encodeToBase64 } from '../utils/encoding';
@@ -58,7 +58,7 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div
-          className={`grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center transition-all duration-1000 ${
+          className={`flex justify-center transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
@@ -175,37 +175,6 @@ export default function CallToAction({ subscription, isLoading }: CallToActionPr
                 </button>
               </div>
             ) : null}
-          </div>
-
-          {/* Right Side - Title and Description */}
-          <div className="text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              <span>Limited Time Offer</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-              Ready to Transform Your Future?
-            </h2>
-
-            <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8 leading-relaxed">
-              Join thousands of successful students and start your learning journey today. Get instant access to all courses with our annual subscription.
-            </p>
-
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-x-6 sm:gap-y-2 text-white/80 text-xs sm:text-sm justify-center md:justify-start">
-              <div className="flex items-center gap-2 justify-center md:justify-start">
-                <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-2 justify-center md:justify-start">
-                <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
-                <span>14-day money-back guarantee</span>
-              </div>
-              <div className="flex items-center gap-2 justify-center md:justify-start">
-                <div className="w-2 h-2 bg-green-400 rounded-full shrink-0"></div>
-                <span>Cancel anytime</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

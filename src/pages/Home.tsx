@@ -3,14 +3,14 @@ import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Journey from '../components/Journey';
 import Courses from '../components/Courses';
-import Promise from '../components/Promise';
-import Testimonials from '../components/Testimonials';
 import CallToAction from '../components/CallToAction';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
-import Hero3 from '../components/Hero3';
+import Hero3 from '../components/Hero3.tsx';
 import { getSubscription, Subscription } from '../api/subscription';
 import Process from '../components/Process';
+import ThisIsNotSchool from '../components/ThisIsNotSchool';
+import WhoThisIsFor from '../components/WhoThisIsFor';
 
 export default function Home() {
   const location = useLocation();
@@ -61,12 +61,12 @@ export default function Home() {
       <Header />
       {/* <Hero /> */}
        <Hero3 />
-      <Journey />
+      <ThisIsNotSchool />
+      <WhoThisIsFor />
+      {/* <Journey /> */}
      <Courses />
      <Process />
       <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
-      <Testimonials />
-      <Promise />
       <Footer />
       <ScrollToTop show={showScrollTop} />
     </div>

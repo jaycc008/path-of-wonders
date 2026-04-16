@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Play } from 'lucide-react';
-import inheritanceBg from '../assets/images/A Single Path Disappearing Into Golden Light — Metaphor for the journey. Warm, hopeful, forward-moving..png';
+import heroBg from '../assets/images/bluebg.png';
 import heroVideoThumb from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
 import { en } from '../assets/lang/en';
 import PrimaryButton from './PrimaryButton';
@@ -23,39 +23,33 @@ export default function Hero3() {
       className="relative min-h-[min(100dvh,880px)] lg:min-h-screen flex items-center overflow-hidden"
     >
       <img
-        src={inheritanceBg}
+        src={heroBg}
         alt=""
         className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
         decoding="async"
         fetchPriority="high"
         aria-hidden
       />
-      {/* Base depth — stays quiet under the header; darkness mostly toward bottom */}
+      {/* White blend band for white header */}
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-900/10 from-0% via-slate-900/22 via-[45%] to-slate-950/78 to-100%"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[min(12vh,110px)] bg-gradient-to-b from-white/40 via-white/18 via-[60%] to-transparent"
+        aria-hidden
+      />
+      {/* Cool cinematic grade + vignette (brand blue/purple) */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/42 via-slate-950/18 via-[45%] to-slate-950/70"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/35 via-slate-900/12 to-slate-950/45"
-        aria-hidden
-      />
-      {/* Extra solid band under header — reads as one surface with the nav bar */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[min(28vh,220px)] bg-gradient-to-b from-white from-40% to-transparent"
-        aria-hidden
-      />
-      {/* Long white haze — tall feather so the blend feels endless */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white from-0% via-white/96 via-[4%] via-white/88 via-[12%] via-white/72 via-[24%] via-white/50 via-[38%] via-white/28 via-[52%] via-white/12 via-[66%] via-white/[0.06] via-[78%] to-transparent to-[92%]"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-indigo-950/40 via-transparent to-violet-950/40"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[58%] via-slate-950/12 via-[78%] to-slate-950/35 to-100%"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_20%,rgba(99,102,241,0.16)_0%,rgba(0,0,0,0)_60%)]"
         aria-hidden
       />
-      {/* Dark purple–indigo base at bottom (bluish royal wash) */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[min(58vh,500px)] bg-gradient-to-t from-indigo-950/92 via-violet-950/55 via-[42%] to-transparent"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_85%_at_50%_55%,rgba(0,0,0,0)_40%,rgba(2,6,23,0.58)_100%)]"
         aria-hidden
       />
 
@@ -67,10 +61,10 @@ export default function Hero3() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] lg:text-5xl xl:text-[3.25rem] font-bold text-slate-900 leading-[1.12] tracking-tight drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">
+            <h1 className="text-3xl sm:text-5xl md:text-[2.75rem] lg:text-5xl xl:text-[4.00rem] font-bold text-white leading-[1.12] tracking-tight drop-shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
               {t.title}
             </h1>
-            <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-xl text-slate-200 leading-relaxed max-w-xl">
+            <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-xl xl:text-2xl text-slate-200/95 leading-relaxed max-w-xl drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)]">
               {t.subtitle}
             </p>
             <div className="mt-8 sm:mt-10 flex justify-start">

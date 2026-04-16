@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Target, Users, Award, Zap, Heart, Lightbulb, BookOpen, Globe } from 'lucide-react';
+import { Heart, Lightbulb, BookOpen } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
@@ -48,13 +48,6 @@ export default function About() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const stats = [
-    { icon: Users, value: '10K+', label: 'Students Enrolled' },
-    { icon: Award, value: '500+', label: 'Courses Available' },
-    { icon: Zap, value: '95%', label: 'Success Rate' },
-    { icon: Globe, value: '50+', label: 'Countries Reached' },
-  ];
-
   const values = [
     {
       icon: Heart,
@@ -62,19 +55,14 @@ export default function About() {
       description: 'We believe in the transformative power of education and are committed to making quality learning accessible to everyone.',
     },
     {
-      icon: Lightbulb,
-      title: 'Innovation First',
-      description: 'We continuously evolve our teaching methods and curriculum to stay at the forefront of educational excellence.',
-    },
-    {
       icon: BookOpen,
       title: 'Student-Centered',
       description: 'Every decision we make is focused on creating the best possible learning experience for our students.',
     },
     {
-      icon: Target,
-      title: 'Results-Driven',
-      description: 'We measure success by the real-world impact our courses have on our students\' careers and lives.',
+      icon: Lightbulb,
+      title: 'Curiosity-Led',
+      description: 'We design learning experiences that spark questions first, then build lasting understanding.',
     },
   ];
 
@@ -145,31 +133,11 @@ export default function About() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section 
-        ref={(el) => (sectionRefs.current[1] = el)}
-        className={`py-16 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-1000 ${
-          visibleSections.has(1) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center text-white">
-                <stat.icon className="w-12 h-12 mx-auto mb-4 opacity-90" />
-                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
-                <div className="text-blue-100">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Vision Section */}
       <section 
-        ref={(el) => (sectionRefs.current[2] = el)}
+        ref={(el) => (sectionRefs.current[1] = el)}
         className={`py-24 bg-white transition-all duration-1000 ${
-          visibleSections.has(2) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          visibleSections.has(1) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6">
@@ -207,9 +175,9 @@ export default function About() {
 
       {/* Values Section */}
       <section 
-        ref={(el) => (sectionRefs.current[3] = el)}
+        ref={(el) => (sectionRefs.current[2] = el)}
         className={`py-24 bg-gray-50 transition-all duration-1000 ${
-          visibleSections.has(3) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          visibleSections.has(2) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6">
@@ -244,9 +212,9 @@ export default function About() {
 
       {/* Story Section */}
       <section 
-        ref={(el) => (sectionRefs.current[4] = el)}
+        ref={(el) => (sectionRefs.current[3] = el)}
         className={`py-24 bg-white transition-all duration-1000 ${
-          visibleSections.has(4) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          visibleSections.has(3) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6">

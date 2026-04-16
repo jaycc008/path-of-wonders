@@ -2,12 +2,9 @@ import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import logo from '../assets/images/10dlogo2.png';
 import NewsletterSubscribe from './NewsletterSubscribe';
-import { useCourses } from '../contexts/CoursesContext';
-import { buildCourseDetailsUrl, ROUTES } from '../constants/routes';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const { courses, isLoading } = useCourses();
 
   return (
     <>
@@ -24,7 +21,7 @@ export default function Footer() {
               />
             </div>
             <p className="text-sm md:text-base text-gray-300 leading-relaxed">
-              Empowering learners worldwide with innovative education solutions for the digital age.
+              Cinematic education for the next generation. Where stories train the mind.
             </p>
             <div className="flex gap-3 md:gap-4">
               {[Facebook, Twitter, Linkedin, Instagram].map((Icon, index) => (
@@ -40,33 +37,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-base md:text-lg mb-4 md:mb-6">Courses</h3>
+            <h3 className="text-white font-bold text-base md:text-lg mb-4 md:mb-6">The Series</h3>
             <ul className="space-y-3 md:space-y-4 text-sm md:text-base">
-              {isLoading ? (
-                <li className="text-sm text-gray-400">Loading courses…</li>
-              ) : (
-                courses.map((course) =>
-                  course.id != null ? (
-                    <li key={course.id}>
-                      <Link
-                        to={buildCourseDetailsUrl(course)}
-                        state={{ course }}
-                        className="hover:text-blue-400 transition-colors duration-300"
-                      >
-                        {course.title || course.name || 'Course'}
-                      </Link>
-                    </li>
-                  ) : null
-                )
-              )}
-              {!isLoading && courses.length === 0 ? (
-                <li className="text-sm text-gray-400">New courses coming soon.</li>
-              ) : null}
-              <li>
-                <Link to={ROUTES.COURSES} className="hover:text-blue-400 transition-colors duration-300">
-                  All courses
-                </Link>
-              </li>
+              {['Attention Heist', 'Science of Wonder', 'Inheritance Quest'].map((title) => (
+                <li key={title} className="text-gray-300">
+                  {title}
+                </li>
+              ))}
             </ul>
           </div>
 

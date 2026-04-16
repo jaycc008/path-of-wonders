@@ -82,24 +82,8 @@ export default function MobileHeader({
               onClick={() => setIsOpen(false)}
               className={`py-3 px-3 rounded-lg text-sm font-medium ${location.pathname === '/courses' || location.pathname.startsWith('/courses/') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:bg-gray-100'}`}
             >
-              Courses
+              The Universe
             </Link>
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false);
-                const el = document.getElementById('testimonials');
-                if (window.location.pathname !== '/') {
-                  navigate('/');
-                  setTimeout(() => el?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-                } else {
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-              className="py-3 px-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 text-left"
-            >
-              Testimonials
-            </button>
             <button
               type="button"
               onClick={() => {
@@ -152,7 +136,7 @@ export default function MobileHeader({
                   }}
                   className="w-full justify-center"
                 >
-                  Login/Sign Up
+                  Join Early Access
                 </PrimaryButton>
               </div>
             )}

@@ -173,7 +173,7 @@ export default function Header() {
       className="fixed top-0 left-0 right-0 z-50"
     >
       <div
-        className={`desktop-header-shell ${scrolled ? 'is-scrolled' : ''}`}
+        className={`desktop-header-shell is-scrolled`}
       >
         <div className="desktop-header-inner max-w-7xl mx-auto flex items-center justify-between py-2 md:py-4 rounded-full bg-white/20 px-4">
           <Link to="/" className="flex items-center gap-2 min-h-0">
@@ -232,35 +232,12 @@ export default function Header() {
                   : 'text-gray-700 hover:text-gray-900'
               }`}
             >
-              Courses
+              The Universe
               <span className={`absolute left-0 -bottom-1 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ${
                 location.pathname === '/courses' || location.pathname.startsWith('/courses/') ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
             </Link>
-            <a
-              href="/#testimonials"
-              onClick={(e) => {
-                e.preventDefault();
-                if (window.location.pathname !== '/') {
-                  navigate('/');
-                  setTimeout(() => {
-                    const element = document.getElementById('testimonials');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }, 100);
-                } else {
-                  const element = document.getElementById('testimonials');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }
-              }}
-              className="relative  font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
-            >
-              Testimonials
-              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
-            </a>
+           
             <a
               href="/#contact"
               onClick={(e) => {
