@@ -47,7 +47,7 @@ export default function ThisIsNotSchool() {
     <section
       ref={sectionRef}
       aria-label="This is not school"
-      className="w-full lg:h-[95vh] py-16 sm:py-20 md:py-24 flex items-center justify-center"
+      className="w-full lg:h-[100vh] py-16 sm:py-20 md:py-24 flex items-center justify-center"
       style={{ backgroundColor: '#0F1B35' }}
     >
       <div className="max-w-5xl w-full mx-auto px-5 md:px-6 text-center">

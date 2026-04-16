@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
-import Journey from '../components/Journey';
 import Courses from '../components/Courses';
 import CallToAction from '../components/CallToAction';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import Hero3 from '../components/Hero3.tsx';
 import { getSubscription, Subscription } from '../api/subscription';
-import Process from '../components/Process';
 import ThisIsNotSchool from '../components/ThisIsNotSchool';
 import WhoThisIsFor from '../components/WhoThisIsFor';
+import HowItWorks from '../components/HowItWorks';
+import FounderStory from '../components/FounderStory';
 
 export default function Home() {
   const location = useLocation();
@@ -65,7 +65,9 @@ export default function Home() {
       <WhoThisIsFor />
       {/* <Journey /> */}
      <Courses />
-     <Process />
+     {/* <Process /> */}
+      <HowItWorks />
+      <FounderStory />
       <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
       <Footer />
       <ScrollToTop show={showScrollTop} />

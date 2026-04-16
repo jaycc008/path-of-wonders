@@ -82,12 +82,19 @@
 }
 
 :root {
-  --primary-start: #1e3a8a; /* blue-900 */
-  --primary-end: #172554; /* blue-950 */
-  --primary-hover-start: #172554; /* blue-950 */
-  --primary-hover-end: #1e1b4b; /* indigo-950 */
-  --primary-light: #3b82f6; /* blue-500 */
-  --primary-lighter: #60a5fa; /* blue-400 */
+  /* Brand palette */
+  --navy: #0f1b35;
+  --brand-blue: #1a3a8f;
+  --accent-blue: #2b5bc8;
+  --bg-soft: #f4f6fb;
+
+  /* Back-compat tokens used across components */
+  --primary-start: var(--navy);
+  --primary-end: var(--brand-blue);
+  --primary-hover-start: var(--brand-blue);
+  --primary-hover-end: var(--accent-blue);
+  --primary-light: var(--accent-blue);
+  --primary-lighter: var(--bg-soft);
 }
 
 html {
@@ -108,6 +115,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
   font-family: inherit;
+  background-color: var(--bg-soft);
 }
 
 body::-webkit-scrollbar {

@@ -22,12 +22,9 @@ export default function Hero3() {
       ref={heroRef}
       className="relative min-h-[min(100dvh,880px)] lg:min-h-screen flex items-center overflow-hidden"
     >
-      <img
-        src={heroBg}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
-        decoding="async"
-        fetchPriority="high"
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat md:bg-fixed"
+        style={{ backgroundImage: `url(${heroBg})` }}
         aria-hidden
       />
       {/* White blend band for white header */}

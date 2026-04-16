@@ -44,11 +44,11 @@ export default function CourseCard({
           {course.title}
         </h3>
 
-        <p className="text-gray-600 leading-relaxed text-base sm:text-lg lg:text-md py-2">
+        <p className="text-gray-600 leading-relaxed text-base  pt-2 pb-0">
           {course.description}
         </p>
 
-        <div className="mt-auto pt-2 flex flex-col items-start">
+        <div className="mt-auto flex flex-col items-start">
           <button
             type="button"
             onClick={onExplore}

@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { en } from '../assets/lang/en';
 
-const CARDS = [
-  'For the teenager who asks questions school refuses to answer.',
-  'For the parent who knows their child is capable of more than grades show.',
-  'For families who believe stories can change how we think.',
-  'For the next generation that will have to think for itself.',
-] as const;
+const t = en.whoThisIsFor;
 
 export default function WhoThisIsFor() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -34,15 +30,15 @@ export default function WhoThisIsFor() {
   return (
     <section
       ref={sectionRef}
-      className="w-full py-16 sm:py-20 md:py-24 bg-white lg:h-[90vh] lg:flex lg:items-center"
+      className="w-full py-16 sm:py-20 md:py-24 bg-white lg:h-[100vh] lg:flex lg:items-center"
     >
       <div className="max-w-7xl w-full mx-auto px-5 md:px-6">
-        <h2 className="text-center mb-20 text-xl sm:text-4xl md:text-6xl font-bold text-gray-900 tracking-tight">
-          Is this for you?
+        <h2 className="text-center mb-20 text-xl sm:text-4xl md:text-7xl font-bold text-gray-900 tracking-tight">
+          {t.heading}
         </h2>
 
         <div className="mt-20 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6">
-          {CARDS.map((text, idx) => (
+          {t.cards.map((text, idx) => (
             <div
               key={text}
               className={[
