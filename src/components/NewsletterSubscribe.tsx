@@ -38,24 +38,24 @@ export default function NewsletterSubscribe() {
 
   return (
     <section
-      className="relative overflow-hidden border-t border-slate-200/80 bg-gradient-to-b from-white via-cyan-50/40 to-slate-50"
+      className="relative overflow-hidden border-t lg:h-[100vh] border-slate-200/80 bg-[color:var(--soft-bg)]"
       aria-labelledby="newsletter-heading"
     >
-      <div className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-cyan-200/35 blur-3xl" />
-      <div className="pointer-events-none absolute -right-16 top-0 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl" />
-
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 md:px-12 md:py-32">
         <div className="w-full rounded-3xl md:p-10 lg:p-12">
           <div className="flex flex-col items-center gap-8 text-center md:gap-10">
             <div className="flex flex-col items-center px-5">
-             
               <h2
                 id="newsletter-heading"
-                className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl md:text-4xl"
+                className="text-2xl font-bold tracking-tight sm:text-4xl md:text-7xl py-6"
+                style={{ color: 'var(--navy)' }}
               >
                 Not ready to join yet?
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
+              <p
+                className="mt-3 max-w-2xl text-sm leading-relaxed md:text-3xl py-3"
+                style={{ color: 'var(--brand-blue)' }}
+              >
                 Get the free guide: The Attention Crisis Every Parent Should Understand.
               </p>
             </div>
@@ -67,7 +67,8 @@ export default function NewsletterSubscribe() {
               </label>
               <div className="relative min-w-0 flex-1">
                 <Mail
-                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-600/80"
+                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2"
+                  style={{ color: 'var(--brand-blue)' }}
                   aria-hidden
                 />
                 <input
@@ -85,13 +86,22 @@ export default function NewsletterSubscribe() {
                   }}
                   placeholder="you@example.com"
                   disabled={status === 'loading'}
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white/90 py-3 pl-12 pr-4 text-slate-900 shadow-inner outline-none ring-cyan-500/20 transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 disabled:opacity-60"
+                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white/90 py-3 pl-12 pr-4 text-slate-900 shadow-inner outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:opacity-60"
+                  style={{
+                    borderColor: 'color-mix(in srgb, var(--brand-blue) 25%, rgb(226 232 240))',
+                    boxShadow: '0 0 0 0 rgba(0,0,0,0)',
+                  }}
                 />
               </div>
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-6 text-sm font-semibold text-white shadow-sm shadow-cyan-600/25 transition hover:from-cyan-500 hover:to-blue-500 hover:shadow-sm hover:shadow-cyan-500/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 disabled:cursor-not-allowed disabled:opacity-60 sm:px-8"
+                className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl px-6 text-sm font-semibold text-white shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:px-8"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(to right, var(--brand-blue), var(--accent-blue))',
+                  boxShadow: '0 12px 22px rgba(15, 27, 53, 0.35)',
+                }}
               >
                 {status === 'loading' ? (
                   <>
@@ -127,7 +137,7 @@ export default function NewsletterSubscribe() {
                 We respect your inbox. No spam. Unsubscribe anytime.
               </span>
             </p>
-            </form>
+          </form>
           </div>
         </div>
       </div>
