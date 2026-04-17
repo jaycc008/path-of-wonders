@@ -70,6 +70,11 @@ export const en = {
     cta: 'Read the full story →',
     imageAlt: 'Founder portrait',
   },
+  courses: {
+    universeHeading: 'The Universe',
+    universeSubheading:
+      'Three cinematic series. One world. Built for the minds that question everything.',
+  },
 } as const;
 
 export type En = typeof en;

@@ -3,6 +3,9 @@ import featuredArt from '../assets/images/A Single Path Disappearing Into Golden
 import scienceOfWonderArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 import inheritanceQuestArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 import CourseCard, { type CourseCardModel } from './CourseCard';
+import { en } from '../assets/lang/en';
+
+const t = en.courses;
 
 export default function Courses() {
   const navigate = useNavigate();
@@ -60,15 +63,15 @@ export default function Courses() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 lg:my-auto">
         <div className="text-left mb-10 sm:mb-14 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-5 leading-tight tracking-tight">
-            The Universe
+          <h2 className="text-3xl sm:text-4xl md:text-7xl font-bold text-white mb-5 leading-tight tracking-tight py-6">
+            {t.universeHeading}
           </h2>
-          <p className="text-xl sm:text-2xl md:text-2xl text-slate-200/95 leading-relaxed lg:max-w-5xl">
-            Three cinematic series. One world. Built for the minds that question everything.
+          <p className="text-xl sm:text-2xl md:text-3xl text-slate-200/95 leading-relaxed lg:max-w-5xl">
+            {t.universeSubheading}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch py-6">
           {series.map((s) => {
             return (
               <CourseCard

@@ -58,10 +58,10 @@ export default function Hero3() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <h1 className="text-3xl sm:text-5xl md:text-[2.75rem] lg:text-5xl xl:text-[4.00rem] font-bold text-white leading-[1.12] tracking-tight drop-shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
+            <h1 className="text-3xl sm:text-5xl md:text-[2.75rem] lg:text-5xl xl:text-7xl font-bold text-white leading-[1.12] tracking-tight drop-shadow-[0_10px_24px_rgba(0,0,0,0.45)] py-4">
               {t.title}
             </h1>
-            <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-xl xl:text-2xl text-slate-200/95 leading-relaxed max-w-xl drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)]">
+            <p className="mt-8 sm:mt-6 text-base sm:text-lg md:text-xl xl:text-2xl text-slate-200/95 leading-relaxed max-w-xl drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)]">
               {t.subtitle}
             </p>
             <div className="mt-8 sm:mt-10 flex justify-start">

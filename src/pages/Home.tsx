@@ -11,6 +11,7 @@ import ThisIsNotSchool from '../components/ThisIsNotSchool';
 import WhoThisIsFor from '../components/WhoThisIsFor';
 import HowItWorks from '../components/HowItWorks';
 import FounderStory from '../components/FounderStory';
+import Pricing from '../components/Pricing.tsx';
 
 export default function Home() {
   const location = useLocation();
@@ -68,7 +69,8 @@ export default function Home() {
      {/* <Process /> */}
       <HowItWorks />
       <FounderStory />
-      <CallToAction subscription={subscription} isLoading={isLoadingSubscription} />
+      <Pricing />
+      {/* <CallToAction subscription={subscription} isLoading={isLoadingSubscription} /> */}
       <Footer />
       <ScrollToTop show={showScrollTop} />
     </div>

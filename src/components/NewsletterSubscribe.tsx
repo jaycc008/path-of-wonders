@@ -38,7 +38,7 @@ export default function NewsletterSubscribe() {
 
   return (
     <section
-      className="relative overflow-hidden border-t lg:h-[100vh] border-slate-200/80 bg-[color:var(--soft-bg)]"
+      className="relative overflow-hidden  lg:h-[100vh] border-slate-200/80 bg-blue-100"
       aria-labelledby="newsletter-heading"
     >
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 md:px-12 md:py-32">
