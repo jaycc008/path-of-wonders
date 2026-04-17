@@ -14,16 +14,16 @@ export default function FinalCTA() {
       <div className="max-w-7xl w-full mx-auto px-5 md:px-6 text-left">
         <h2
           id="final-cta-heading"
-          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white"
+          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white motion-safe:animate-fade-in"
         >
           Raise a thinker. Not just a student.
         </h2>
 
-        <p className="mt-6 text-lg sm:text-xl md:text-2xl text-slate-200/90 leading-relaxed max-w-3xl">
+        <p className="mt-6 text-lg sm:text-xl md:text-2xl text-slate-200/90 leading-relaxed max-w-3xl motion-safe:animate-fade-in motion-safe:delay-100">
           Path of Wonders is open for founding families.
         </p>
 
-        <div className="mt-10 flex justify-start">
+        <div className="mt-10 flex justify-start motion-safe:animate-fade-in motion-safe:delay-200">
           <PrimaryButton size="lg" onClick={() => navigate(ROUTES.SIGNUP)}>
             Join Now
           </PrimaryButton>
