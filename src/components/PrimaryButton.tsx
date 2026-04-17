@@ -34,7 +34,16 @@ export default function PrimaryButton({
     lg: 'btn-primary-lg',
   };
 
-  const baseClasses = `${sizeClasses[size]} ${fullWidth ? 'w-full' : ''} ${className}`;
+  const baseClasses = [
+    sizeClasses[size],
+    fullWidth ? 'w-full' : '',
+    // Large white glow on desktop (Tailwind wins over `.btn-primary` base shadow via cascade order)
+    'lg:shadow-[0_0_0_1px_rgba(255,255,255,0.10),0_28px_110px_rgba(255,255,255,0.28)]',
+    'lg:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_34px_130px_rgba(255,255,255,0.34)]',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const content = (
     <>
