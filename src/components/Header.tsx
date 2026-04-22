@@ -332,7 +332,7 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            ) : (
+            ) :(
               <PrimaryButton
                 onClick={handleLoginClick}
               >
