@@ -31,9 +31,22 @@ function ScrollManager() {
     return undefined;
   }, []);
 
-  // Snap to top immediately on navigation (no smooth scroll animation).
+  // Snap to top on navigation, but still honor in-page anchors (e.g. /#newsletter-heading).
   useLayoutEffect(() => {
+    const hash = location.hash?.replace('#', '').trim();
+
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
+
     window.scrollTo(0, 0);
+
+    requestAnimationFrame(() => {
+      const el = document.getElementById(hash);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
   }, [location.pathname, location.search, location.hash]);
 
   return null;
