@@ -16,7 +16,7 @@ export default function CourseCard({
   onExplore: () => void;
 }) {
   return (
-    <article className="relative rounded-2xl overflow-hidden flex flex-col h-full bg-white shadow-xl hover:shadow-lg transition-shadow duration-300">
+    <article className="relative rounded-lg overflow-hidden flex flex-col h-full bg-white  hover:shadow-lg transition-shadow duration-300">
       <div className="relative">
         <img
           src={course.image}

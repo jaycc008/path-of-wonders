@@ -336,7 +336,7 @@ export default function Header() {
               <PrimaryButton
                 onClick={handleLoginClick}
               >
-                Login/Sign Up
+                 Join Early Access
               </PrimaryButton>
             )}
           </nav>

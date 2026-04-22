@@ -35,7 +35,7 @@ export default function HowItWorks() {
       <div className="max-w-7xl w-full mx-auto px-5 md:px-6 lg:my-auto">
         <h2
           className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight py-8"
-      
+          style={{ color: 'var(--brand-blue)' }}
         >
           {t.heading}
         </h2>
@@ -70,7 +70,7 @@ export default function HowItWorks() {
                       <div
                         className="h-14 w-14 shrink-0 rounded-full text-white flex items-center justify-center text-lg font-bold shadow-sm ring-1 ring-black/5"
                         style={{
-                          backgroundColor: 'var(--navy)',
+                          backgroundColor: 'var(--primary-start)',
                         }}
                       >
                         {s.step}

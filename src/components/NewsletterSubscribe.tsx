@@ -48,7 +48,7 @@ export default function NewsletterSubscribe() {
               <h2
                 id="newsletter-heading"
                 className="text-2xl font-bold tracking-tight sm:text-4xl md:text-7xl py-6"
-                style={{ color: 'var(--navy)' }}
+                style={{ color: 'var(--brand-blue)' }}
               >
                 Not ready to join yet?
               </h2>
