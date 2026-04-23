@@ -13,6 +13,7 @@ import SignUp from './pages/SignUp';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetails from './pages/CourseDetails';
 import BookCheckout from './pages/BookCheckout';
+import BooksPage from './pages/BooksPage';
 import PolicyPage from './pages/PolicyPage';
 import CookiePolicyPage from './pages/CookiePolicyPage';
 import FAQPage from './pages/FAQPage';
@@ -82,6 +83,7 @@ function App() {
           <Route path="/book/success" element={<BookPurchaseSuccess />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
+          <Route path="/books" element={<BooksPage />} />
           </Routes>
         </CoursesProvider>
       </BrowserRouter>

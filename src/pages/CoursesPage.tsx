@@ -157,7 +157,7 @@ export default function CoursesPage() {
         <div className="my-10 sm:my-16 md:my-20">
         <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Courses' }]} />
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-            Explore Our Courses
+            Explore Our Universe
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
             Discover transformative learning experiences designed to unlock your true potential

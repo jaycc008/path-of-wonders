@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import FinalCTA from '../components/FinalCTA';
+import PrimaryButton from '../components/PrimaryButton';
 import BlueSection from '../components/BlueSection';
+import { ROUTES } from '../constants/routes';
 import { en } from '../assets/lang/en';
-import ruudPhoto from '../assets/images/businessman.jpg';
+import imgJournal from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 
-const t = en.about;
+const t = en.books;
+
+const IMG_BOOKS_HERO =
+  'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=1400&q=80';
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -57,12 +64,9 @@ function Reveal({
 const sectionBodyClass =
   'max-w-3xl space-y-6 text-base leading-relaxed text-slate-700 sm:text-lg md:text-xl';
 
-export default function About() {
+export default function BooksPage() {
+  const navigate = useNavigate();
   const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -75,26 +79,31 @@ export default function About() {
       <Header />
 
       <main className="w-full">
-        {/* Hero — BooksPage-style: blue band, max-w-7xl content, 2-col + image */}
-        <BlueSection backdrop="diagonal" className="py-16 sm:py-20 md:py-24">
+        {/* Hero — intro copy exactly as written */}
+        <BlueSection backdrop="classic" className="py-16 sm:py-20 md:py-24">
           <div className="w-full lg:flex lg:min-h-[100vh] lg:items-center lg:py-16">
             <div className="mx-auto w-full min-w-0 max-w-7xl px-5 md:px-6">
               <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
                 <div className="text-left motion-safe:animate-fade-in">
-                  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-                    About Path of Wonders
-                  </p>
                   <h1
                     className="text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-6"
                     style={{ color: 'var(--brand-blue)' }}
                   >
-                    {t.pageTitle}
+                    {/^the\s+books$/i.test(t.heading.trim()) ? (
+                      <>
+                        The <span className="italic">Books</span>
+                      </>
+                    ) : (
+                      t.heading
+                    )}
                   </h1>
+
                   <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-700 sm:text-xl md:text-4xl">
-                    {t.problemHeading}
+                    {t.subheading}
                   </p>
+
                   <div className={`mt-8 ${sectionBodyClass}`}>
-                    {t.problemBody.map((p) => (
+                    {t.intro.map((p) => (
                       <p key={p}>{p}</p>
                     ))}
                   </div>
@@ -103,9 +112,11 @@ export default function About() {
                 <div className="motion-safe:animate-fade-in motion-safe:[animation-delay:120ms]">
                   <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
                     <img
-                      src={ruudPhoto}
-                      alt={t.ruudImageAlt}
+                      src={IMG_BOOKS_HERO}
+                      alt="Hardcover books on a table"
                       className="aspect-[4/5] w-full object-cover sm:aspect-[5/6] lg:max-h-[min(72vh,720px)]"
+                      width={1400}
+                      height={1750}
                       decoding="async"
                       loading="eager"
                     />
@@ -116,98 +127,98 @@ export default function About() {
           </div>
         </BlueSection>
 
-        {/* What it is */}
-        <BlueSection backdrop="mist" className="py-16 sm:py-20 md:py-24">
-          <div className="mx-auto max-w-7xl px-5 md:px-6">
+        {/* What is inside */}
+        <BlueSection backdrop="diagonal" className="py-16 sm:py-20 md:py-24">
+          <div className="mx-auto max-w-7xl px-5 md:px-6 text-center">
             <Reveal>
               <h2
                 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-6"
                 style={{ color: 'var(--brand-blue)' }}
               >
-                {t.whatItIsHeading}
+                {t.insideHeading}
               </h2>
             </Reveal>
-            <div className={`mt-8 sm:mt-10 ${sectionBodyClass}`}>
-              {t.whatItIsBody.map((p) => (
+            <div className={`mx-auto mt-8 max-w-3xl space-y-6 text-base leading-relaxed text-slate-700 sm:mt-10 sm:text-lg md:text-xl`}>
+              {t.insideBody.map((p) => (
                 <p key={p}>{p}</p>
               ))}
             </div>
           </div>
         </BlueSection>
 
-        {/* Where it came from */}
-        <BlueSection backdrop="grid" className="border-t border-slate-200/80 py-16 sm:py-20 md:py-24">
-          <div className="mx-auto max-w-7xl px-5 md:px-6">
-            <Reveal>
-              <h2
-                className="text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-6"
-                style={{ color: 'var(--brand-blue)' }}
-              >
-                {t.whereItCameFromHeading}
-              </h2>
-            </Reveal>
-            <div className={`mt-8 sm:mt-10 ${sectionBodyClass}`}>
-              {t.whereItCameFromBody.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
-            </div>
-          </div>
-        </BlueSection>
-
-        {/* Who it is for — Books-style white band, 2-col */}
+        {/* The journal */}
         <section className="w-full bg-white py-16 sm:py-20 md:py-24">
           <div className="mx-auto max-w-7xl px-5 md:px-6">
-            <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-14">
+            <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
               <Reveal>
                 <h2
                   className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"
                   style={{ color: 'var(--navy)' }}
                 >
-                  {t.whoItIsForHeading}
+                  {t.journalHeading}
                 </h2>
+                <div className={`mt-6 sm:mt-8 ${sectionBodyClass}`}>
+                  {t.journalBody.map((p) => (
+                    <p key={p}>{p}</p>
+                  ))}
+                </div>
               </Reveal>
 
               <Reveal delay={120}>
-                <ul className="space-y-8">
-                  {t.whoItIsForBullets.map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span
-                        className="mt-2 inline-block h-2.5 w-2.5 shrink-0 rounded-sm"
-                        style={{ backgroundColor: 'var(--accent-blue)' }}
-                        aria-hidden
-                      />
-                      <span className="text-base leading-relaxed text-slate-700 sm:text-lg">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="overflow-hidden rounded-3xl border border-slate-200 shadow-lg lg:mt-0">
+                  <img
+                    src={imgJournal}
+                    alt="Notebook and pen for journaling"
+                    className="aspect-[4/5] w-full max-w-md object-cover lg:mx-auto lg:ml-auto"
+                    width={1200}
+                    height={1500}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* What is coming */}
+        {/* Before you buy */}
         <BlueSection
-          backdrop="bloom"
-          className="border-t border-slate-200/80 lg:flex lg:h-[100vh] lg:items-center"
-          ariaLabelledBy="about-coming-heading"
+          backdrop="sweep"
+          className="border-t border-slate-200/80"
+          ariaLabelledBy="books-before-heading"
         >
-          <div className="w-full lg:py-24">
-            <div className="mx-auto w-full min-w-0 max-w-7xl px-6 py-14 md:px-12 md:py-24">
+          <div className="w-full lg:flex lg:h-[100vh] lg:items-center">
+            <div className="mx-auto w-full min-w-0 max-w-7xl px-6 py-14 md:px-12 md:py-32">
               <div className="w-full rounded-3xl md:p-10 lg:p-12">
                 <div className="flex flex-col gap-8 md:gap-10">
                   <Reveal>
                     <h2
-                      id="about-coming-heading"
+                      id="books-before-heading"
                       className="text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-6"
                       style={{ color: 'var(--brand-blue)' }}
                     >
-                      {t.whatIsComingHeading}
+                      {t.beforeYouBuyHeading}
                     </h2>
                   </Reveal>
+
                   <div className={`${sectionBodyClass} max-w-none md:max-w-3xl`}>
-                    {t.whatIsComingBody.map((p) => (
+                    {t.beforeYouBuyBody.map((p) => (
                       <p key={p}>{p}</p>
                     ))}
+                  </div>
+
+                  <div className="flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                    <PrimaryButton type="button" size="lg" className="sm:min-w-[220px]">
+                      Read first chapter
+                    </PrimaryButton>
+                    <button
+                      type="button"
+                      onClick={() => navigate(ROUTES.COURSES)}
+                      className="inline-flex h-12 min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 sm:min-w-[220px] sm:px-8"
+                    >
+                      See all series
+                      <ChevronRight className="h-5 w-5" aria-hidden />
+                    </button>
                   </div>
                 </div>
               </div>

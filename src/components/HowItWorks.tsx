@@ -40,8 +40,15 @@ export default function HowItWorks() {
           {t.heading}
         </h2>
 
-        <div className="relative mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:items-stretch">
+        <p className="mt-1 sm:mt-2 max-w-none whitespace-nowrap text-base sm:text-lg md:text-xl leading-relaxed text-slate-600">
+          {t.subheading}
+        </p>
+
+        <div className="relative mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:items-stretch">
           {t.steps.map((s, idx) => {
+            const showMobileConnector = idx !== t.steps.length - 1;
+            const showMdConnector = idx % 2 === 0 && idx !== t.steps.length - 1;
+            const showLgConnector = idx % 4 !== 3 && idx !== t.steps.length - 1;
 
             return (
               <div
@@ -49,14 +56,19 @@ export default function HowItWorks() {
                 className={[
                   'relative h-full',
                   // Mobile: vertical timeline connector
-                  'after:pointer-events-none after:absolute after:left-7 after:top-[calc(100%-0.25rem)] after:h-[calc(100%+1.25rem)] after:w-[2px] after:bg-gradient-to-b after:from-[color:var(--brand-blue)]/70 after:via-[color:var(--accent-blue)]/55 after:to-transparent md:after:hidden',
-                  // Desktop: stronger glowing connector toward the next column
-                  'md:before:pointer-events-none md:before:absolute md:before:right-[-40px] md:before:top-1/2 md:before:h-[4px] md:before:w-[84px] md:before:-translate-y-1/2 md:before:bg-gradient-to-r md:before:from-[color:var(--brand-blue)] md:before:via-[color:var(--accent-blue)] md:before:to-transparent md:before:rounded-full md:before:shadow-[0_0_20px_rgba(15,27,53,0.65)] md:before:block',
+                  showMobileConnector
+                    ? 'after:pointer-events-none after:absolute after:left-7 after:top-[calc(100%-0.25rem)] after:h-[calc(100%+1.25rem)] after:w-[2px] after:bg-gradient-to-b after:from-[color:var(--brand-blue)]/70 after:via-[color:var(--accent-blue)]/55 after:to-transparent md:after:hidden'
+                    : 'md:after:hidden',
+                  // Desktop: connector to next column (md: 2 cols, lg: 4 cols)
+                  showMdConnector
+                    ? 'md:before:pointer-events-none md:before:absolute md:before:right-[-40px] md:before:top-1/2 md:before:h-[4px] md:before:w-[84px] md:before:-translate-y-1/2 md:before:bg-gradient-to-r md:before:from-[color:var(--brand-blue)] md:before:via-[color:var(--accent-blue)] md:before:to-transparent md:before:rounded-full md:before:shadow-[0_0_20px_rgba(15,27,53,0.45)] md:before:block'
+                    : 'md:before:hidden',
+                  showLgConnector ? 'lg:before:block' : 'lg:before:hidden',
                 ].join(' ')}
               >
                 <div
                   className={[
-                    'relative overflow-hidden rounded-2xl bg-white p-7 sm:p-8 shadow-md w-full h-full flex flex-col md:min-h-[320px]',
+                    'relative overflow-hidden rounded-2xl bg-white p-6 sm:p-7 shadow-md w-full h-full flex flex-col md:min-h-[280px]',
                     'transition-all duration-700 ease-out will-change-transform will-change-opacity',
                     isInView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-6',
                   ].join(' ')}
@@ -68,7 +80,7 @@ export default function HowItWorks() {
                   <div className="relative z-10 flex flex-col flex-1">
                     <div className="flex items-center gap-4 min-w-0 pr-14 sm:pr-16">
                       <div
-                        className="h-14 w-14 shrink-0 rounded-full text-white flex items-center justify-center text-lg font-bold shadow-sm ring-1 ring-black/5"
+                        className="h-10 w-10 sm:h-11 sm:w-11 shrink-0 rounded-full text-white flex items-center justify-center text-sm sm:text-base font-bold shadow-sm ring-1 ring-black/5"
                         style={{
                           backgroundColor: 'var(--primary-start)',
                         }}
@@ -78,33 +90,17 @@ export default function HowItWorks() {
 
                       <div className="min-w-0 flex-1 flex items-center gap-3">
                         <div
-                          className="text-2xl sm:text-3xl font-bold tracking-tight"
+                          className="text-base sm:text-lg md:text-xl font-bold tracking-tight"
                           style={{ color: 'var(--primary-start)' }}
                         >
                           {s.title}
                         </div>
-                        <div
-                          className="ml-auto hidden sm:flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold tracking-wide bg-white/70"
-                          style={{ color: 'var(--brand-blue)' }}
-                        >
-                          {s.step} / {t.steps.length}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-2 sm:hidden">
-                      <div
-                        className="text-xs font-semibold tracking-[0.22em]"
-                        style={{ color: 'color-mix(in srgb, var(--primary-start) 55%, rgb(107 114 128))' }}
-                      >
-                        STEP {s.step} / {t.steps.length}
                       </div>
                     </div>
 
                     <div className="mt-5 min-w-0 flex-1 py-3">
                       <p
-                        className="text-lg sm:text-xl md:text-2xl leading-relaxed"
-                        style={{ color: 'var(--brand-blue)' }}
+                        className="text-sm sm:text-base md:text-lg leading-relaxed text-slate-600"
                       >
                         {s.body}
                       </p>

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import PrimaryButton from './PrimaryButton';
+import { BlueSectionBackdrop } from './BlueSection';
 
 const PRICING = {
   heading: 'Join the Founding Families',
@@ -23,10 +24,7 @@ export default function Pricing() {
 
   return (
     <section className="w-full bg-blue-100 relative overflow-hidden lg:min-h-screen lg:flex lg:items-center py-16 sm:py-20 md:py-24">
-      {/* large oval background solids */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute -right-20 -top-20 h-[1220px] w-[860px] rounded-[9px] bg-white rotate-12" />
-      </div>
+      <BlueSectionBackdrop variant="classic" />
 
       <div className="relative z-10 max-w-7xl w-full mx-auto px-5 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-14 items-start lg:items-center">

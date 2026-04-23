@@ -33,24 +33,31 @@ export const en = {
   },
   howItWorks: {
     heading: 'How it works',
+    subheading: 'Not a course. A world you enter.',
     steps: [
       {
-        id: 'watch',
+        id: 'watch-or-read',
         step: 1,
-        title: 'WATCH',
-        body: 'Cinematic story episodes designed to make teenagers think not memorize.',
+        title: 'Watch or Read',
+        body: 'Every series comes in two forms. Watch the cinematic anime episodes, or read the hardcover book. Both tell the same story. The book goes deeper in places, with more detail, more inner life from the characters, and illustrations that make the world feel real. Most teenagers will do both.',
       },
       {
-        id: 'reflect',
+        id: 'exercises',
         step: 2,
-        title: 'REFLECT',
-        body: 'Each episode ends with questions, not tests. The conversation continues in a handwritten journal.',
+        title: 'Do the Exercises',
+        body: "Each episode and each chapter ends with exercises. These are not comprehension questions. They are not tests. They are invitations to think. All of them connect what happened in the story to something real in the teenager's own life.",
       },
       {
-        id: 'live',
+        id: 'journal',
         step: 3,
-        title: 'LIVE IT',
-        body: 'Real-world quests take the insight out of the screen and into actual life.',
+        title: 'Journal',
+        body: 'The journal comes separately from the book. It is its own object, designed for the kind of thinking that needs space. Each series has journaling prompts tied to specific moments in the story. No grades. No right answers. Just the real ones.',
+      },
+      {
+        id: 'live-it',
+        step: 4,
+        title: 'Live it',
+        body: 'The final part of each module is a real-world quest. Something to do outside the story. An experiment. A conversation to have. Something to notice differently for a week. These are designed to feel more like a dare than an assignment.',
       },
     ] as const,
   },
@@ -74,6 +81,28 @@ export const en = {
     universeHeading: 'The Universe',
     universeSubheading:
       'Three cinematic series. One world. Built for the minds that question everything.',
+  },
+  books: {
+    heading: 'The Books',
+    subheading: 'The story goes further on the page.',
+    intro: [
+      'Every series in the Path of Wonders universe has a physical hardcover book.',
+      'When you buy a course, you get the video episodes, the exercises, and the journaling prompts.',
+      'The book is a separate purchase. You order it through the site. It is printed and delivered by a printer close to where you live, not shipped from a warehouse on the other side of the world.',
+    ] as const,
+    insideHeading: 'What is inside',
+    insideBody: [
+      'The book contains the full story. The same characters, the same journey. But books have more room than videos. The inner life of the characters goes deeper. There are moments in the books that the video cannot hold. There are also illustrations throughout, from the same visual world as the anime series.',
+      'The exercises are in the book too. At the end of each chapter, the same kind of prompts that follow the video episodes. In the book, you have the pen in your hand already.',
+    ] as const,
+    journalHeading: 'The journal',
+    journalBody: [
+      'The journal is a separate object. It comes with the book as a set. This is where the thinking the exercises start gets to continue. Journaling prompts tied to specific story moments. Blank pages for everything else.',
+    ] as const,
+    beforeYouBuyHeading: 'Before you buy',
+    beforeYouBuyBody: [
+      'We will show you the inside before you decide. The first chapter of each book is available to read on the site. You will know within a few pages whether this is for your teenager.',
+    ] as const,
   },
   about: {
     pageTitle: 'Why this exists',

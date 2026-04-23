@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import { BlueSectionBackdrop } from './BlueSection';
 import {
   Mail,
   SendHorizontal,
@@ -38,9 +39,10 @@ export default function NewsletterSubscribe() {
 
   return (
     <section
-      className="relative overflow-hidden  lg:h-[100vh] border-slate-200/80 bg-blue-100"
+      className="relative overflow-hidden lg:h-[100vh] border-slate-200/80 bg-blue-100"
       aria-labelledby="newsletter-heading"
     >
+      <BlueSectionBackdrop variant="diagonal" />
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 md:px-12 md:py-32">
         <div className="w-full rounded-3xl md:p-10 lg:p-12">
           <div className="flex flex-col items-center gap-8 text-center md:gap-10">
