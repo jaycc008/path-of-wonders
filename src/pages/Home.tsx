@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Courses from '../components/Courses';
+import Characters from '../components/Characters';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import Hero3 from '../components/Hero3.tsx';
@@ -48,6 +49,7 @@ export default function Home() {
       <WhoThisIsFor />
       {/* <Journey /> */}
      <Courses />
+     <Characters />
      {/* <Process /> */}
       <HowItWorks />
       <FounderStory />

@@ -82,6 +82,60 @@ export const en = {
     universeSubheading:
       'Three cinematic series. One world. Built for the minds that question everything.',
   },
+  characters: {
+    heading: 'Meet the characters who carry the questions.',
+    subheading: 'Their curiosity is the curriculum.',
+    cta: 'Enter the Universe',
+    cards: [
+      {
+        id: 'zara',
+        name: 'Zara',
+        age: 17,
+        line: 'Searching for who she is, before the world decides for her.',
+      },
+      {
+        id: 'marcus',
+        name: 'Marcus',
+        age: 16,
+        line: 'Takes everything apart to understand it. Including himself.',
+      },
+      {
+        id: 'leila',
+        name: 'Leila',
+        line: 'Too skeptical for easy answers. Too curious to stop looking.',
+      },
+      {
+        id: 'bodhi',
+        name: 'Bodhi',
+        line: 'Grew up surrounded by wisdom. Now finding his own.',
+      },
+      {
+        id: 'amara',
+        name: 'Amara',
+        line: 'She did not come to learn how the game works. She came to change it.',
+      },
+      {
+        id: 'kai',
+        name: 'Kai',
+        line: 'Smart enough to see the trap. Working on getting out.',
+      },
+      {
+        id: 'shenna',
+        name: 'Shenna',
+        line: 'Artwork and character line coming from production.',
+      },
+      {
+        id: 'priya',
+        name: 'Priya',
+        line: 'Artwork and character line coming from production.',
+      },
+      {
+        id: 'devin',
+        name: 'Devin',
+        line: 'Artwork and character line coming from production.',
+      },
+    ] as const,
+  },
   books: {
     heading: 'The Books',
     subheading: 'The story goes further on the page.',
