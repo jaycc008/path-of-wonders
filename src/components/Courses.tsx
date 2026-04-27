@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import featuredArt from '../assets/images/A Single Path Disappearing Into Golden Light — Metaphor for the journey. Warm, hopeful, forward-moving..png';
+import featuredArt from '../assets/images/forward-moving.png';
 import scienceOfWonderArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM (2).jpeg';
 import inheritanceQuestArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 import CourseCard, { type CourseCardModel } from './CourseCard';

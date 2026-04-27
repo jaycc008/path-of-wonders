@@ -79,7 +79,7 @@ export default function About() {
         <BlueSection backdrop="diagonal" className="py-16 sm:py-20 md:py-24">
           <div className="w-full lg:flex lg:min-h-[100vh] lg:items-center lg:py-16">
             <div className="mx-auto w-full min-w-0 max-w-7xl px-5 md:px-6">
-              <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
+              <div className="grid grid-cols-1 items-center gap-10">
                 <div className="text-left motion-safe:animate-fade-in">
                   <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
                     About Path of Wonders
@@ -97,18 +97,6 @@ export default function About() {
                     {t.problemBody.map((p) => (
                       <p key={p}>{p}</p>
                     ))}
-                  </div>
-                </div>
-
-                <div className="motion-safe:animate-fade-in motion-safe:[animation-delay:120ms]">
-                  <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-                    <img
-                      src={ruudPhoto}
-                      alt={t.ruudImageAlt}
-                      className="aspect-[4/5] w-full object-cover sm:aspect-[5/6] lg:max-h-[min(72vh,720px)]"
-                      decoding="async"
-                      loading="eager"
-                    />
                   </div>
                 </div>
               </div>
@@ -153,6 +141,25 @@ export default function About() {
             </div>
           </div>
         </BlueSection>
+
+        {/* Ruud photo — placed after "Where it came from" (lower half of page) */}
+        <section className="w-full bg-white py-12 sm:py-14 md:py-16">
+          <div className="mx-auto max-w-7xl px-5 md:px-6">
+            <Reveal>
+              <div className="mx-auto max-w-3xl">
+                <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+                  <img
+                    src={ruudPhoto}
+                    alt={t.ruudImageAlt}
+                    className="aspect-[4/5] w-full object-cover sm:aspect-[5/6] md:aspect-[3/4]"
+                    decoding="async"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
 
         {/* Who it is for — Books-style white band, 2-col */}
         <section className="w-full bg-white py-16 sm:py-20 md:py-24">

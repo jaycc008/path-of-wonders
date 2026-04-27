@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { UserPlus, BookOpen, Award } from 'lucide-react';
-import processBg from '../assets/images/A Single Path Disappearing Into Golden Light — Metaphor for the journey. Warm, hopeful, forward-moving..png';
+import processBg from '../assets/images/forward-moving.png';
 
 const steps = [
   {

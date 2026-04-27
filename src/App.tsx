@@ -17,6 +17,7 @@ import BooksPage from './pages/BooksPage';
 import PolicyPage from './pages/PolicyPage';
 import CookiePolicyPage from './pages/CookiePolicyPage';
 import FAQPage from './pages/FAQPage';
+import About2 from './pages/About2';
 
 function ScrollManager() {
   const location = useLocation();
@@ -61,7 +62,7 @@ function App() {
           <ScrollManager />
           <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about" element={<About2 />} />
           <Route
             path="/privacy-policy"
             element={<PolicyPage dataId="a74f1387-b581-4076-bce5-05dbae563c41" pageTitle="Privacy Policy" />}

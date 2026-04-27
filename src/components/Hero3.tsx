@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Play } from 'lucide-react';
-import heroBg from '../assets/images/bluebg.png';
-import heroVideoThumb from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.03 PM.jpeg';
+import { ChevronRight } from 'lucide-react';
+import heroBg from '../assets/images/mainbackground.jpeg';
 import { en } from '../assets/lang/en';
 import PrimaryButton from './PrimaryButton';
+import VideoEmbed from './VideoEmbed';
+
+const HERO_VIDEO_URL =
+  'https://lbryubvwfd4tkhw5.public.blob.vercel-storage.com/landing_video.mp4';
+const HERO_VIDEO_POSTER =
+  'https://lbryubvwfd4tkhw5.public.blob.vercel-storage.com/thumbimg.jpeg';
 
 const t = en.hero3;
 
-export default function Hero3() {
+function Hero3() {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
@@ -20,7 +25,7 @@ export default function Hero3() {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[min(100dvh,880px)] lg:min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-[min(100dvh,880px)] lg:min-h-screen flex items-center overflow-x-hidden overflow-y-visible"
     >
       <div
         className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat md:bg-fixed"
@@ -77,33 +82,23 @@ export default function Hero3() {
             </div>
           </div>
 
-          {/* Right: video */}
+          {/* Right: video (YouTube URL or direct file — see VideoEmbed) */}
           <div
             className={`transition-all duration-1000 delay-150 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <div className="relative max-w-xl mx-auto lg:max-w-none lg:ml-auto lg:mr-0">
+            <div className="relative w-full max-w-3xl mx-auto lg:max-w-[min(100%,480px)] lg:ml-auto lg:mr-0 xl:max-w-[min(100%,520px)] lg:scale-105 xl:scale-110 lg:origin-right">
               <div className="absolute -inset-1 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-white/35 via-white/20 to-white/30 blur-xl opacity-90" />
               <div className="absolute -inset-0.5 rounded-2xl sm:rounded-3xl ring-2 ring-white/70 shadow-[0_0_36px_-6px_rgba(255,255,255,0.45)]" />
-              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-black/35 backdrop-blur-[2px] border-2 border-white shadow-lg shadow-black/25 ring-1 ring-white/50">
-                <div className="aspect-video relative group cursor-pointer ring-1 ring-inset ring-white/40">
-                  <img
-                    src={heroVideoThumb}
-                    alt={t.heroImageAlt}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-black/20" />
-                  <button
-                    type="button"
-                    className="absolute inset-0 z-10 flex items-center justify-center"
-                    aria-label={t.playVideoAriaLabel}
-                  >
-                    <span className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300">
-                      <Play className="w-7 h-7 sm:w-9 sm:h-9 text-blue-900 ml-1" fill="currentColor" />
-                    </span>
-                  </button>
-                </div>
+              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-black/35 backdrop-blur-[2px] border-2 border-white shadow-lg shadow-black/25 ring-1 ring-white/50 p-1 sm:p-1.5">
+                <VideoEmbed
+                  videoUrl={HERO_VIDEO_URL}
+                  posterUrl={HERO_VIDEO_POSTER}
+                  title={t.heroImageAlt}
+                  autoPlay
+                  className="rounded-xl sm:rounded-2xl ring-1 ring-inset ring-white/40"
+                />
               </div>
             </div>
           </div>
@@ -112,3 +107,5 @@ export default function Hero3() {
     </section>
   );
 }
+
+export default Hero3;

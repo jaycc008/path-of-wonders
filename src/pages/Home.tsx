@@ -5,7 +5,7 @@ import Courses from '../components/Courses';
 import Characters from '../components/Characters';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
-import Hero3 from '../components/Hero3.tsx';
+import Hero3 from '../components/Hero3';
 import ThisIsNotSchool from '../components/ThisIsNotSchool';
 import WhoThisIsFor from '../components/WhoThisIsFor';
 import HowItWorks from '../components/HowItWorks';
