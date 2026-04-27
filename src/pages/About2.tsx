@@ -39,31 +39,39 @@ export default function AboutPage() {
                 {/* ── HERO ── */}
                 <section className="hero relative overflow-hidden lg:min-h-screen">
                   <div
-                    className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url(${heroBackground})` }}
+                    className="pointer-events-none absolute inset-0 z-0 bg-cover bg-no-repeat md:bg-fixed"
+                    style={{
+                      backgroundImage: `url(${heroBackground})`,
+                      backgroundPosition: 'right center',
+                      /* Zoom from right edge so more of the frame reads from the right half (clipped by section overflow-hidden) */
+                      transform: 'scale(0.9)',
+                      transformOrigin: 'right center',
+                    }}
                     aria-hidden
                   />
+                  {/* Light band on the left — reads as open space; keeps layout within bounds (no scrollX) */}
                   <div
-                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-slate-950/65 via-slate-950/45 to-slate-950/75"
+                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-white from-[6%] via-white/90 via-[28%] to-transparent to-[62%]"
                     aria-hidden
                   />
+
                   <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-6 py-16 sm:py-20 lg:flex lg:min-h-screen lg:items-center lg:py-24">
                     <div className="w-full lg:flex lg:min-h-0 lg:flex-col lg:justify-center">
                       <h1
-                        className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-4 text-4xl font-bold tracking-tight text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)] sm:text-5xl md:text-7xl md:py-6"
-                        style={{ color: 'var(--brand-blue)' }}
+                        className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-8xl md:py-10"
+                       
                       >
                         Why this exists
                       </h1>
                       <div className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:240ms] mt-6 max-w-3xl space-y-5 text-base leading-relaxed text-slate-200 sm:text-lg md:text-xl lg:max-w-none">
                         <blockquote
-                          className="border-l-[3px] py-1 pl-5 italic text-white sm:pl-6 md:pl-8 md:border-l-4 space-y-3 md:space-y-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]"
+                          className="border-l-[3px] py-1 pl-5 italic text-slate-700 sm:pl-6 md:pl-8 md:border-l-4 space-y-3 md:space-y-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]"
                           style={{ borderColor: 'var(--accent-blue)' }}
                         >
-                          <p className="text-lg leading-relaxed sm:text-xl md:text-2xl text-slate-100">
+                          <p className="text-lg leading-relaxed sm:text-xl md:text-2xl text-slate-800">
                             School has a problem.
                           </p>
-                          <p className="text-lg leading-relaxed sm:text-xl md:text-2xl text-slate-100">
+                          <p className="text-lg leading-relaxed sm:text-xl md:text-2xl text-slate-800">
                             Not with teachers. Not with students.
                           </p>
                           <p
@@ -73,17 +81,17 @@ export default function AboutPage() {
                             With questions.
                           </p>
                         </blockquote>
-                        <p className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:360ms] text-base leading-relaxed text-slate-200 sm:text-lg md:text-xl">
+                        <p className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:360ms] text-base leading-relaxed text-slate-900 sm:text-lg md:text-xl max-w-xl">
                           When a student asks something that does not fit the lesson plan, the lesson moves on.
                           When a teenager starts wondering why the financial system works the way it does, or what
                           attention actually is, or what is really true versus what they have simply been told, there
                           is no space for that in a classroom of 32 people working toward a test.
                         </p>
-                        <p className="text-slate-200">
+                        <p className="text-slate-900 max-w-2xl font-bold ">
                           So the question gets buried. And the teenager learns, slowly, that curiosity is something to
                           manage rather than follow.
                         </p>
-                        <p className="py-3 text-xl font-semibold text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
+                        <p className="py-3 text-xl font-semibold text-slate-900 drop-shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
                           Path of Wonders was built for the teenagers who never stopped asking.
                         </p>
                       </div>
@@ -91,21 +99,19 @@ export default function AboutPage() {
                   </div>
                 </section>
 
-                <div className="divider mx-auto max-w-7xl px-5 md:px-6">
-                    <hr />
-                </div>
+               
 
                 {/* ── WHAT IT IS ── */}
                 <div className="section mx-auto max-w-7xl px-5 md:px-6 py-16 sm:py-20 lg:min-h-screen lg:flex lg:items-center">
                     <div className="section-inner w-full grid grid-cols-1 gap-12 md:grid-cols-[520px_1fr] md:gap-16 md:items-center">
                         <div>
                             <h2
-                                className="section-label reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-6"
+                                className="section-label reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-8xl md:py-10"
                                 style={{ color: 'var(--brand-blue)' }}
                             >
                                 What it is
                             </h2>
-                            <h3 className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-2 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl md:text-3xl md:leading-tight italic">
+                            <h3 className="reveal  opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-2 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl md:text-3xl md:leading-tight italic">
                                 A cinematic education universe.
                             </h3>
                             <p className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:240ms] mt-6 max-w-none text-base leading-relaxed text-slate-700 sm:text-lg md:text-xl">
