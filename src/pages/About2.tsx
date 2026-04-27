@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import FinalCTA from '../components/FinalCTA';
 import heroBackground from '../assets/images/teenparent.jpeg';
+import ruudPhoto from '../assets/images/businessman.jpg';
+import { en } from '../assets/lang/en';
+
+const t = en.about;
+
+const sectionBody =
+  'max-w-3xl space-y-6 text-base leading-relaxed text-slate-700 sm:text-lg md:text-xl';
 
 export default function AboutPage() {
     const ruudRef = useRef<HTMLDivElement | null>(null);
@@ -106,7 +114,7 @@ export default function AboutPage() {
                     <div className="section-inner w-full grid grid-cols-1 gap-12 md:grid-cols-[520px_1fr] md:gap-16 md:items-center">
                         <div>
                             <h2
-                                className="section-label reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-8xl md:py-10"
+                                className="section-label reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-10"
                                 style={{ color: 'var(--brand-blue)' }}
                             >
                                 What it is
@@ -154,165 +162,155 @@ export default function AboutPage() {
                     </div>
                 </div>
 
-                <div className="divider">
-                    <hr />
+                <div className="mx-auto max-w-7xl px-5 md:px-6">
+                  <hr className="border-slate-200" />
                 </div>
 
                 {/* ── WHERE IT CAME FROM ── */}
-                <div className="section">
-                    <div className="section-inner">
-                        <div>
-                            <p className="section-label reveal">Where it came from</p>
-                        </div>
-                        <div className="section-body">
-                            <h2 className="reveal reveal-delay-1">A question that changed everything.</h2>
-                            <p className="reveal reveal-delay-2">
-                                A physics teacher in Rotterdam was explaining what the inside of the Earth looks like. A student
-                                asked how anyone could know that, since nobody had ever been there.
-                            </p>
-                            <div className="pull-quote reveal reveal-delay-2">
-                                <p>
-                                    The teacher went quiet for about ten seconds. In those ten seconds he realized he did not
-                                    actually know.
-                                </p>
-                            </div>
-                            <p className="reveal">
-                                He believed the scientists had done a great job. That is not the same thing. And nobody in that
-                                school had ever given that student a space to ask that question before.
-                            </p>
-                            <p className="reveal">
-                                A few weeks later the teacher stopped his training, bought a one-way ticket to India, and spent
-                                years sitting with the same kind of questions. India and Nepal changed a lot. Varanasi especially.
-                                Long silences. The ghats at night. The oldest stories humans ever told, still trying to answer what
-                                one student in Rotterdam had asked.
-                            </p>
-                            <p className="reveal">
-                                When he came back, he went back into classrooms. Different countries. Same teenagers in the back
-                                row with real questions and nowhere to take them.
-                            </p>
-                            <p className="reveal">Path of Wonders is what he built for them.</p>
-                        </div>
+                <section className="mx-auto max-w-7xl px-5 md:px-6 py-16 sm:py-20 lg:min-h-screen lg:flex lg:items-center lg:py-24">
+                  <div className="grid w-full grid-cols-1 gap-12 md:grid-cols-[minmax(0,440px)_1fr] md:gap-16 md:items-start">
+                    <div>
+                      <h2
+                        className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-7xl md:py-10"
+                        style={{ color: 'var(--brand-blue)' }}
+                      >
+                        {t.whereItCameFromHeading}
+                      </h2>
+                      <p className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-4 text-lg italic text-slate-600 sm:text-xl md:text-2xl">
+                        A question that changed everything.
+                      </p>
                     </div>
-                </div>
+                    <div className={`${sectionBody} max-w-none`}>
+                      <p className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:180ms]">
+                        {t.whereItCameFromBody[0]}
+                      </p>
+                      <blockquote
+                        className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:240ms] border-l-[3px] py-1 pl-5 italic text-slate-800 sm:pl-6 md:border-l-4 md:pl-8"
+                        style={{ borderColor: 'var(--accent-blue)' }}
+                      >
+                        <p className="text-lg leading-relaxed sm:text-xl md:text-2xl">{t.whereItCameFromBody[1]}</p>
+                        <p className="mt-4 text-base not-italic leading-relaxed text-slate-700 sm:text-lg md:text-xl">
+                          {t.whereItCameFromBody[2]}
+                        </p>
+                      </blockquote>
+                      {t.whereItCameFromBody.slice(3).map((paragraph, idx) => (
+                        <p
+                          key={paragraph}
+                          className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-slate-700"
+                          style={{ transitionDelay: `${320 + idx * 60}ms` }}
+                        >
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </section>
 
                 {/* ── RUUD PHOTO ── */}
-                <div className="photo-block" ref={ruudRef}>
-                    <div className="photo-inner">
-                        <div className="photo-frame reveal">
-                            <div className="photo-placeholder">
-                                <div className="photo-placeholder-icon">
-                                    <svg viewBox="0 0 24 24">
-                                        <circle cx="12" cy="8" r="4" />
-                                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                                    </svg>
-                                </div>
-                                <p className="photo-placeholder-text">Photo — Ruud, natural light, outside</p>
-                            </div>
-                        </div>
-                        <div className="photo-caption reveal reveal-delay-2">
-                            <p className="photo-caption-name">Ruud</p>
-                            <p className="photo-caption-role">Founder, Path of Wonders</p>
-                            <p>
-                                Physics teacher. Wanderer. Builder of spaces for questions. From Rotterdam to Varanasi and back
-                                again, still asking the same things.
-                            </p>
-                        </div>
+                <section
+                  ref={ruudRef}
+                  className="w-full border-t border-slate-100 bg-white py-12 sm:py-16 md:py-20"
+                >
+                  <div className="mx-auto max-w-7xl px-5 md:px-6">
+                    <div className="grid max-w-5xl grid-cols-1 gap-10 md:mx-auto lg:grid-cols-2 lg:items-center lg:gap-14">
+                      <div className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+                        <img
+                          src={ruudPhoto}
+                          alt={t.ruudImageAlt}
+                          className="aspect-[4/5] w-full object-cover sm:aspect-[5/6] md:aspect-[3/4]"
+                          decoding="async"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] space-y-3">
+                        <p className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Ruud</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                          Founder, Path of Wonders
+                        </p>
+                        <p className="text-base leading-relaxed text-slate-700 sm:text-lg">
+                          Physics teacher. Wanderer. Builder of spaces for questions. From Rotterdam to Varanasi and
+                          back again, still asking the same things.
+                        </p>
+                      </div>
                     </div>
-                </div>
+                  </div>
+                </section>
 
-                <div className="divider">
-                    <hr />
+                <div className="mx-auto max-w-7xl px-5 md:px-6">
+                  <hr className="border-slate-200" />
                 </div>
 
                 {/* ── WHO IT IS FOR ── */}
-                <div className="section">
-                    <div className="section-inner">
-                        <div>
-                            <p className="section-label reveal">Who it is for</p>
-                        </div>
-                        <div className="section-body">
-                            <h2 className="reveal reveal-delay-1">Three kinds of people.</h2>
-                            <div className="audience-grid">
-                                {[
-                                    {
-                                        n: '01',
-                                        text: 'Teenagers between 13 and 18 who feel like the questions they actually have are not the questions anyone around them wants to answer.',
-                                    },
-                                    {
-                                        n: '02',
-                                        text: 'Parents who know their child is capable of more than grades show, and who wish something like this had existed when they were fifteen.',
-                                    },
-                                    {
-                                        n: '03',
-                                        text: 'Families who believe that the right story, told well, can change how a young person sees themselves and the world.',
-                                    },
-                                ].map((item, i) => (
-                                    <div className={`audience-card reveal reveal-delay-${i + 1}`} key={i}>
-                                        <div className="audience-number">{item.n}</div>
-                                        <p className="audience-text">{item.text}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                <section className="w-full bg-white py-16 sm:py-20 md:py-24">
+                  <div className="mx-auto max-w-7xl px-5 md:px-6">
+                    <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-14">
+                      <h2
+                        className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"
+                        style={{ color: 'var(--navy)' }}
+                      >
+                        {t.whoItIsForHeading}
+                      </h2>
+                      <ul className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] space-y-8">
+                        {t.whoItIsForBullets.map((item) => (
+                          <li key={item} className="flex gap-3">
+                            <span
+                              className="mt-2 inline-block h-2.5 w-2.5 shrink-0 rounded-sm"
+                              style={{ backgroundColor: 'var(--accent-blue)' }}
+                              aria-hidden
+                            />
+                            <span className="text-base leading-relaxed text-slate-700 sm:text-lg">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
+                  </div>
+                </section>
+
+                <div className="mx-auto max-w-7xl px-5 md:px-6">
+                  <hr className="border-slate-200" />
                 </div>
 
-                <div className="divider">
-                    <hr />
-                </div>
-
-                {/* ── WHAT IS COMING ── */}
-                <div className="section">
-                    <div className="section-inner">
-                        <div>
-                            <p className="section-label reveal">What is coming</p>
-                        </div>
-                        <div className="section-body">
-                            <h2 className="reveal reveal-delay-1">A universe that grows slowly.</h2>
-                            <div className="coming-block reveal reveal-delay-2">
-                                <div className="coming-stats">
-                                    <div>
-                                        <p className="stat-value">3</p>
-                                        <p className="stat-label">Series live or in production</p>
-                                    </div>
-                                    <div>
-                                        <p className="stat-value">50+</p>
-                                        <p className="stat-label">Series planned</p>
-                                    </div>
-                                    <div>
-                                        <p className="stat-value">∞</p>
-                                        <p className="stat-label">Questions worth asking</p>
-                                    </div>
-                                </div>
-                                <p className="coming-body">
-                                    Three series are live or in production now. Fifty more are planned. The universe will grow
-                                    slowly, one series at a time, each one built around a question worth asking.
-                                </p>
-                            </div>
-                        </div>
+                {/* ── WHAT IS COMING (+ closing line) ── */}
+                <section className="border-t border-slate-100 bg-slate-50/70">
+                  <div className="mx-auto max-w-7xl px-5 md:px-6 py-16 sm:py-20 lg:min-h-screen lg:flex lg:items-center lg:py-24">
+                    <div className="w-full">
+                      <h2
+                        className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-4xl font-bold tracking-tight sm:text-5xl md:text-8xl md:py-10"
+                        style={{ color: 'var(--brand-blue)' }}
+                      >
+                        {t.whatIsComingHeading}
+                      </h2>
+                      <div className={`reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-8 sm:mt-10 ${sectionBody}`}>
+                        <p>{t.whatIsComingBody[0]}</p>
+                        <p className="pt-10 text-center text-xl font-semibold italic text-slate-800 sm:text-2xl md:text-3xl">
+                          {t.whatIsComingBody[1]}
+                        </p>
+                      </div>
                     </div>
-                </div>
-
-                {/* ── TAGLINE ── */}
-                <div className="tagline-section">
-                    <p className="tagline reveal">For the minds that question everything.</p>
-                    <p className="tagline-sub reveal reveal-delay-1">Path of Wonders</p>
-                </div>
+                  </div>
+                </section>
 
                 {/* ── CTA ── */}
-                <div className="cta-section">
-                    <div className="cta-inner">
-                        <h2 className="cta-title reveal">Enter the Universe</h2>
-                        <div className="reveal reveal-delay-1">
-                            <a href="#" className="cta-btn">
-                                Enter the Universe
-                            </a>
-                        </div>
-                        <a href="#" className="cta-soft reveal reveal-delay-2">
-                            Not ready yet?&nbsp;<span>Get the free guide.</span>
-                        </a>
+                <section className="border-t border-slate-200 bg-slate-950 py-16 sm:py-20">
+                  <div className="mx-auto max-w-lg px-5 text-center md:px-6">
+                    <h2 className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                      Enter the Universe
+                    </h2>
+                    <div className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:120ms] mt-8">
+                      <Link
+                        to="/courses"
+                        className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-base font-semibold text-slate-950 shadow-lg transition hover:bg-slate-100 sm:px-10 sm:py-4 sm:text-lg"
+                      >
+                        Enter the Universe
+                      </Link>
                     </div>
-                </div>
+                    <p className="reveal opacity-0 translate-y-7 transition-all duration-700 ease-out [transition-delay:240ms] mt-8 text-sm text-slate-400">
+                      <a href="/books" className="underline decoration-slate-600 underline-offset-4 transition hover:text-slate-200">
+                        Not ready yet? Get the free guide.
+                      </a>
+                    </p>
+                  </div>
+                </section>
             </div>
 
             <FinalCTA />
