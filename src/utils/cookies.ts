@@ -1,7 +1,20 @@
 /**
- * Cookie utility functions
- * Note: HttpOnly cookies cannot be set from JavaScript - they must be set by the server.
- * This utility sets cookies with Domain, Path, and SameSite attributes.
+ * Cookie utility functions.
+ *
+ * IMPORTANT: the API sets the real `auth_token` cookie as HttpOnly via its
+ * Set-Cookie header on /auth/login. JavaScript cannot read or modify HttpOnly
+ * cookies, so:
+ *   - `getAuthToken()` will always return `null` in production.
+ *   - `setAuthToken(...)` would write a *separate* non-HttpOnly cookie with
+ *     the same name; the browser may then send both. Don't call it for the
+ *     real auth token.
+ *   - `removeAuthToken()` only removes the JS-writable cookie, not the
+ *     HttpOnly one (only the server can clear that).
+ *
+ * These helpers are kept because some consumers (AuthContext, success pages,
+ * Header) use `getAuthToken()` as a quick "is there *any* auth cookie state"
+ * check. A future cleanup should replace those with a server-side /auth/me
+ * call as the source of truth.
  */
 
 const COOKIE_DOMAIN = import.meta.env.VITE_COOKIE_DOMAIN || 'pathofwonders.local';
