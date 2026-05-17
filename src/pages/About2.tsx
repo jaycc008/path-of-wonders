@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import FinalCTA from '../components/FinalCTA';
 import heroBackground from '../assets/images/teenparent.jpeg';
-import ruudPhoto from '../assets/images/businessman.jpg';
+import ruudPhoto from '../assets/images/businessman.jpeg';
 import { en } from '../assets/lang/en';
 
 const t = en.about;

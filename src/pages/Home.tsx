@@ -11,6 +11,7 @@ import WhoThisIsFor from '../components/WhoThisIsFor';
 import HowItWorks from '../components/HowItWorks';
 import FounderStory from '../components/FounderStory';
 import Pricing from '../components/Pricing.tsx';
+import ContactUs from '../components/ContactUs';
 import FinalCTA from '../components/FinalCTA';
 import NewsletterSubscribe from '../components/NewsletterSubscribe.tsx';
 

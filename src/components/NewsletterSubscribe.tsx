@@ -8,6 +8,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { getNewsletterSubscribeErrorMessage, subscribeToNewsletter } from '../api/newsletter';
+import { SECTION_HEADING, SECTION_SUBHEADING_LIGHT } from '../constants/sectionTypography';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,13 +50,13 @@ export default function NewsletterSubscribe() {
             <div className="flex flex-col items-center px-5">
               <h2
                 id="newsletter-heading"
-                className="text-2xl font-bold tracking-tight sm:text-4xl md:text-7xl py-6"
+                className={`${SECTION_HEADING} py-6`}
                 style={{ color: 'var(--brand-blue)' }}
               >
                 Not ready to join yet?
               </h2>
               <p
-                className="mt-3 max-w-2xl text-sm leading-relaxed md:text-3xl py-3"
+                className={`mt-6 sm:mt-8 max-w-2xl py-3 ${SECTION_SUBHEADING_LIGHT}`}
                 style={{ color: 'var(--brand-blue)' }}
               >
                 Get the free guide: The Attention Crisis Every Parent Should Understand.

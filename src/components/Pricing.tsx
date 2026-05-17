@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import PrimaryButton from './PrimaryButton';
 import { BlueSectionBackdrop } from './BlueSection';
+import { SECTION_HEADING, SECTION_SUBHEADING_LIGHT } from '../constants/sectionTypography';
 
 const PRICING = {
   heading: 'Join the Founding Families',
@@ -30,13 +31,13 @@ export default function Pricing() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-14 items-start lg:items-center">
           <div className="text-left lg:col-span-3 motion-safe:animate-fade-in">
             <h2
-              className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight py-6"
+              className={`${SECTION_HEADING} py-6`}
               style={{ color: 'var(--brand-blue)' }}
             >
               {PRICING.heading}
             </h2>
             <p
-              className="mt-5 text-lg sm:text-xl md:text-4xl leading-relaxed max-w-2xl text-slate-700"
+              className={`mt-6 sm:mt-8 max-w-2xl text-slate-700 ${SECTION_SUBHEADING_LIGHT}`}
             >
               {PRICING.subheading}
             </p>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { en } from '../assets/lang/en';
+import { SECTION_HEADING, SECTION_SUBHEADING_LIGHT } from '../constants/sectionTypography';
 
 const t = en.howItWorks;
 
@@ -34,13 +35,13 @@ export default function HowItWorks() {
     >
       <div className="max-w-7xl w-full mx-auto px-5 md:px-6 lg:my-auto">
         <h2
-          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight py-8"
+          className={`${SECTION_HEADING} py-6 sm:py-8`}
           style={{ color: 'var(--brand-blue)' }}
         >
           {t.heading}
         </h2>
 
-        <p className="mt-1 sm:mt-2 max-w-none whitespace-nowrap text-base sm:text-lg md:text-xl leading-relaxed text-slate-600">
+        <p className={`mt-6 sm:mt-8 max-w-3xl ${SECTION_SUBHEADING_LIGHT}`}>
           {t.subheading}
         </p>
 

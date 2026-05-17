@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { en } from '../assets/lang/en';
+import { SECTION_HEADING } from '../constants/sectionTypography';
 
 const t = en.whoThisIsFor;
 
@@ -33,11 +34,11 @@ export default function WhoThisIsFor() {
       className="w-full py-16 sm:py-20 md:py-24 bg-white lg:h-[100vh] lg:flex lg:items-center"
     >
       <div className="max-w-7xl w-full mx-auto px-5 md:px-6">
-        <h2 className="text-center mb-20 text-xl sm:text-4xl md:text-7xl font-bold text-gray-900 tracking-tight">
+        <h2 className={`text-center mb-10 sm:mb-14 md:mb-16 ${SECTION_HEADING} text-gray-900`}>
           {t.heading}
         </h2>
 
-        <div className="mt-20 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6">
+        <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6">
           {t.cards.map((text, idx) => (
             <div
               key={text}

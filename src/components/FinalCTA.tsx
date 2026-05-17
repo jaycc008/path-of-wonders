@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import PrimaryButton from './PrimaryButton';
+import { SECTION_HEADING, SECTION_SUBHEADING_DARK } from '../constants/sectionTypography';
 
 export default function FinalCTA() {
   const navigate = useNavigate();
@@ -14,12 +15,12 @@ export default function FinalCTA() {
       <div className="max-w-7xl w-full mx-auto px-5 md:px-6 text-left">
         <h2
           id="final-cta-heading"
-          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white motion-safe:animate-fade-in"
+          className={`${SECTION_HEADING} text-white motion-safe:animate-fade-in`}
         >
           Raise a thinker. Not just a student.
         </h2>
 
-        <p className="mt-6 text-lg sm:text-xl md:text-2xl text-slate-200/90 leading-relaxed max-w-3xl motion-safe:animate-fade-in motion-safe:delay-100">
+        <p className={`mt-6 sm:mt-8 max-w-3xl text-slate-200/90 ${SECTION_SUBHEADING_DARK} motion-safe:animate-fade-in motion-safe:delay-100`}>
           Path of Wonders is open for founding families.
         </p>
 

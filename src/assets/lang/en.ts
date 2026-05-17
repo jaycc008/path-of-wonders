@@ -195,6 +195,19 @@ export const en = {
       'Path of Wonders. For the minds that question everything.',
     ] as const,
   },
+  contactUs: {
+    heading: 'Contact us',
+    subheading:
+      'Questions about early access, schools, or partnerships? We read every message.',
+    details: [
+      'Parents and educators welcome.',
+      'Tell us about your teenager — or ask anything about the universe.',
+    ] as const,
+    emailLabel: 'Email',
+    email: 'hello@pathofwonders.com',
+    responseNote: 'We usually reply within two business days.',
+    cta: 'Send an email',
+  },
 } as const;
 
 export type En = typeof en;

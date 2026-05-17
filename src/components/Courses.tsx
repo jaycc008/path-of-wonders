@@ -4,6 +4,7 @@ import scienceOfWonderArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.
 import inheritanceQuestArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 import CourseCard, { type CourseCardModel } from './CourseCard';
 import { en } from '../assets/lang/en';
+import { SECTION_HEADING, SECTION_SUBHEADING_DARK } from '../constants/sectionTypography';
 
 const t = en.courses;
 
@@ -62,16 +63,16 @@ export default function Courses() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 lg:my-auto">
-        <div className="text-left mb-10 sm:mb-14 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-7xl font-bold text-white mb-5 leading-tight tracking-tight py-6">
+        <div className="text-left mb-10 sm:mb-14 md:mb-16 space-y-8">
+          <h2 className={`${SECTION_HEADING} text-white mt-12`}>
             {t.universeHeading}
           </h2>
-          <p className="text-xl sm:text-2xl md:text-3xl text-slate-200/95 leading-relaxed lg:max-w-5xl">
+          <p className={`${SECTION_SUBHEADING_DARK} text-slate-200/95 lg:max-w-5xl`}>
             {t.universeSubheading}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
           {series.map((s) => {
             return (
               <CourseCard

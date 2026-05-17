@@ -8,6 +8,7 @@ import logo from '../assets/images/10dlogo1.png';
 import textLogo from '../assets/images/textlogo.png';
 import PrimaryButton from './PrimaryButton';
 import MobileHeader from './MobileHeader';
+import { ROUTES } from '../constants/routes';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(true);
@@ -238,30 +239,19 @@ export default function Header() {
               }`}></span>
             </Link>
            
-            <a
-              href="/#contact"
-              onClick={(e) => {
-                e.preventDefault();
-                if (window.location.pathname !== '/') {
-                  navigate('/');
-                  setTimeout(() => {
-                    const element = document.getElementById('contact');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }, 100);
-                } else {
-                  const element = document.getElementById('contact');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }
-              }}
-              className="relative  font-medium text-gray-700 hover:text-gray-900 transition-all duration-300 group"
+            <Link
+              to={ROUTES.CONTACT}
+              className={`relative  font-medium transition-all duration-300 group ${
+                location.pathname === ROUTES.CONTACT
+                  ? 'text-blue-600 font-semibold'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
             >
               Contact
-              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:w-full"></span>
-            </a>
+              <span className={`absolute left-0 -bottom-1 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ${
+                location.pathname === ROUTES.CONTACT ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
             {isAuthenticated ? (
               <div className="flex items-center gap-1">
                 <button

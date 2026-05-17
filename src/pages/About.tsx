@@ -5,7 +5,7 @@ import ScrollToTop from '../components/ScrollToTop';
 import FinalCTA from '../components/FinalCTA';
 import BlueSection from '../components/BlueSection';
 import { en } from '../assets/lang/en';
-import ruudPhoto from '../assets/images/businessman.jpg';
+import ruudPhoto from '../assets/images/businessman.jpeg';
 
 const t = en.about;
 

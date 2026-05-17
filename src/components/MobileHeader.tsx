@@ -1,4 +1,5 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 import { Menu, X, LogOut } from 'lucide-react';
 import logo from '../assets/images/10dlogo1.png';
 import textLogo from '../assets/images/textlogo.png';
@@ -25,7 +26,6 @@ export default function MobileHeader({
   onLogout,
   onLoginClick,
 }: MobileHeaderProps) {
-  const navigate = useNavigate();
   const location = useLocation();
   const showGlassHeader = scrolled || isOpen;
 
@@ -84,22 +84,13 @@ export default function MobileHeader({
             >
               The Universe
             </Link>
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false);
-                const el = document.getElementById('contact');
-                if (window.location.pathname !== '/') {
-                  navigate('/');
-                  setTimeout(() => el?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-                } else {
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-              className="py-3 px-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 text-left"
+            <Link
+              to={ROUTES.CONTACT}
+              onClick={() => setIsOpen(false)}
+              className={`py-3 px-3 rounded-lg text-sm font-medium ${location.pathname === ROUTES.CONTACT ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:bg-gray-100'}`}
             >
               Contact
-            </button>
+            </Link>
             {isAuthenticated ? (
               <>
                 <button

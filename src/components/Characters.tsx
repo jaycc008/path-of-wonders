@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { en } from '../assets/lang/en';
+import { SECTION_HEADING, SECTION_SUBHEADING_DARK } from '../constants/sectionTypography';
 
 import amaraImg from '../assets/images/characters/amara.jpeg';
 import bodhiImg from '../assets/images/characters/bodi.jpeg';
@@ -60,11 +61,11 @@ export default function Characters() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div className="text-left mb-10 sm:mb-14 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-7xl font-bold text-white mb-5 leading-tight tracking-tight py-10">
+        <div className="text-left mb-10 sm:mb-14 md:mb-16 space-y-8">
+          <h2 className={`${SECTION_HEADING} text-white py-6`}>
             {t.heading}
           </h2>
-          <p className="text-xl sm:text-2xl md:text-5xl text-slate-200/95 leading-relaxed lg:max-w-5xl">
+          <p className={`${SECTION_SUBHEADING_DARK} text-slate-200/95 lg:max-w-5xl`}>
             {t.subheading}
           </p>
         </div>
@@ -122,7 +123,7 @@ export default function Characters() {
         </div>
 
         {/* Optional CTA */}
-        <div className="mt-10 sm:mt-12 md:mt-14 flex justify-center">
+        <div className="mt-10 sm:mt-12 md:mt-14 mb-16 sm:mb-20 flex justify-center">
           <button
             type="button"
             onClick={() => navigate('/courses')}

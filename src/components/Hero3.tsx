@@ -55,7 +55,7 @@ function Hero3() {
         aria-hidden
       />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-28 pb-14 sm:pb-16 lg:py-32">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-2 sm:px-8 lg:px-10 pt-28 pb-14 sm:pb-16 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-14 xl:gap-16 items-center">
           {/* Left: copy + CTA — always left-aligned */}
           <div
@@ -97,6 +97,7 @@ function Hero3() {
                   posterUrl={HERO_VIDEO_POSTER}
                   title={t.heroImageAlt}
                   autoPlay
+                  showMuteButton
                   className="rounded-xl sm:rounded-2xl ring-1 ring-inset ring-white/40"
                 />
               </div>
