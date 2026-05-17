@@ -3,34 +3,21 @@ import { getAuthToken, setAuthToken, removeAuthToken } from '../utils/cookies';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1/';
-const API_TOKEN = import.meta.env.VITE_API_TOKEN || '';
 
-// Create axios instance with default config
+// Create axios instance with default config.
+// Auth is delivered via the HttpOnly `auth_token` cookie that the API sets on
+// login. `withCredentials: true` makes the browser send that cookie on every
+// request automatically. We do NOT add a Bearer header — the API accepts both
+// the cookie and (legacy) bearer auth, but the cookie is the source of truth
+// here and is unreadable from JS by design.
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Important: allows cookies to be sent with requests
+  withCredentials: true,
 });
-
-// Request interceptor to add bearer token
-apiClient.interceptors.request.use(
-  (config) => {
-    // Get token from cookie or environment variable
-    const token = getAuthToken() || API_TOKEN;
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
@@ -38,13 +25,13 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Handle common errors
     if (error.response?.status === 401) {
-      // Unauthorized - clear token cookie
+      // 401 = our session is gone. Best-effort clear any JS-readable cookie;
+      // the API's HttpOnly cookie is cleared server-side via its own response
+      // headers when the session is invalidated.
       removeAuthToken();
-      // You can add redirect logic here if needed
     }
-    
+
     return Promise.reject(error);
   }
 );
