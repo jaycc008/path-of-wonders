@@ -13,10 +13,28 @@ const HERO_VIDEO_POSTER =
 
 const t = en.hero3;
 
+function useMaxWidth(breakpointPx: number) {
+  const query = `(max-width: ${breakpointPx}px)`;
+  const [matches, setMatches] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(query).matches : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
+    setMatches(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [query]);
+
+  return matches;
+}
+
 function Hero3() {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
+  const isMobileVideo = useMaxWidth(1023);
 
   useEffect(() => {
     setIsVisible(true);
@@ -96,8 +114,9 @@ function Hero3() {
                   videoUrl={HERO_VIDEO_URL}
                   posterUrl={HERO_VIDEO_POSTER}
                   title={t.heroImageAlt}
-                  autoPlay
-                  showMuteButton
+                  autoPlay={!isMobileVideo}
+                  showMuteButton={!isMobileVideo}
+                  clickToPlay={isMobileVideo}
                   className="rounded-xl sm:rounded-2xl ring-1 ring-inset ring-white/40"
                 />
               </div>
