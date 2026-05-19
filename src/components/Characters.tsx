@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { en } from '../assets/lang/en';
-import { SECTION_HEADING, SECTION_SUBHEADING_DARK } from '../constants/sectionTypography';
+import {
+  SECTION_HEADING_ON_DARK,
+  SECTION_INTRO_BLOCK,
+  SECTION_INTRO_STACK,
+  SECTION_SUBHEADING_ON_DARK,
+} from '../constants/sectionTypography';
 
 import amaraImg from '../assets/images/characters/amara.jpeg';
 import bodhiImg from '../assets/images/characters/bodi.jpeg';
@@ -61,14 +66,10 @@ export default function Characters() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div className="text-left mb-10 sm:mb-14 md:mb-16 space-y-8">
-          <h2 className={`${SECTION_HEADING} text-white py-6`}>
-            {t.heading}
-          </h2>
-          <p className={`${SECTION_SUBHEADING_DARK} text-slate-200/95 lg:max-w-5xl`}>
-            {t.subheading}
-          </p>
-        </div>
+        <header className={`text-left ${SECTION_INTRO_BLOCK} ${SECTION_INTRO_STACK}`}>
+          <h2 className={SECTION_HEADING_ON_DARK}>{t.heading}</h2>
+          <p className={SECTION_SUBHEADING_ON_DARK}>{t.subheading}</p>
+        </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
           {cards.map((c) => (

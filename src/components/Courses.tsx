@@ -4,7 +4,12 @@ import scienceOfWonderArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.
 import inheritanceQuestArt from '../assets/images/WhatsApp Image 2025-12-23 at 4.50.05 PM.jpeg';
 import CourseCard, { type CourseCardModel } from './CourseCard';
 import { en } from '../assets/lang/en';
-import { SECTION_HEADING, SECTION_SUBHEADING_DARK } from '../constants/sectionTypography';
+import {
+  SECTION_HEADING_ON_DARK,
+  SECTION_INTRO_BLOCK,
+  SECTION_INTRO_STACK,
+  SECTION_SUBHEADING_ON_DARK,
+} from '../constants/sectionTypography';
 
 const t = en.courses;
 
@@ -35,7 +40,7 @@ export default function Courses() {
   ] as const;
 
   return (
-    <section className="py-18 sm:py-22 md:py-28 relative overflow-hidden lg:h-[120vh]">
+    <section className="py-18 sm:py-22 md:py-28 relative overflow-hidden ">
       {/* Dark mysterious backdrop */}
       <div
         className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/80 to-slate-950"
@@ -63,16 +68,12 @@ export default function Courses() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 lg:my-auto">
-        <div className="text-left mb-10 sm:mb-14 md:mb-16 space-y-8">
-          <h2 className={`${SECTION_HEADING} text-white mt-12`}>
-            {t.universeHeading}
-          </h2>
-          <p className={`${SECTION_SUBHEADING_DARK} text-slate-200/95 lg:max-w-5xl`}>
-            {t.universeSubheading}
-          </p>
-        </div>
+        <header className={`text-left ${SECTION_INTRO_BLOCK} ${SECTION_INTRO_STACK}`}>
+          <h2 className={SECTION_HEADING_ON_DARK}>{t.universeHeading}</h2>
+          <p className={SECTION_SUBHEADING_ON_DARK}>{t.universeSubheading}</p>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch pb-8">
           {series.map((s) => {
             return (
               <CourseCard

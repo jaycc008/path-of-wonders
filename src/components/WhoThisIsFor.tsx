@@ -51,7 +51,7 @@ export default function WhoThisIsFor() {
               ].join(' ')}
               style={{ transitionDelay: `${idx * 300}ms` }}
             >
-              <p className="text-gray-900 text-base sm:text-lg md:text-xl xl:text-2xl font-semibold leading-snug">
+              <p className="text-gray-900 text-xl sm:text-lg md:text-xl xl:text-2xl font-semibold leading-snug">
                 {text}
               </p>
             </div>

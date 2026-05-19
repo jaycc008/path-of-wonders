@@ -32,16 +32,88 @@ export function getYouTubeVideoId(url: string): string | null {
   return null;
 }
 
+/** Parse Vimeo page/player URLs → video id. */
+export function getVimeoVideoId(url: string): string | null {
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    const u = new URL(withProtocol);
+    const host = u.hostname.replace(/^www\./i, '');
+
+    if (host === 'player.vimeo.com') {
+      const match = u.pathname.match(/\/video\/(\d+)/);
+      return match?.[1] ?? null;
+    }
+
+    if (host === 'vimeo.com') {
+      const parts = u.pathname.split('/').filter(Boolean);
+      for (let i = parts.length - 1; i >= 0; i -= 1) {
+        if (/^\d+$/.test(parts[i])) return parts[i];
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+type EmbedProviderOptions = {
+  autoPlay: boolean;
+  clickToPlay: boolean;
+  /** When clickToPlay, iframe loads only after user taps play. */
+  started: boolean;
+};
+
+function buildYouTubeEmbedSrc(id: string, { autoPlay, clickToPlay, started }: EmbedProviderOptions): string {
+  const shouldAutoplay = started && autoPlay && !clickToPlay;
+  const params = new URLSearchParams({
+    rel: '0',
+    playsinline: '1',
+    modestbranding: '1',
+    ...(shouldAutoplay
+      ? { autoplay: '1', mute: '1', controls: '0' }
+      : started && clickToPlay
+        ? { autoplay: '1', mute: '0' }
+        : {}),
+  });
+  return `https://www.youtube.com/embed/${encodeURIComponent(id)}?${params.toString()}`;
+}
+
+function buildVimeoEmbedSrc(id: string, { autoPlay, clickToPlay, started }: EmbedProviderOptions): string {
+  const shouldAutoplayMuted = started && autoPlay && !clickToPlay;
+  const shouldAutoplayFromTap = started && clickToPlay;
+  const params = new URLSearchParams({
+    title: '0',
+    byline: '0',
+    portrait: '0',
+    dnt: '1',
+  });
+
+  if (shouldAutoplayMuted) {
+    params.set('autoplay', '1');
+    params.set('muted', '1');
+    params.set('controls', '0');
+  } else if (shouldAutoplayFromTap) {
+    params.set('autoplay', '1');
+    params.set('muted', '0');
+  }
+
+  return `https://player.vimeo.com/video/${encodeURIComponent(id)}?${params.toString()}`;
+}
+
 type VideoEmbedProps = {
-  /** YouTube URL (youtu.be, watch?v=, …) or direct file URL (.mp4, etc.). */
+  /** YouTube, Vimeo, or direct file URL (.mp4, etc.). */
   videoUrl: string;
-  /** Optional poster for direct-file playback (ignored for YouTube). */
+  /** Optional poster for direct-file / click-to-play (ignored for YouTube/Vimeo unless clickToPlay). */
   posterUrl?: string;
   title?: string;
   className?: string;
   /**
    * Autoplay (direct: muted+loop+playsInline, no controls — required by browsers).
-   * YouTube: autoplay=1&mute=1&controls=0 on the embed URL.
+   * YouTube/Vimeo: autoplay=1&mute=1&controls=0 on the embed URL.
    */
   autoPlay?: boolean;
   /** Overlay mute/unmute control (direct-file playback only). */
@@ -75,35 +147,33 @@ export default function VideoEmbed({
   }
 
   const ytId = getYouTubeVideoId(trimmed);
+  const vimeoId = getVimeoVideoId(trimmed);
 
   if (ytId) {
-    const params = new URLSearchParams({
-      rel: '0',
-      ...(autoPlay && !clickToPlay
-        ? {
-            autoplay: '1',
-            mute: '1',
-            controls: '0',
-            playsinline: '1',
-            modestbranding: '1',
-          }
-        : {
-            playsinline: '1',
-            modestbranding: '1',
-          }),
-    });
-    const src = `https://www.youtube.com/embed/${encodeURIComponent(ytId)}?${params.toString()}`;
     return (
-      <div className={`aspect-video w-full overflow-hidden rounded-lg bg-black ${className}`}>
-        <iframe
-          src={src}
-          title={title}
-          className="h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-          referrerPolicy="strict-origin-when-cross-origin"
-        />
-      </div>
+      <ProviderEmbed
+        title={title}
+        className={className}
+        posterUrl={posterUrl}
+        autoPlay={autoPlay}
+        clickToPlay={clickToPlay}
+        buildSrc={(opts) => buildYouTubeEmbedSrc(ytId, opts)}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      />
+    );
+  }
+
+  if (vimeoId) {
+    return (
+      <ProviderEmbed
+        title={title}
+        className={className}
+        posterUrl={posterUrl}
+        autoPlay={autoPlay}
+        clickToPlay={clickToPlay}
+        buildSrc={(opts) => buildVimeoEmbedSrc(vimeoId, opts)}
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+      />
     );
   }
 
@@ -126,6 +196,75 @@ export default function VideoEmbed({
       showMuteButton={showMuteButton}
       className={className}
     />
+  );
+}
+
+function ProviderEmbed({
+  title,
+  className,
+  posterUrl,
+  autoPlay,
+  clickToPlay,
+  buildSrc,
+  allow,
+}: {
+  title: string;
+  className: string;
+  posterUrl?: string;
+  autoPlay: boolean;
+  clickToPlay: boolean;
+  buildSrc: (opts: EmbedProviderOptions) => string;
+  allow: string;
+}) {
+  const deferLoad = clickToPlay;
+  const [started, setStarted] = useState(!deferLoad);
+
+  const src = started
+    ? buildSrc({ autoPlay, clickToPlay, started: true })
+    : undefined;
+
+  return (
+    <div className={`relative aspect-video w-full overflow-hidden rounded-lg bg-black ${className}`}>
+      {started && src ? (
+        <iframe
+          src={src}
+          title={title}
+          className="h-full w-full"
+          allow={allow}
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : null}
+
+      {deferLoad && !started && (
+        <>
+          {posterUrl ? (
+            <img
+              src={posterUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              aria-hidden
+            />
+          ) : (
+            <div className="absolute inset-0 bg-slate-900" aria-hidden />
+          )}
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/30"
+            aria-hidden
+          />
+          <button
+            type="button"
+            onClick={() => setStarted(true)}
+            aria-label="Play video"
+            className="absolute inset-0 z-10 flex items-center justify-center"
+          >
+            <span className="flex h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20 items-center justify-center rounded-full border-2 border-white/90 bg-white text-slate-900 shadow-[0_8px_40px_rgba(0,0,0,0.45)] transition-transform active:scale-95">
+              <Play className="ml-1 h-9 w-9 sm:h-10 sm:w-10 fill-current" aria-hidden />
+            </span>
+          </button>
+        </>
+      )}
+    </div>
   );
 }
 
